@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='ldrawweb'>
+  <inherits name='com.google.gwt.user.User'/>
+
+  <!-- <inherits name='com.google.gwt.user.theme.clean.Clean'/>-->
+  <!-- <inherits name='com.google.gwt.user.theme.standard.Standard'/> -->
+  <inherits name='com.google.gwt.user.theme.chrome.Chrome'/>
+  <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
+
+  <source path='client'/>
+  <source path='shared'/>
+  
+  <entry-point class="kr.influx.ldrawweb.client.Entrypoint"/>
+  
+  <inherits name="kr.influx.ldrawweb.LDrawWeb"/>
+  <inherits name="com.googlecode.gwtgl.binding"/>
+  <inherits name="com.googlecode.objectify.Objectify"/>
+  <inherits name="com.google.gwt.rpc.RPC"/>
+</module>
