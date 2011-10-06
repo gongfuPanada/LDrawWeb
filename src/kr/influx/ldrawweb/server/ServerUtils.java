@@ -2,12 +2,12 @@ package kr.influx.ldrawweb.server;
 
 import java.io.ByteArrayInputStream;
 
-import kr.influx.ldrawweb.shared.LDrawElement1;
 import kr.influx.ldrawweb.shared.LDrawModel;
 import kr.influx.ldrawweb.shared.LDrawModelMultipart;
+import kr.influx.ldrawweb.shared.datamodels.Part;
+import kr.influx.ldrawweb.shared.datamodels.PartData;
+import kr.influx.ldrawweb.shared.elements.Line1;
 import kr.influx.ldrawweb.shared.exceptions.InvalidFileFormat;
-import kr.influx.ldrawweb.shared.models.Part;
-import kr.influx.ldrawweb.shared.models.PartData;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -35,7 +35,7 @@ public class ServerUtils {
 			return false;
 	}
 	
-	static public LDrawModel getPartData(LDrawElement1 e) {
+	static public LDrawModel getPartData(Line1 e) {
 		DAO dao = new DAO();
 		
 		Part p = dao.queryPart(e.getNormalizedPartId());

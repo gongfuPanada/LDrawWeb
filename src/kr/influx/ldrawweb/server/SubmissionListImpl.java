@@ -3,7 +3,7 @@ package kr.influx.ldrawweb.server;
 import java.util.ArrayList;
 
 import kr.influx.ldrawweb.client.SubmissionList;
-import kr.influx.ldrawweb.shared.models.Model;
+import kr.influx.ldrawweb.shared.datamodels.Model;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.googlecode.objectify.Query;

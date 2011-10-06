@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import kr.influx.ldrawweb.shared.elements.Line1;
+
 public class LDrawModelMultipart implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
@@ -31,8 +33,8 @@ public class LDrawModelMultipart implements Serializable {
 		
 		/* main model */
 		for (LDrawElementBase e : mainModel.getElements()) {
-			if (e instanceof LDrawElement1) {
-				LDrawElement1 e1 = (LDrawElement1)e;
+			if (e instanceof Line1) {
+				Line1 e1 = (Line1)e;
 				
 				String partid = e1.getNormalizedPartId();
 				if (hasSubpart(partid))
@@ -44,8 +46,8 @@ public class LDrawModelMultipart implements Serializable {
 		/* subparts */
 		for (LDrawModel m : subparts.values()) {
 			for (LDrawElementBase e : m.getElements()) {
-				if (e instanceof LDrawElement1) {
-					LDrawElement1 e1 = (LDrawElement1)e;
+				if (e instanceof Line1) {
+					Line1 e1 = (Line1)e;
 					
 					String partid = e1.getNormalizedPartId();
 					if (hasSubpart(partid))

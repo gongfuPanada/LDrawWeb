@@ -1,10 +1,10 @@
 package kr.influx.ldrawweb.server;
 
-import kr.influx.ldrawweb.shared.models.Account;
-import kr.influx.ldrawweb.shared.models.Model;
-import kr.influx.ldrawweb.shared.models.ModelData;
-import kr.influx.ldrawweb.shared.models.Part;
-import kr.influx.ldrawweb.shared.models.PartData;
+import kr.influx.ldrawweb.shared.datamodels.Account;
+import kr.influx.ldrawweb.shared.datamodels.Model;
+import kr.influx.ldrawweb.shared.datamodels.ModelData;
+import kr.influx.ldrawweb.shared.datamodels.Part;
+import kr.influx.ldrawweb.shared.datamodels.PartData;
 
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;

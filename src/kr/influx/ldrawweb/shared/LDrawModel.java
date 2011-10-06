@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import kr.influx.ldrawweb.shared.elements.Line1;
+
 public class LDrawModel implements Serializable, Iterable<LDrawElementBase> {
 	private static final long serialVersionUID = 1L;
 	
@@ -36,8 +38,8 @@ public class LDrawModel implements Serializable, Iterable<LDrawElementBase> {
 		HashSet<String> set = new HashSet<String>();
 		
 		for (LDrawElementBase e : elements) {
-			if (e instanceof LDrawElement1) {
-				LDrawElement1 e1 = (LDrawElement1)e;
+			if (e instanceof Line1) {
+				Line1 e1 = (Line1)e;
 				set.add(e1.getNormalizedPartId());
 			}
 		}

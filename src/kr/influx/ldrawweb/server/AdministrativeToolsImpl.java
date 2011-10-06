@@ -5,13 +5,13 @@ import java.util.HashSet;
 import java.util.logging.Logger;
 
 import kr.influx.ldrawweb.client.AdministrativeTools;
-import kr.influx.ldrawweb.shared.LDrawElement1;
 import kr.influx.ldrawweb.shared.LDrawElementBase;
 import kr.influx.ldrawweb.shared.LDrawModel;
+import kr.influx.ldrawweb.shared.datamodels.Part;
+import kr.influx.ldrawweb.shared.datamodels.PartData;
+import kr.influx.ldrawweb.shared.elements.Line1;
 import kr.influx.ldrawweb.shared.exceptions.InvalidFileFormat;
 import kr.influx.ldrawweb.shared.exceptions.NoAdministrativeRights;
-import kr.influx.ldrawweb.shared.models.Part;
-import kr.influx.ldrawweb.shared.models.PartData;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.googlecode.objectify.Objectify;
@@ -58,8 +58,8 @@ public class AdministrativeToolsImpl extends RemoteServiceServlet implements
 			HashSet<String> deps = new HashSet<String>();
 			LDrawModel m = r.getModel();
 			for (LDrawElementBase e : m.getElements()) {
-				if (e instanceof LDrawElement1) {
-					LDrawElement1 e1 = (LDrawElement1)e;
+				if (e instanceof Line1) {
+					Line1 e1 = (Line1)e;
 					
 					deps.add(e1.getNormalizedPartId());
 				}

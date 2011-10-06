@@ -12,9 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import kr.influx.ldrawweb.shared.LDrawModel;
 import kr.influx.ldrawweb.shared.LDrawModelMultipart;
+import kr.influx.ldrawweb.shared.datamodels.Part;
+import kr.influx.ldrawweb.shared.datamodels.PartData;
 import kr.influx.ldrawweb.shared.exceptions.*;
-import kr.influx.ldrawweb.shared.models.Part;
-import kr.influx.ldrawweb.shared.models.PartData;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileUploadException;

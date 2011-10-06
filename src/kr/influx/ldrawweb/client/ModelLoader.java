@@ -4,14 +4,14 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import kr.influx.ldrawweb.shared.DataBundle;
-import kr.influx.ldrawweb.shared.LDrawElement1;
 import kr.influx.ldrawweb.shared.LDrawElementBase;
 import kr.influx.ldrawweb.shared.LDrawModel;
 import kr.influx.ldrawweb.shared.LDrawModelMultipart;
 import kr.influx.ldrawweb.shared.Utils;
+import kr.influx.ldrawweb.shared.elements.Line1;
 import kr.influx.ldrawweb.shared.exceptions.NoSuchItem;
 
-/* asynchronous, concurrent model loader */
+/* asynchronous, concurrent model loader/resolver */
 public class ModelLoader {
 	private int count = 0;   /* active queries */
 	private int maxreqs = 5; /* maximum concurrent requests */
@@ -103,11 +103,11 @@ public class ModelLoader {
 		}
 	};
 	
-	ModelLoader() {
+	public ModelLoader() {
 		rpc = GWT.create(DataQuery.class);
 	}
 	
-	ModelLoader(int maxreqs, OnResult onresult) {
+	public ModelLoader(int maxreqs, OnResult onresult) {
 		this.maxreqs = maxreqs;
 		this.onresult = onresult;
 		
@@ -134,7 +134,7 @@ public class ModelLoader {
 		
 		for (int i = 0; i < maxreqs - count && i < items.length; ++i) {
 			rpc.queryPart((String)items[i], partResolver);
-			bundle.check(Utils.normalizeName((String)items[i]));
+			bundle.mark(Utils.normalizeName((String)items[i]));
 			++count;
 		}
 		
@@ -153,8 +153,8 @@ public class ModelLoader {
 	
 	private void scanDependencies(LDrawModel m) {
 		for (LDrawElementBase i : m.getElements()) {
-			if (i instanceof LDrawElement1)
-				bundle.insertDependencies((LDrawElement1)i);
+			if (i instanceof Line1)
+				bundle.insertDependencies((Line1)i);
 		}
 	}
 }

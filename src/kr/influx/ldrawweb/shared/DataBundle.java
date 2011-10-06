@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import kr.influx.ldrawweb.shared.elements.Line1;
 import kr.influx.ldrawweb.shared.exceptions.NoSuchItem;
 
 public class DataBundle implements Serializable {
@@ -12,13 +13,13 @@ public class DataBundle implements Serializable {
 	private LDrawModelMultipart model;
 	private HashMap<String, LDrawModel> parts;
 	private HashSet<String> dependencies;
-	private HashSet<String> inprogress;
+	private HashSet<String> marked;
 	
 	public DataBundle() {
 		model = null;
 		parts = new HashMap<String, LDrawModel>();
 		dependencies = new HashSet<String>();
-		inprogress = new HashSet<String>();
+		marked = new HashSet<String>();
 	}
 	
 	public LDrawModelMultipart getModel() {
@@ -41,7 +42,7 @@ public class DataBundle implements Serializable {
 		insertDependencies(m.getNormalizedName());
 	}
 	
-	public void insertDependencies(LDrawElement1 e) {
+	public void insertDependencies(Line1 e) {
 		insertDependencies(e.getNormalizedPartId());
 	}
 	
@@ -55,13 +56,13 @@ public class DataBundle implements Serializable {
 	public void insertModel(LDrawModel m) {
 		String name = m.getNormalizedName();
 		
-		inprogress.remove(name);
+		marked.remove(name);
 		
 		parts.put(name, m);
 	}
 	
 	public boolean isComplete() {
-		return dependencies.size() == 0 && inprogress.size() == 0;
+		return dependencies.size() == 0 && marked.size() == 0;
 	}
 	
 	public boolean hasModel(LDrawModel m) {
@@ -72,7 +73,7 @@ public class DataBundle implements Serializable {
 		return isLoaded(m.getNormalizedName());
 	}
 	
-	public boolean isLoaded(LDrawElement1 e) throws NoSuchItem {
+	public boolean isLoaded(Line1 e) throws NoSuchItem {
 		return isLoaded(e.getNormalizedPartId());
 	}
 	
@@ -90,22 +91,22 @@ public class DataBundle implements Serializable {
 		invalidate(m.getNormalizedName());
 	}
 	
-	public void invalidate(LDrawElement1 e) {
+	public void invalidate(Line1 e) {
 		invalidate(e.getNormalizedPartId());
 	}
 	
 	public void invalidate(String name) {
 		if (dependencies.contains(name))
 			dependencies.remove(name);
-		if (inprogress.contains(name))
-			inprogress.remove(name);
+		if (marked.contains(name))
+			marked.remove(name);
 	}
 	
-	public void check(String name) {
+	public void mark(String name) {
 		if (!dependencies.contains(name))
 			return;
 		
 		dependencies.remove(name);
-		inprogress.add(name);
+		marked.add(name);
 	}
 }

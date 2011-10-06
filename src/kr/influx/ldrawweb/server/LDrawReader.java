@@ -7,15 +7,15 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import kr.influx.ldrawweb.shared.elements.Line0;
+import kr.influx.ldrawweb.shared.elements.Line1;
+import kr.influx.ldrawweb.shared.elements.Line2;
+import kr.influx.ldrawweb.shared.elements.Line3;
+import kr.influx.ldrawweb.shared.elements.Line4;
+import kr.influx.ldrawweb.shared.elements.Line5;
+import kr.influx.ldrawweb.shared.elements.MetaStep;
 import kr.influx.ldrawweb.shared.exceptions.InvalidFileFormat;
-import kr.influx.ldrawweb.shared.LDrawElement0;
-import kr.influx.ldrawweb.shared.LDrawElement1;
-import kr.influx.ldrawweb.shared.LDrawElement2;
-import kr.influx.ldrawweb.shared.LDrawElement3;
-import kr.influx.ldrawweb.shared.LDrawElement4;
-import kr.influx.ldrawweb.shared.LDrawElement5;
 import kr.influx.ldrawweb.shared.LDrawElementBase;
-import kr.influx.ldrawweb.shared.LDrawElementMetaStep;
 import kr.influx.ldrawweb.shared.LDrawModel;
 import kr.influx.ldrawweb.shared.LDrawModelMultipart;
 import kr.influx.ldrawweb.shared.Matrix4;
@@ -115,8 +115,8 @@ public class LDrawReader {
 
 					elements.add(e);
 
-					if (e instanceof LDrawElement0) {
-						String comment = ((LDrawElement0) e).getString();
+					if (e instanceof Line0) {
+						String comment = ((Line0) e).getString();
 						String commentlc = comment.toLowerCase();
 
 						if (commentlc.startsWith("file "))
@@ -247,7 +247,7 @@ public class LDrawReader {
 		} // omittable
 	}
 
-	private LDrawElement0 parseLineType0(final StringTokenizer tk) {
+	private Line0 parseLineType0(final StringTokenizer tk) {
 		String output = "";
 
 		while (tk.hasMoreTokens())
@@ -255,12 +255,12 @@ public class LDrawReader {
 
 		String outputc = output.trim().toLowerCase();
 		if (outputc == "step")
-			return new LDrawElementMetaStep();
+			return new MetaStep();
 
-		return new LDrawElement0(output);
+		return new Line0(output);
 	}
 
-	private LDrawElement1 parseLineType1(final StringTokenizer tk) {
+	private Line1 parseLineType1(final StringTokenizer tk) {
 		int color;
 		float[] matrix = new float[12];
 		String filename;
@@ -274,10 +274,10 @@ public class LDrawReader {
 			/* in case of filename with space(s) */
 			filename += " " + tk.nextToken();
 
-		return new LDrawElement1(color, new Matrix4(matrix), filename);
+		return new Line1(color, new Matrix4(matrix), filename);
 	}
 
-	private LDrawElement2 parseLineType2(final StringTokenizer tk) {
+	private Line2 parseLineType2(final StringTokenizer tk) {
 		int color;
 		float[] vec1 = new float[3];
 		float[] vec2 = new float[3];
@@ -288,10 +288,10 @@ public class LDrawReader {
 		for (int i = 0; i < 3; ++i)
 			vec2[i] = Float.parseFloat(tk.nextToken());
 
-		return new LDrawElement2(color, new Vector4(vec1), new Vector4(vec2));
+		return new Line2(color, new Vector4(vec1), new Vector4(vec2));
 	}
 
-	private LDrawElement3 parseLineType3(final StringTokenizer tk) {
+	private Line3 parseLineType3(final StringTokenizer tk) {
 		int color;
 		float[] vec1 = new float[3];
 		float[] vec2 = new float[3];
@@ -305,11 +305,11 @@ public class LDrawReader {
 		for (int i = 0; i < 3; ++i)
 			vec3[i] = Float.parseFloat(tk.nextToken());
 
-		return new LDrawElement3(color, new Vector4(vec1), new Vector4(vec2),
+		return new Line3(color, new Vector4(vec1), new Vector4(vec2),
 				new Vector4(vec3));
 	}
 
-	private LDrawElement4 parseLineType4(final StringTokenizer tk) {
+	private Line4 parseLineType4(final StringTokenizer tk) {
 		int color;
 		float[] vec1 = new float[3];
 		float[] vec2 = new float[3];
@@ -326,11 +326,11 @@ public class LDrawReader {
 		for (int i = 0; i < 3; ++i)
 			vec4[i] = Float.parseFloat(tk.nextToken());
 
-		return new LDrawElement4(color, new Vector4(vec1), new Vector4(vec2),
+		return new Line4(color, new Vector4(vec1), new Vector4(vec2),
 				new Vector4(vec3), new Vector4(vec4));
 	}
 
-	private LDrawElement5 parseLineType5(final StringTokenizer tk) {
+	private Line5 parseLineType5(final StringTokenizer tk) {
 		int color;
 		float[] vec1 = new float[3];
 		float[] vec2 = new float[3];
@@ -347,7 +347,7 @@ public class LDrawReader {
 		for (int i = 0; i < 3; ++i)
 			vec4[i] = Float.parseFloat(tk.nextToken());
 
-		return new LDrawElement5(color, new Vector4(vec1), new Vector4(vec2),
+		return new Line5(color, new Vector4(vec1), new Vector4(vec2),
 				new Vector4(vec3), new Vector4(vec4));
 	}
 }

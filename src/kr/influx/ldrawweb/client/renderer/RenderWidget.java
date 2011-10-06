@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import kr.influx.ldrawweb.shared.DataBundle;
-import kr.influx.ldrawweb.shared.LDrawElement1;
-import kr.influx.ldrawweb.shared.LDrawElement3;
-import kr.influx.ldrawweb.shared.LDrawElement4;
 import kr.influx.ldrawweb.shared.LDrawElementBase;
 import kr.influx.ldrawweb.shared.LDrawModel;
 import kr.influx.ldrawweb.shared.LDrawModelMultipart;
 import kr.influx.ldrawweb.shared.Matrix4;
 import kr.influx.ldrawweb.shared.Vector4;
+import kr.influx.ldrawweb.shared.elements.Line1;
+import kr.influx.ldrawweb.shared.elements.Line3;
+import kr.influx.ldrawweb.shared.elements.Line4;
 
 import com.google.gwt.resources.client.TextResource;
 import com.google.gwt.user.client.Timer;
@@ -183,8 +183,8 @@ public class RenderWidget extends FlexTable {
 		float[] color = { (float)Math.random(), (float)Math.random(), (float)Math.random(), 1.0f };
 		
 		for (LDrawElementBase e : model) {
-			if (e instanceof LDrawElement3) {
-				LDrawElement3 e3 = (LDrawElement3)e;
+			if (e instanceof Line3) {
+				Line3 e3 = (Line3)e;
 				
 				Vector4 nv1 = translationMatrix.translate(e3.getVec1());
 				Vector4 nv2 = translationMatrix.translate(e3.getVec2());
@@ -199,8 +199,8 @@ public class RenderWidget extends FlexTable {
 				colors.add(color[0]); colors.add(color[1]); colors.add(color[2]); colors.add(color[3]);
 				
 				count += 3;
-			} else if (e instanceof LDrawElement4) {
-				LDrawElement4 e4 = (LDrawElement4)e;
+			} else if (e instanceof Line4) {
+				Line4 e4 = (Line4)e;
 				
 				Vector4 nv1 = translationMatrix.translate(e4.getVec1());
 				Vector4 nv2 = translationMatrix.translate(e4.getVec2());
@@ -222,10 +222,10 @@ public class RenderWidget extends FlexTable {
 				colors.add(color[0]); colors.add(color[1]); colors.add(color[2]); colors.add(color[3]);
 				
 				count += 6;
-			} else if (e instanceof LDrawElement1) {
+			} else if (e instanceof Line1) {
 				LDrawModel m = null;
 				
-				LDrawElement1 e1 = (LDrawElement1)e;
+				Line1 e1 = (Line1)e;
 				String nf = e1.getNormalizedPartId();
 				
 				if (parent != null)

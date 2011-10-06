@@ -3,11 +3,11 @@ package kr.influx.ldrawweb.server;
 import kr.influx.ldrawweb.client.DataQuery;
 import kr.influx.ldrawweb.shared.LDrawModel;
 import kr.influx.ldrawweb.shared.LDrawModelMultipart;
+import kr.influx.ldrawweb.shared.datamodels.Model;
+import kr.influx.ldrawweb.shared.datamodels.ModelData;
+import kr.influx.ldrawweb.shared.datamodels.Part;
+import kr.influx.ldrawweb.shared.datamodels.PartData;
 import kr.influx.ldrawweb.shared.exceptions.NoSuchItem;
-import kr.influx.ldrawweb.shared.models.Model;
-import kr.influx.ldrawweb.shared.models.ModelData;
-import kr.influx.ldrawweb.shared.models.Part;
-import kr.influx.ldrawweb.shared.models.PartData;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 

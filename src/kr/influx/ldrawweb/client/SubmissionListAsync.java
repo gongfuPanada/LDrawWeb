@@ -2,7 +2,7 @@ package kr.influx.ldrawweb.client;
 
 import java.util.ArrayList;
 
-import kr.influx.ldrawweb.shared.models.Model;
+import kr.influx.ldrawweb.shared.datamodels.Model;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
