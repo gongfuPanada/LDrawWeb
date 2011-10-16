@@ -1,6 +1,8 @@
 package kr.influx.ldrawweb.shared.elements;
 
+import kr.influx.ldrawweb.shared.LDrawColorTable;
 import kr.influx.ldrawweb.shared.LDrawElementBase;
+import kr.influx.ldrawweb.shared.LDrawMaterialBase;
 import kr.influx.ldrawweb.shared.Vector4;
 
 /* line type 4 (quadrilateral) */
@@ -31,6 +33,10 @@ public class Line4 extends LDrawElementBase {
 	
 	public int getColor() {
 		return color;
+	}
+	
+	public LDrawMaterialBase getColorObject() {
+		return LDrawColorTable.lookup(color);
 	}
 	
 	public Vector4 getVec1() {

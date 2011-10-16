@@ -13,9 +13,11 @@ public class LDrawModel implements Serializable, Iterable<LDrawElementBase> {
 	private String name;
 	private String author;
 	private String description;
+	private int bfcCertification;
 	private ArrayList<LDrawElementBase> elements;
 	
 	public LDrawModel() {
+		bfcCertification = 0;
 		name = null;
 		author = null;
 		description = null;
@@ -23,6 +25,7 @@ public class LDrawModel implements Serializable, Iterable<LDrawElementBase> {
 	}
 	
 	public LDrawModel(String name, String author, String description, ArrayList<LDrawElementBase> elements) {
+		bfcCertification = 0;
 		this.name = name;
 		this.author = author;
 		this.description = description;
@@ -69,6 +72,10 @@ public class LDrawModel implements Serializable, Iterable<LDrawElementBase> {
 		return elements;
 	}
 	
+	public int isBfcCertified() {
+		return bfcCertification;
+	}
+	
 	/* setters */
 	
 	public void setName(String name) {
@@ -85,5 +92,9 @@ public class LDrawModel implements Serializable, Iterable<LDrawElementBase> {
 	
 	public void setElements(ArrayList<LDrawElementBase> elements) {
 		this.elements = elements;
+	}
+	
+	public void setBfcCertification(int cert) {
+		bfcCertification = cert;
 	}
 }

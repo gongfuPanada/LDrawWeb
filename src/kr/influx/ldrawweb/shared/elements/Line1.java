@@ -1,6 +1,8 @@
 package kr.influx.ldrawweb.shared.elements;
 
+import kr.influx.ldrawweb.shared.LDrawColorTable;
 import kr.influx.ldrawweb.shared.LDrawElementBase;
+import kr.influx.ldrawweb.shared.LDrawMaterialBase;
 import kr.influx.ldrawweb.shared.Matrix4;
 import kr.influx.ldrawweb.shared.Utils;
 
@@ -26,6 +28,10 @@ public class Line1 extends LDrawElementBase {
 	
 	public int getColor() {
 		return color;
+	}
+	
+	public LDrawMaterialBase getColorObject() {
+		return LDrawColorTable.lookup(color);
 	}
 	
 	public Matrix4 getMatrix() {

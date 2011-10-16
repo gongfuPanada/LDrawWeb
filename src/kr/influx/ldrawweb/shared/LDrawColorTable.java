@@ -5,7 +5,6 @@ import java.util.HashMap;
 import kr.influx.ldrawweb.shared.materials.*;
 
 public class LDrawColorTable {
-	public final static ColorRgba DEFAULT_COLOR = new ColorRgba(0x7f, 0x7f, 0x7f);
 	public final static ColorRgba DEFAULT_EDGE_COLOR = new ColorRgba(0x33, 0x33, 0x33);
 	
 	private static LDrawMaterialBase materialList[];
@@ -148,8 +147,8 @@ public class LDrawColorTable {
 			
 			/* Metallic materials */
 			new Metallic(147, "Metallic Gold"  , new ColorRgba(0x93, 0x87, 0x67), DEFAULT_EDGE_COLOR),
-			new Metallic(147, "Metallic Green" , new ColorRgba(0x28, 0x7f, 0x46), DEFAULT_EDGE_COLOR),
-			new Metallic(147, "Metallic Silver", new ColorRgba(0xc0, 0xc0, 0xc0), DEFAULT_EDGE_COLOR),
+			new Metallic(186, "Metallic Green" , new ColorRgba(0x28, 0x7f, 0x46), DEFAULT_EDGE_COLOR),
+			new Metallic(496, "Metallic Silver", new ColorRgba(0xc0, 0xc0, 0xc0), DEFAULT_EDGE_COLOR),
 			
 			/* Rubber materials */
 			new Rubber( 65, "Rubber Yellow"      , new ColorRgba(0xf5, 0xcd, 0x2f, 255), DEFAULT_EDGE_COLOR),
@@ -163,8 +162,8 @@ public class LDrawColorTable {
 			
 			/* Speckle materials */
 			new Speckle( 75, "Speckle Black Copper"           , new ColorRgba(0x00, 0x00, 0x00), new ColorRgba(0x59, 0x59, 0x59), new ColorRgba(0xae, 0x7a, 0x59), 0.4f, 1.0f, 3.0f),
-			new Speckle( 75, "Speckle Dark Bluish Gray Silver", new ColorRgba(0x63, 0x5f, 0x61), new ColorRgba(0x59, 0x59, 0x59), new ColorRgba(0x59, 0x59, 0x59), 0.4f, 1.0f, 3.0f),
-			new Speckle( 75, "Speckle Black Copper"           , new ColorRgba(0x00, 0x00, 0x00), new ColorRgba(0x59, 0x59, 0x59), new ColorRgba(0x59, 0x59, 0x59), 0.4f, 1.0f, 3.0f),
+			new Speckle( 76, "Speckle Dark Bluish Gray Silver", new ColorRgba(0x63, 0x5f, 0x61), new ColorRgba(0x59, 0x59, 0x59), new ColorRgba(0x59, 0x59, 0x59), 0.4f, 1.0f, 3.0f),
+			new Speckle(132, "Speckle Black Copper"           , new ColorRgba(0x00, 0x00, 0x00), new ColorRgba(0x59, 0x59, 0x59), new ColorRgba(0x59, 0x59, 0x59), 0.4f, 1.0f, 3.0f),
 		};
 		
 		/* insert into global material lookup table */

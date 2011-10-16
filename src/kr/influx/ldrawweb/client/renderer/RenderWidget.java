@@ -2,9 +2,12 @@ package kr.influx.ldrawweb.client.renderer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Stack;
 
 import kr.influx.ldrawweb.shared.DataBundle;
+import kr.influx.ldrawweb.shared.LDrawColorTable;
 import kr.influx.ldrawweb.shared.LDrawElementBase;
+import kr.influx.ldrawweb.shared.LDrawMaterialBase;
 import kr.influx.ldrawweb.shared.LDrawModel;
 import kr.influx.ldrawweb.shared.LDrawModelMultipart;
 import kr.influx.ldrawweb.shared.Matrix4;
@@ -12,6 +15,9 @@ import kr.influx.ldrawweb.shared.Vector4;
 import kr.influx.ldrawweb.shared.elements.Line1;
 import kr.influx.ldrawweb.shared.elements.Line3;
 import kr.influx.ldrawweb.shared.elements.Line4;
+import kr.influx.ldrawweb.shared.materials.BasicMaterial;
+import kr.influx.ldrawweb.shared.materials.DefaultColor;
+import kr.influx.ldrawweb.shared.materials.EdgeColor;
 
 import com.google.gwt.resources.client.TextResource;
 import com.google.gwt.user.client.Timer;
@@ -86,9 +92,13 @@ public class RenderWidget extends FlexTable {
 		gl.clearDepth(1.0f);
 		
 		gl.enable(WebGLRenderingContext.DEPTH_TEST);
+		gl.enable(WebGLRenderingContext.BLEND);
 		gl.depthFunc(WebGLRenderingContext.LEQUAL);
+		gl.blendFunc(WebGLRenderingContext.SRC_ALPHA, WebGLRenderingContext.ONE_MINUS_SRC_ALPHA);
 		
 		initShaders();
+		
+		rotationMatrix.rotateByX(180.0f);
 		
 		projectionMatrix = Matrix4.createPerspectiveMatrix(45.0f, 640.0f / 480.0f, 0.1f, 1000.0f);
 	}
@@ -122,7 +132,7 @@ public class RenderWidget extends FlexTable {
 		
 		gl.useProgram(programDefault);
 		gl.uniformMatrix4fv(projectionMatrixLocation, false, projectionMatrix.getData());
-		rotationMatrix.rotateByX(3.0f);
+		//rotationMatrix.rotateByX(3.0f);
 		rotationMatrix.rotateByY(3.0f);
 		gl.uniformMatrix4fv(rotationLocation, false, rotationMatrix.getData());
 		
@@ -148,9 +158,12 @@ public class RenderWidget extends FlexTable {
 	private void initializeModel() {
 		ArrayList<Float> triangles = new ArrayList<Float>();
 		ArrayList<Float> colors = new ArrayList<Float>();
+		Stack<LDrawMaterialBase> colorStack = new Stack<LDrawMaterialBase>();
+		
+		colorStack.push(LDrawColorTable.lookup(0));
 		
 		count = 0;
-		traverseModel(data.getModel().getMainModel(), data.getModel(), new Matrix4(), triangles, colors);
+		traverseModel(data.getModel().getMainModel(), data.getModel(), new Matrix4(), triangles, colors, LDrawColorTable.lookup(7), false);
 		
 		if (triangles.size() == 0) {
 			data = null;
@@ -179,8 +192,17 @@ public class RenderWidget extends FlexTable {
 		gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array.create(colarray), WebGLRenderingContext.STATIC_DRAW);
 	}
 	
-	private void traverseModel(LDrawModel model, LDrawModelMultipart parent, Matrix4 translationMatrix, ArrayList<Float> triangles, ArrayList<Float> colors) {
-		float[] color = { (float)Math.random(), (float)Math.random(), (float)Math.random(), 1.0f };
+	private void traverseModel(LDrawModel model, LDrawModelMultipart parent, Matrix4 translationMatrix, ArrayList<Float> triangles, ArrayList<Float> colors, LDrawMaterialBase material, boolean edgeFlag) {
+		float[] color;
+		
+		if (material instanceof BasicMaterial) {
+			if (edgeFlag)
+				color = ((BasicMaterial)material).getEdgeColor().getArray();
+			else
+				color = ((BasicMaterial)material).getColor().getArray();
+		} else {
+			color = new float[] {1.0f, 1.0f, 1.0f, 1.0f};
+		}
 		
 		for (LDrawElementBase e : model) {
 			if (e instanceof Line3) {
@@ -242,7 +264,21 @@ public class RenderWidget extends FlexTable {
 				if (m != null) {
 					System.out.println("Found subelement: " + e1.getPartId());
 					System.out.println(e1.getMatrix());
-					traverseModel(m, parent, translationMatrix.multiply(e1.getMatrix()), triangles, colors);
+					
+					LDrawMaterialBase mat = e1.getColorObject();
+					LDrawMaterialBase cmat;
+					boolean edge = false;
+					
+					if (mat instanceof DefaultColor) {
+						cmat = material;
+					} else if (mat instanceof EdgeColor) {
+						cmat = material;
+						edge = true;
+					} else {
+						cmat = mat;
+					}
+					
+					traverseModel(m, parent, translationMatrix.multiply(e1.getMatrix()), triangles, colors, cmat, edge);
 				}
 			}
 		}

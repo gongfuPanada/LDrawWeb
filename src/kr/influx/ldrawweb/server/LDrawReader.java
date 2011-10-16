@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 import kr.influx.ldrawweb.shared.elements.Line0;
@@ -13,7 +14,13 @@ import kr.influx.ldrawweb.shared.elements.Line2;
 import kr.influx.ldrawweb.shared.elements.Line3;
 import kr.influx.ldrawweb.shared.elements.Line4;
 import kr.influx.ldrawweb.shared.elements.Line5;
+import kr.influx.ldrawweb.shared.elements.MetaBfc;
+import kr.influx.ldrawweb.shared.elements.MetaClear;
+import kr.influx.ldrawweb.shared.elements.MetaCommandBase;
+import kr.influx.ldrawweb.shared.elements.MetaPause;
+import kr.influx.ldrawweb.shared.elements.MetaSave;
 import kr.influx.ldrawweb.shared.elements.MetaStep;
+import kr.influx.ldrawweb.shared.elements.MetaWrite;
 import kr.influx.ldrawweb.shared.exceptions.InvalidFileFormat;
 import kr.influx.ldrawweb.shared.LDrawElementBase;
 import kr.influx.ldrawweb.shared.LDrawModel;
@@ -154,9 +161,16 @@ public class LDrawReader {
 							fn = comment.substring(5);
 
 							++idx;
-						} else if (lc < 2)
+						} else if (commentlc.startsWith("bfc")) {
+							if (commentlc.equals("certify"))
+								currentModel.setBfcCertification(MetaBfc.CERTIFY);
+							else if (commentlc.equals("certify cw"))
+								currentModel.setBfcCertification(MetaBfc.CERTIFY_CW);
+							else if (commentlc.equals("certify ccw"))
+								currentModel.setBfcCertification(MetaBfc.CERTIFY_CCW);
+						} else if (lc < 2) {
 							currentModel.setDescription(comment);
-						else {
+						} else {
 							line = br.readLine();
 							++l;
 							continue;
@@ -210,7 +224,9 @@ public class LDrawReader {
 
 			switch (linetype) {
 			case 0:
-				e = parseLineType0(tk);
+				e = parseLineMeta(new StringTokenizer(trimmed.substring(2)));
+				if (e == null)
+					e = parseLineType0(tk);
 				break;
 			case 1:
 				e = parseLineType1(tk);
@@ -349,5 +365,64 @@ public class LDrawReader {
 
 		return new Line5(color, new Vector4(vec1), new Vector4(vec2),
 				new Vector4(vec3), new Vector4(vec4));
+	}
+	
+	private MetaCommandBase parseLineMeta(final StringTokenizer tk) {
+		String token = tk.nextToken();
+		
+		if (token.equals("BFC"))
+			return parseLineMetaBfc(tk);
+		else if (token.equals("CLEAR"))
+			return new MetaClear();
+		else if (token.equals("PAUSE"))
+			return new MetaPause();
+		else if (token.equals("SAVE"))
+			return new MetaSave();
+		else if (token.equals("STEP"))
+			return new MetaStep();
+		else if (token.equals("WRITE") || token.equals("PRINT"))
+			return parseLineMetaWrite(tk);
+		
+		return null;
+	}
+	
+	private MetaBfc parseLineMetaBfc(final StringTokenizer tk) {
+		int command = 0;
+		
+		String token = tk.nextToken();
+		if (token.equals("CW"))
+			command = MetaBfc.CW;
+		else if (token.equals("CCW"))
+			command = MetaBfc.CCW;
+		else if (token.equals("NOCLIP"))
+			command = MetaBfc.NOCLIP;
+		else if (token.equals("INVERTNEXT"))
+			command = MetaBfc.INVERTNEXT;
+		else if (token.equals("CLIP")) {
+			try {
+				String next = tk.nextToken();
+				
+				if (next.equals("CW"))
+					command = MetaBfc.CLIP | MetaBfc.CW;
+				else if (next.equals("CCW"))
+					command = MetaBfc.CLIP | MetaBfc.CCW;
+			} catch (NoSuchElementException e) {
+				command = MetaBfc.CLIP;
+			}
+		}
+		
+		if (command == 0)
+			return null;
+		else
+			return new MetaBfc(command);
+	}
+	
+	private MetaWrite parseLineMetaWrite(final StringTokenizer tk) {
+		String output = "";
+		
+		while (tk.hasMoreTokens())
+			output += tk.nextToken();
+		
+		return new MetaWrite(output);
 	}
 }

@@ -20,7 +20,7 @@ public class ColorRgba implements Serializable {
 		color[3] = alpha;
 	}
 	
-	public ColorRgba(byte red, byte green, byte blue, byte alpha) {
+	public ColorRgba(int red, int green, int blue, int alpha) {
 		this(red / 255.0f, green / 255.0f, blue / 255.0f, alpha / 255.0f);
 	}
 	
@@ -28,7 +28,7 @@ public class ColorRgba implements Serializable {
 		this(red, green, blue, 1.0f);
 	}
 	
-	public ColorRgba(byte red, byte green, float blue) {
+	public ColorRgba(int red, int green, int blue) {
 		this(red / 255.0f, green / 255.0f, blue / 255.0f, 1.0f);
 	}
 	
