@@ -12,18 +12,18 @@ import com.googlecode.objectify.annotation.Indexed;
 public class Model implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@Id Long id;
+	@Id private Long id;
 	
-	@Indexed Long owner;
+	@Indexed private Long owner;
 	
-	Date submissionDate;
-	Date lastModified;
+	private Date submissionDate;
+	private Date lastModified;
 	
-	String name;
-	String author;
-	String filename;
+	private String name;
+	private String author;
+	private String filename;
 	
-	String description;
+	private String description;
 	
 	public Model() {
 		id = null;

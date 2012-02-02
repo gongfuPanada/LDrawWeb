@@ -8,9 +8,8 @@ import kr.influx.ldrawweb.shared.datamodels.Model;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.googlecode.objectify.Query;
 
-public class SubmissionListImpl extends RemoteServiceServlet implements
-		SubmissionList {
-	private static final long serialVersionUID = 5467706020329618102L;
+public class SubmissionListImpl extends RemoteServiceServlet implements SubmissionList {
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public ArrayList<Model> getSubmissionList(int startOffset, int count) {

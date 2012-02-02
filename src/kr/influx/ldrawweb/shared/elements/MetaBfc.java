@@ -15,6 +15,14 @@ public class MetaBfc extends MetaCommandBase {
 	
 	private int command;
 	
+	public MetaBfc() {
+		super();
+		
+		this.command = 0;
+		
+		updateLine();
+	}
+	
 	public MetaBfc(int command) {
 		super();
 		
@@ -35,6 +43,8 @@ public class MetaBfc extends MetaCommandBase {
 	
 	private static String renderLine(int command) {
 		switch (command) {
+		case 0:
+			return "";
 		case CW:
 			return "BFC CW";
 		case CCW:

@@ -8,6 +8,11 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
+import kr.influx.ldrawweb.shared.LDrawElementBase;
+import kr.influx.ldrawweb.shared.LDrawModel;
+import kr.influx.ldrawweb.shared.LDrawModelMultipart;
+import kr.influx.ldrawweb.shared.Matrix4;
+import kr.influx.ldrawweb.shared.Vector4;
 import kr.influx.ldrawweb.shared.elements.Line0;
 import kr.influx.ldrawweb.shared.elements.Line1;
 import kr.influx.ldrawweb.shared.elements.Line2;
@@ -22,12 +27,8 @@ import kr.influx.ldrawweb.shared.elements.MetaSave;
 import kr.influx.ldrawweb.shared.elements.MetaStep;
 import kr.influx.ldrawweb.shared.elements.MetaWrite;
 import kr.influx.ldrawweb.shared.exceptions.InvalidFileFormat;
-import kr.influx.ldrawweb.shared.LDrawElementBase;
-import kr.influx.ldrawweb.shared.LDrawModel;
-import kr.influx.ldrawweb.shared.LDrawModelMultipart;
-import kr.influx.ldrawweb.shared.Matrix4;
-import kr.influx.ldrawweb.shared.Vector4;
 
+/* LDraw models are read and parsed at server-side. */
 public class LDrawReader {
 	private BufferedReader br;
 
@@ -224,9 +225,13 @@ public class LDrawReader {
 
 			switch (linetype) {
 			case 0:
-				e = parseLineMeta(new StringTokenizer(trimmed.substring(2)));
-				if (e == null)
+				try {
+					e = parseLineMeta(new StringTokenizer(trimmed.substring(2)));
+					if (e == null)
+						e = parseLineType0(tk);
+				} catch (Exception ex) {
 					e = parseLineType0(tk);
+				}
 				break;
 			case 1:
 				e = parseLineType1(tk);
@@ -389,22 +394,22 @@ public class LDrawReader {
 	private MetaBfc parseLineMetaBfc(final StringTokenizer tk) {
 		int command = 0;
 		
-		String token = tk.nextToken();
-		if (token.equals("CW"))
+		String token = tk.nextToken().toLowerCase();
+		if (token.equals("cw"))
 			command = MetaBfc.CW;
-		else if (token.equals("CCW"))
+		else if (token.equals("ccw"))
 			command = MetaBfc.CCW;
-		else if (token.equals("NOCLIP"))
+		else if (token.equals("noclip"))
 			command = MetaBfc.NOCLIP;
-		else if (token.equals("INVERTNEXT"))
+		else if (token.equals("invertnext"))
 			command = MetaBfc.INVERTNEXT;
-		else if (token.equals("CLIP")) {
+		else if (token.equals("clip")) {
 			try {
-				String next = tk.nextToken();
+				String next = tk.nextToken().toLowerCase();
 				
-				if (next.equals("CW"))
+				if (next.equals("cw"))
 					command = MetaBfc.CLIP | MetaBfc.CW;
-				else if (next.equals("CCW"))
+				else if (next.equals("ccw"))
 					command = MetaBfc.CLIP | MetaBfc.CCW;
 			} catch (NoSuchElementException e) {
 				command = MetaBfc.CLIP;

@@ -100,7 +100,7 @@ public class DAO extends DAOBase {
 		
 		long id = ofy.put(p).getId();
 		p.setId(id);
-		d.setPartId(id);
+		d.setKey(id);
 		d.setId(ofy.put(d).getId());
 		
 		return true;

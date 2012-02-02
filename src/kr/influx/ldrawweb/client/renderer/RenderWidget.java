@@ -19,6 +19,7 @@ import kr.influx.ldrawweb.shared.materials.BasicMaterial;
 import kr.influx.ldrawweb.shared.materials.DefaultColor;
 import kr.influx.ldrawweb.shared.materials.EdgeColor;
 
+import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.resources.client.TextResource;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -33,7 +34,7 @@ import com.googlecode.gwtgl.binding.WebGLShader;
 import com.googlecode.gwtgl.binding.WebGLUniformLocation;
 
 public class RenderWidget extends FlexTable {
-	private final WebGLCanvas canvas;
+	private final Canvas canvas;
 	private final WebGLRenderingContext gl;
 	
 	private DataBundle data;
@@ -61,8 +62,10 @@ public class RenderWidget extends FlexTable {
 		attribs.setAlpha(true);
 		attribs.setAntialias(true);
 		
-		canvas = new WebGLCanvas(attribs, "640px", "480px");
-		gl = canvas.getGlContext();
+		canvas = Canvas.createIfSupported();
+		canvas.setCoordinateSpaceWidth(640);
+		canvas.setCoordinateSpaceHeight(480);
+		gl = (WebGLRenderingContext) canvas.getContext("experimental-webgl");
 		gl.viewport(0, 0, 640, 480);
 		
 		setWidget(0, 0, canvas);

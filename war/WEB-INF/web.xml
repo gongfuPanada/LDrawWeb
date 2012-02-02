@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+  
+  <!-- Servlets -->
+  <servlet>
+    <servlet-name>submissionList</servlet-name>
+    <servlet-class>kr.influx.ldrawweb.server.SubmissionListImpl</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>signonService</servlet-name>
+  	<servlet-class>kr.influx.ldrawweb.server.GoogleSignOnImpl</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>administrativeTools</servlet-name>
+  	<servlet-class>kr.influx.ldrawweb.server.AdministrativeToolsImpl</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>partUpload</servlet-name>
+  	<servlet-class>kr.influx.ldrawweb.server.PartUploader</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>dataQuery</servlet-name>
+  	<servlet-class>kr.influx.ldrawweb.server.DataQueryImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>submissionList</servlet-name>
+    <url-pattern>/ldrawweb/submissions</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>signonService</servlet-name>
+  	<url-pattern>/ldrawweb/signon</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>partUpload</servlet-name>
+  	<url-pattern>/ldrawweb/partupload</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>administrativeTools</servlet-name>
+  	<url-pattern>/ldrawweb/admin</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>dataQuery</servlet-name>
+  	<url-pattern>/ldrawweb/data</url-pattern>
+  </servlet-mapping>
+  
+  <!-- Default page to serve -->
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+
+</web-app>

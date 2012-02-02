@@ -9,7 +9,7 @@ import com.googlecode.objectify.annotation.Indexed;
 
 @Entity
 public class Part implements Serializable {
-	private static final long serialVersionUID = -2890004381951037167L;
+	private static final long serialVersionUID = 1L;
 	
 	@Id private Long id;
 	@Indexed private String partid;
