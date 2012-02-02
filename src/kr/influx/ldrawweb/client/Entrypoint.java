@@ -1,9 +1,12 @@
 package kr.influx.ldrawweb.client;
 
+import java.util.ArrayList;
+
 import kr.influx.ldrawweb.client.renderer.RenderWidget;
 import kr.influx.ldrawweb.shared.GoogleSignOnInfo;
 import kr.influx.ldrawweb.shared.LDrawModel;
 import kr.influx.ldrawweb.shared.LDrawModelMultipart;
+import kr.influx.ldrawweb.shared.datamodels.Model;
 import kr.influx.ldrawweb.shared.exceptions.NoAdministrativeRights;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -15,6 +18,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextArea;
@@ -56,8 +60,10 @@ public class Entrypoint implements EntryPoint {
 		});
 		
 		final TextArea ta = new TextArea();
-		final PushButton pb2 = new PushButton("Query from datastore");
 		
+		final PushButton pb2 = new PushButton("Query part");
+		final PushButton lbb = new PushButton("Query model");
+		final ListBox lb = new ListBox();
 		final TextBox tb0 = new TextBox();
 		final RenderWidget rw = new RenderWidget();
 		final ModelLoader loader = new ModelLoader(5, new ModelLoader.OnResult() {
@@ -87,6 +93,7 @@ public class Entrypoint implements EntryPoint {
 			public void onComplete(ModelLoader loader) {
 				ta.setText(ta.getText() + "loading complete.\n");
 				
+				lbb.setEnabled(true);
 				pb2.setEnabled(true);
 				
 				rw.setData(loader.getBundle());
@@ -103,6 +110,7 @@ public class Entrypoint implements EntryPoint {
 				}
 				
 				pb2.setEnabled(false);
+				lbb.setEnabled(false);
 				
 				loader.start(tb0.getText());
 			}
@@ -162,14 +170,14 @@ public class Entrypoint implements EntryPoint {
 		
 		fp.setEncoding(FormPanel.ENCODING_MULTIPART);
 		fp.setMethod(FormPanel.METHOD_POST);
-		fp.setAction(GWT.getModuleBaseURL() + "partupload");
+		fp.setAction(GWT.getModuleBaseURL() + "upload/model");
 		
 		VerticalPanel holder = new VerticalPanel();
 		
 		fu.setName("upload");
 		holder.add(fu);
 		holder.add(new Hidden("type", "collection"));
-		holder.add(new PushButton("Submit", new ClickHandler() {
+		holder.add(new PushButton("Upload model (you need to sign up)", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				fp.submit();
@@ -195,10 +203,26 @@ public class Entrypoint implements EntryPoint {
 		ta.setWidth("480px");
 		ta.setHeight("100px");
 		
+		lb.setVisibleItemCount(10);
+		lbb.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				if (lb.getSelectedIndex() == -1)
+					return;
+				
+				pb2.setEnabled(false);
+				lbb.setEnabled(false);
+				
+				loader.start(Integer.parseInt(lb.getValue(lb.getSelectedIndex())));
+			}
+		});
+		
 		RootPanel rp = RootPanel.get();
 		rp.add(pb);
 		rp.add(tb0);
 		rp.add(pb2);
+		rp.add(lb);
+		rp.add(lbb);
 		rp.add(tb1);
 		rp.add(tb2);
 		rp.add(pb3);
@@ -206,6 +230,22 @@ public class Entrypoint implements EntryPoint {
 		rp.add(fp);
 		rp.add(rw);
 		rp.add(ta);
+		
+		SubmissionListAsync listOp = GWT.create(SubmissionList.class);
+		listOp.getSubmissionList(0, 100, new AsyncCallback<ArrayList<Model> >() {
+			@Override
+			public void onFailure(Throwable caught) {
+				Window.alert(caught.toString());
+			}
+
+			@Override
+			public void onSuccess(ArrayList<Model> result) {
+				for (Model m : result) {
+					lb.addItem(m.getDescription() + "(" + m.getFilename() + ")", m.getId().toString());
+				}
+			}
+		});
+		
 	}
 
 }

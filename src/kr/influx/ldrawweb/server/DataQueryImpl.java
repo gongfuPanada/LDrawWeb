@@ -5,8 +5,10 @@ import kr.influx.ldrawweb.shared.LDrawModel;
 import kr.influx.ldrawweb.shared.LDrawModelMultipart;
 import kr.influx.ldrawweb.shared.datamodels.Model;
 import kr.influx.ldrawweb.shared.datamodels.ModelData;
+import kr.influx.ldrawweb.shared.datamodels.ModelDataCached;
 import kr.influx.ldrawweb.shared.datamodels.Part;
 import kr.influx.ldrawweb.shared.datamodels.PartData;
+import kr.influx.ldrawweb.shared.datamodels.PartDataCached;
 import kr.influx.ldrawweb.shared.exceptions.NoSuchItem;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -50,23 +52,37 @@ public class DataQueryImpl extends RemoteServiceServlet implements DataQuery {
 		if (m == null)
 			throw new NoSuchItem(new Long(id).toString());
 		
+		ModelDataCached mc = dao.queryCachedModelData(m);
+		if (mc != null)
+			return mc.getData();
+		
 		ModelData md = dao.queryModelData(m);
 		if (md == null)
 			throw new NoSuchItem(new Long(id).toString());
 		
-		return ServerUtils.parseMultipartModel(md.getData().getBytes());
+		LDrawModelMultipart modelData = ServerUtils.parseMultipartModel(md.getData().getBytes());
+		dao.insertModelCache(m, modelData);
+		
+		return modelData;
 	}
 	
 	@Override
 	public LDrawModel queryPart(String filename) throws NoSuchItem {
-		Part m = dao.queryPart(filename);
-		if (m == null)
+		Part p = dao.queryPart(filename);
+		if (p == null)
 			throw new NoSuchItem(filename);
 		
-		PartData md = dao.queryPartData(m);
-		if (md == null)
+		PartDataCached pc = dao.queryCachedPartData(p);
+		if (pc != null)
+			return pc.getData();
+		
+		PartData pd = dao.queryPartData(p);
+		if (pd == null)
 			throw new NoSuchItem(filename);
 		
-		return ServerUtils.parseModel(md.getData().getBytes());
+		LDrawModel partData = ServerUtils.parseModel(pd.getData().getBytes());
+		dao.insertPartCache(p, partData);
+		
+		return partData;
 	}
 }

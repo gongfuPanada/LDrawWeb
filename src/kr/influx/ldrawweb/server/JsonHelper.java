@@ -21,12 +21,24 @@ public class JsonHelper {
 		}
 	}
 	
-	static public JSONObject getFailedResult(String msg) {
+	static public JSONObject getFailedResult(Throwable e) {
 		JSONObject ret = new JSONObject();
 		
 		try {
 			ret.put("result", false);
-			ret.put("message", msg);
+			ret.put("message", e.toString());
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+		}
+		
+		return ret;
+	}
+	
+	static public JSONObject getPositiveResult() {
+		JSONObject ret = new JSONObject();
+		
+		try {
+			ret.put("result", true);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

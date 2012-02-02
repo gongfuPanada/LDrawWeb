@@ -8,6 +8,8 @@ import com.googlecode.objectify.annotation.Entity;
 @Entity
 public class PartData extends RawDataBase<LDrawModel> {
 	private static final long serialVersionUID = 1L;
+	
+	public long partId;
 
 	public PartData() {
 		super();

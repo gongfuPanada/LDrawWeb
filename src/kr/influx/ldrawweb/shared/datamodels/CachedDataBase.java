@@ -19,6 +19,12 @@ abstract public class CachedDataBase<T> implements Serializable {
 	@Indexed private Long fk;
 	Blob data;
 	
+	public CachedDataBase() {
+		id = null;
+		fk = null;
+		data = null;
+	}
+	
 	public CachedDataBase(long foreignKey, T data) {
 		id = null;
 		fk = foreignKey;

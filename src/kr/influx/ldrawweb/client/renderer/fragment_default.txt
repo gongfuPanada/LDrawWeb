@@ -3,9 +3,10 @@ precision highp float;
 #endif
 
 varying vec4 color;
+varying vec3 lightWeighing;
 
 void main(void) {
-	gl_FragColor = color;
+	gl_FragColor = vec4(color.rgb * lightWeighing, color.a);
 }
 
 

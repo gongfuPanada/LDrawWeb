@@ -45,9 +45,11 @@ public class RenderWidget extends FlexTable {
 	private WebGLUniformLocation rotationLocation;
 	private WebGLBuffer vposBuffer;
 	private WebGLBuffer colorBuffer;
+	private WebGLBuffer normalBuffer;
 	private int count;
 	private int vposLocation;
 	private int vcolorLocation;
+	private int normalLocation;
 	
 	private Matrix4 projectionMatrix;
 	private Matrix4 rotationMatrix = new Matrix4();
@@ -123,6 +125,7 @@ public class RenderWidget extends FlexTable {
 		rotationLocation = gl.getUniformLocation(programDefault, "rotation");
 		vposLocation = gl.getAttribLocation(programDefault, "position");
 		vcolorLocation = gl.getAttribLocation(programDefault, "vertexColor");
+		normalLocation = gl.getAttribLocation(programDefault, "normal");
 	}
 	
 	private void drawScene() {
@@ -147,6 +150,10 @@ public class RenderWidget extends FlexTable {
 		gl.vertexAttribPointer(vcolorLocation, 4, WebGLRenderingContext.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(vcolorLocation);
 		
+		gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, normalBuffer);
+		gl.vertexAttribPointer(normalLocation, 3, WebGLRenderingContext.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(normalLocation);
+		
 		gl.drawArrays(WebGLRenderingContext.TRIANGLES, 0, count);
 		
 		gl.flush();
@@ -161,12 +168,13 @@ public class RenderWidget extends FlexTable {
 	private void initializeModel() {
 		ArrayList<Float> triangles = new ArrayList<Float>();
 		ArrayList<Float> colors = new ArrayList<Float>();
+		ArrayList<Float> normals = new ArrayList<Float>();
 		Stack<LDrawMaterialBase> colorStack = new Stack<LDrawMaterialBase>();
 		
 		colorStack.push(LDrawColorTable.lookup(0));
 		
 		count = 0;
-		traverseModel(data.getModel().getMainModel(), data.getModel(), new Matrix4(), triangles, colors, LDrawColorTable.lookup(7), false);
+		traverseModel(data.getModel().getMainModel(), data.getModel(), new Matrix4(), triangles, colors, normals, LDrawColorTable.lookup(7), false);
 		
 		if (triangles.size() == 0) {
 			data = null;
@@ -176,15 +184,19 @@ public class RenderWidget extends FlexTable {
 		if (vposBuffer != null) {
 			gl.deleteBuffer(vposBuffer);
 			gl.deleteBuffer(colorBuffer);
+			gl.deleteBuffer(normalBuffer);
 		}
 		
 		float[] triarray = new float[triangles.size()];
 		float[] colarray = new float[colors.size()];
+		float[] normalarray = new float[normals.size()];
 		
 		for (int i = 0; i < triarray.length; ++i)
 			triarray[i] = triangles.get(i);
 		for (int i = 0; i < colarray.length; ++i)
 			colarray[i] = colors.get(i);
+		for (int i = 0; i < normalarray.length; ++i)
+			normalarray[i] = normals.get(i);
 		
 		vposBuffer = gl.createBuffer();
 		gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, vposBuffer);
@@ -193,9 +205,23 @@ public class RenderWidget extends FlexTable {
 		colorBuffer = gl.createBuffer();
 		gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, colorBuffer);
 		gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array.create(colarray), WebGLRenderingContext.STATIC_DRAW);
+		
+		normalBuffer = gl.createBuffer();
+		gl.bindBuffer(WebGLRenderingContext.ARRAY_BUFFER, normalBuffer);
+		gl.bufferData(WebGLRenderingContext.ARRAY_BUFFER, Float32Array.create(normalarray), WebGLRenderingContext.STATIC_DRAW);
+		
 	}
 	
-	private void traverseModel(LDrawModel model, LDrawModelMultipart parent, Matrix4 translationMatrix, ArrayList<Float> triangles, ArrayList<Float> colors, LDrawMaterialBase material, boolean edgeFlag) {
+	private Vector4 calculateNormal(Vector4 a, Vector4 b, Vector4 c) {
+		Vector4 d1, d2;
+		
+		d1 = Vector4.sub(b, a);
+		d2 = Vector4.sub(c, b);
+		
+		return Vector4.cross(d1, d2);
+	}
+	
+	private void traverseModel(LDrawModel model, LDrawModelMultipart parent, Matrix4 translationMatrix, ArrayList<Float> triangles, ArrayList<Float> colors, ArrayList<Float> normals, LDrawMaterialBase material, boolean edgeFlag) {
 		float[] color;
 		
 		if (material instanceof BasicMaterial) {
@@ -215,9 +241,15 @@ public class RenderWidget extends FlexTable {
 				Vector4 nv2 = translationMatrix.translate(e3.getVec2());
 				Vector4 nv3 = translationMatrix.translate(e3.getVec3());
 				
+				Vector4 normal = calculateNormal(nv1, nv2, nv3);
+				
 				triangles.add(nv1.x()); triangles.add(nv1.y()); triangles.add(nv1.z()); 
 				triangles.add(nv2.x()); triangles.add(nv2.y()); triangles.add(nv2.z());
 				triangles.add(nv3.x()); triangles.add(nv3.y()); triangles.add(nv3.z());
+				
+				normals.add(normal.x()); normals.add(normal.y()); normals.add(normal.z());
+				normals.add(normal.x()); normals.add(normal.y()); normals.add(normal.z());
+				normals.add(normal.x()); normals.add(normal.y()); normals.add(normal.z());
 				
 				colors.add(color[0]); colors.add(color[1]); colors.add(color[2]); colors.add(color[3]);
 				colors.add(color[0]); colors.add(color[1]); colors.add(color[2]); colors.add(color[3]);
@@ -232,12 +264,21 @@ public class RenderWidget extends FlexTable {
 				Vector4 nv3 = translationMatrix.translate(e4.getVec3());
 				Vector4 nv4 = translationMatrix.translate(e4.getVec4());
 				
+				Vector4 normal = calculateNormal(nv1, nv2, nv3);
+				
 				triangles.add(nv1.x()); triangles.add(nv1.y()); triangles.add(nv1.z()); 
 				triangles.add(nv2.x()); triangles.add(nv2.y()); triangles.add(nv2.z());
 				triangles.add(nv3.x()); triangles.add(nv3.y()); triangles.add(nv3.z());
 				triangles.add(nv1.x()); triangles.add(nv1.y()); triangles.add(nv1.z()); 
 				triangles.add(nv3.x()); triangles.add(nv3.y()); triangles.add(nv3.z());
 				triangles.add(nv4.x()); triangles.add(nv4.y()); triangles.add(nv4.z());
+				
+				normals.add(normal.x()); normals.add(normal.y()); normals.add(normal.z());
+				normals.add(normal.x()); normals.add(normal.y()); normals.add(normal.z());
+				normals.add(normal.x()); normals.add(normal.y()); normals.add(normal.z());
+				normals.add(normal.x()); normals.add(normal.y()); normals.add(normal.z());
+				normals.add(normal.x()); normals.add(normal.y()); normals.add(normal.z());
+				normals.add(normal.x()); normals.add(normal.y()); normals.add(normal.z());
 				
 				colors.add(color[0]); colors.add(color[1]); colors.add(color[2]); colors.add(color[3]);
 				colors.add(color[0]); colors.add(color[1]); colors.add(color[2]); colors.add(color[3]);
@@ -281,7 +322,7 @@ public class RenderWidget extends FlexTable {
 						cmat = mat;
 					}
 					
-					traverseModel(m, parent, translationMatrix.multiply(e1.getMatrix()), triangles, colors, cmat, edge);
+					traverseModel(m, parent, translationMatrix.multiply(e1.getMatrix()), triangles, colors, normals, cmat, edge);
 				}
 			}
 		}

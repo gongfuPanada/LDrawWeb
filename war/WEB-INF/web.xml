@@ -23,6 +23,10 @@
   	<servlet-class>kr.influx.ldrawweb.server.PartUploader</servlet-class>
   </servlet>
   <servlet>
+  	<servlet-name>modelUpload</servlet-name>
+  	<servlet-class>kr.influx.ldrawweb.server.ModelUploader</servlet-class>
+  </servlet>
+  <servlet>
   	<servlet-name>dataQuery</servlet-name>
   	<servlet-class>kr.influx.ldrawweb.server.DataQueryImpl</servlet-class>
   </servlet>
@@ -37,7 +41,11 @@
   </servlet-mapping>
   <servlet-mapping>
   	<servlet-name>partUpload</servlet-name>
-  	<url-pattern>/ldrawweb/partupload</url-pattern>
+  	<url-pattern>/ldrawweb/upload/part</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>modelUpload</servlet-name>
+  	<url-pattern>/ldrawweb/upload/model</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
   	<servlet-name>administrativeTools</servlet-name>
@@ -48,7 +56,6 @@
   	<url-pattern>/ldrawweb/data</url-pattern>
   </servlet-mapping>
   
-  <!-- Default page to serve -->
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>

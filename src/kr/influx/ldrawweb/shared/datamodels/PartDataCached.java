@@ -8,6 +8,10 @@ import kr.influx.ldrawweb.shared.LDrawModel;
 public class PartDataCached extends CachedDataBase<LDrawModel> {
 	private static final long serialVersionUID = 1L;
 	
+	public PartDataCached() {
+		super();
+	}
+	
 	public PartDataCached(long foreignKey, LDrawModel data) {
 		super(foreignKey, data);
 	}
