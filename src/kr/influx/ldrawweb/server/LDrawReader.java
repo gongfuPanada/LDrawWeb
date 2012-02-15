@@ -215,7 +215,7 @@ public class LDrawReader {
 	public LDrawElementBase parseLine(String line) throws InvalidFileFormat {
 		String trimmed = line.trim();
 
-		if (trimmed.isEmpty())
+		if (trimmed == null || trimmed.length() == 0)
 			return null;
 
 		try {

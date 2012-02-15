@@ -3,6 +3,8 @@ package kr.influx.ldrawweb.client;
 import java.util.ArrayList;
 
 import kr.influx.ldrawweb.client.renderer.RenderWidget;
+import kr.influx.ldrawweb.shared.DataBundle;
+import kr.influx.ldrawweb.shared.DependencyResolver;
 import kr.influx.ldrawweb.shared.GoogleSignOnInfo;
 import kr.influx.ldrawweb.shared.LDrawModel;
 import kr.influx.ldrawweb.shared.LDrawModelMultipart;
@@ -66,37 +68,37 @@ public class Entrypoint implements EntryPoint {
 		final ListBox lb = new ListBox();
 		final TextBox tb0 = new TextBox();
 		final RenderWidget rw = new RenderWidget();
-		final ModelLoader loader = new ModelLoader(5, new ModelLoader.OnResult() {
+		final ClientDependencyResolver loader = new ClientDependencyResolver(5, new DependencyResolver.OnResult() {
 			@Override
-			public void onPartLoaded(ModelLoader loader, LDrawModel part) {
+			public void onPartLoaded(DependencyResolver loader, LDrawModel part) {
 				ta.setText(ta.getText() + "loaded part: " + part.getName() + "\n");
 			}
 			
 			@Override
-			public void onPartFailed(ModelLoader loader, String partid) {
+			public void onPartFailed(DependencyResolver loader, String partid) {
 				ta.setText(ta.getText() + "failed to load part: " + partid + "\n");
 			}
 			
 			@Override
-			public void onModelLoaded(ModelLoader loader, LDrawModelMultipart model) {
+			public void onModelLoaded(DependencyResolver loader, LDrawModelMultipart model) {
 				ta.setText(ta.getText() + "main model loaded: " + model.getMainModel().getName() + "\n");
 			}
 			
 			@Override
-			public void onModelFailed(ModelLoader loader, String what) {
+			public void onModelFailed(DependencyResolver loader, String what) {
 				ta.setText(ta.getText() + "main model loading failed to load: " + what + "\n");
 				
 				pb2.setEnabled(true);
 			}
 			
 			@Override
-			public void onComplete(ModelLoader loader) {
+			public void onComplete(DependencyResolver loader, DataBundle bundle) {
 				ta.setText(ta.getText() + "loading complete.\n");
 				
 				lbb.setEnabled(true);
 				pb2.setEnabled(true);
 				
-				rw.setData(loader.getBundle());
+				rw.setData(bundle);
 				rw.start();
 			}
 		});

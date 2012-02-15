@@ -4,28 +4,16 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import kr.influx.ldrawweb.shared.DataBundle;
-import kr.influx.ldrawweb.shared.LDrawElementBase;
+import kr.influx.ldrawweb.shared.DependencyResolver;
 import kr.influx.ldrawweb.shared.LDrawModel;
 import kr.influx.ldrawweb.shared.LDrawModelMultipart;
-import kr.influx.ldrawweb.shared.Utils;
-import kr.influx.ldrawweb.shared.elements.Line1;
 import kr.influx.ldrawweb.shared.exceptions.NoSuchItem;
 
 /* asynchronous, concurrent model loader/resolver */
-public class ModelLoader {
+public class ClientDependencyResolver extends DependencyResolver {
 	private int count = 0;   /* active queries */
 	private int maxreqs = 5; /* maximum concurrent requests */
-	private DataBundle bundle = null;
-	private OnResult onresult = null;
 	private DataQueryAsync rpc;
-	
-	public interface OnResult {
-		public void onModelFailed(ModelLoader loader, String what);
-		public void onModelLoaded(ModelLoader loader, LDrawModelMultipart model);
-		public void onPartLoaded(ModelLoader loader, LDrawModel part);
-		public void onPartFailed(ModelLoader loader, String partid);
-		public void onComplete(ModelLoader loader);
-	};
 	
 	private AsyncCallback<LDrawModelMultipart> modelLoader =
 		new AsyncCallback<LDrawModelMultipart>() {
@@ -33,7 +21,7 @@ public class ModelLoader {
 			public void onFailure(Throwable caught) {
 				if (caught instanceof NoSuchItem) {
 					if (onresult != null)
-						onresult.onModelFailed(ModelLoader.this, ((NoSuchItem)caught).getPartId());
+						onresult.onModelFailed(ClientDependencyResolver.this, ((NoSuchItem)caught).getPartId());
 				}
 			}
 
@@ -43,7 +31,7 @@ public class ModelLoader {
 				bundle.setModel(result);
 				
 				if (onresult != null)
-					onresult.onModelLoaded(ModelLoader.this, result);
+					onresult.onModelLoaded(ClientDependencyResolver.this, result);
 				
 				scanDependencies();
 				advance();
@@ -56,7 +44,7 @@ public class ModelLoader {
 			public void onFailure(Throwable caught) {
 				if (caught instanceof NoSuchItem) {
 					if (onresult != null)
-						onresult.onPartFailed(ModelLoader.this, ((NoSuchItem)caught).getPartId());
+						onresult.onPartFailed(ClientDependencyResolver.this, ((NoSuchItem)caught).getPartId());
 				}
 			}
 
@@ -78,10 +66,10 @@ public class ModelLoader {
 				NoSuchItem i = (NoSuchItem)caught;
 				
 				if (i.getPartId() != null)
-					bundle.invalidate(Utils.normalizeName(i.getPartId()));
+					bundle.invalidate(i.getPartId());
 				
 				if (onresult != null)
-					onresult.onPartFailed(ModelLoader.this, ((NoSuchItem)caught).getPartId());
+					onresult.onPartFailed(ClientDependencyResolver.this, ((NoSuchItem)caught).getPartId());
 				
 				advance();
 				
@@ -94,7 +82,7 @@ public class ModelLoader {
 			bundle.insertModel(result);
 			
 			if (onresult != null)
-				onresult.onPartLoaded(ModelLoader.this, result);
+				onresult.onPartLoaded(ClientDependencyResolver.this, result);
 			
 			scanDependencies(result);
 			advance();
@@ -103,11 +91,12 @@ public class ModelLoader {
 		}
 	};
 	
-	public ModelLoader() {
+	public ClientDependencyResolver() {
+		super();
 		rpc = GWT.create(DataQuery.class);
 	}
 	
-	public ModelLoader(int maxreqs, OnResult onresult) {
+	public ClientDependencyResolver(int maxreqs, OnResult onresult) {
 		this.maxreqs = maxreqs;
 		this.onresult = onresult;
 		
@@ -122,39 +111,12 @@ public class ModelLoader {
 		rpc.queryPart(partid, partLoader);
 	}
 	
-	public DataBundle getBundle() {
-		return bundle;
-	}
-	
-	private void advance() {
-		if (bundle == null)
-			return;
-		
-		Object[] items = bundle.getPendingDependencies().toArray();
-		
-		for (int i = 0; i < maxreqs - count && i < items.length; ++i) {
-			rpc.queryPart((String)items[i], partResolver);
-			bundle.mark(Utils.normalizeName((String)items[i]));
+	@Override
+	protected void queryNext(String[] pendingDependencies) {
+		for (int i = 0; i < maxreqs - count && i < pendingDependencies.length; ++i) {
+			rpc.queryPart(pendingDependencies[i], partResolver);
+			bundle.mark(pendingDependencies[i]);
 			++count;
-		}
-		
-		if (bundle.isComplete()) {
-			if (onresult != null)
-				onresult.onComplete(ModelLoader.this);
-		}
-	}
-	
-	private void scanDependencies() {
-		scanDependencies(bundle.getModel().getMainModel());
-		
-		for (LDrawModel i : bundle.getModel().getSubpartList())
-			scanDependencies(i);
-	}
-	
-	private void scanDependencies(LDrawModel m) {
-		for (LDrawElementBase i : m.getElements()) {
-			if (i instanceof Line1)
-				bundle.insertDependencies((Line1)i);
 		}
 	}
 }

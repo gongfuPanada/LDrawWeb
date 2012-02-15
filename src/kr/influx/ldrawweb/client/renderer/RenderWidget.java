@@ -1,7 +1,7 @@
 package kr.influx.ldrawweb.client.renderer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 import kr.influx.ldrawweb.shared.DataBundle;
@@ -11,6 +11,7 @@ import kr.influx.ldrawweb.shared.LDrawMaterialBase;
 import kr.influx.ldrawweb.shared.LDrawModel;
 import kr.influx.ldrawweb.shared.LDrawModelMultipart;
 import kr.influx.ldrawweb.shared.Matrix4;
+import kr.influx.ldrawweb.shared.Vector3;
 import kr.influx.ldrawweb.shared.Vector4;
 import kr.influx.ldrawweb.shared.elements.Line1;
 import kr.influx.ldrawweb.shared.elements.Line3;
@@ -26,7 +27,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.googlecode.gwtgl.array.Float32Array;
 import com.googlecode.gwtgl.binding.WebGLBuffer;
-import com.googlecode.gwtgl.binding.WebGLCanvas;
 import com.googlecode.gwtgl.binding.WebGLContextAttributes;
 import com.googlecode.gwtgl.binding.WebGLProgram;
 import com.googlecode.gwtgl.binding.WebGLRenderingContext;
@@ -212,13 +212,13 @@ public class RenderWidget extends FlexTable {
 		
 	}
 	
-	private Vector4 calculateNormal(Vector4 a, Vector4 b, Vector4 c) {
-		Vector4 d1, d2;
+	private Vector3 calculateNormal(Vector4 a, Vector4 b, Vector4 c) {
+		Vector3 d1, d2;
 		
-		d1 = Vector4.sub(b, a);
-		d2 = Vector4.sub(c, b);
+		d1 = Vector3.sub(b, a);
+		d2 = Vector3.sub(c, b);
 		
-		return Vector4.cross(d1, d2);
+		return Vector3.cross(d1, d2);
 	}
 	
 	private void traverseModel(LDrawModel model, LDrawModelMultipart parent, Matrix4 translationMatrix, ArrayList<Float> triangles, ArrayList<Float> colors, ArrayList<Float> normals, LDrawMaterialBase material, boolean edgeFlag) {
@@ -241,7 +241,7 @@ public class RenderWidget extends FlexTable {
 				Vector4 nv2 = translationMatrix.translate(e3.getVec2());
 				Vector4 nv3 = translationMatrix.translate(e3.getVec3());
 				
-				Vector4 normal = calculateNormal(nv1, nv2, nv3);
+				Vector3 normal = calculateNormal(nv1, nv2, nv3);
 				
 				triangles.add(nv1.x()); triangles.add(nv1.y()); triangles.add(nv1.z()); 
 				triangles.add(nv2.x()); triangles.add(nv2.y()); triangles.add(nv2.z());
@@ -264,7 +264,7 @@ public class RenderWidget extends FlexTable {
 				Vector4 nv3 = translationMatrix.translate(e4.getVec3());
 				Vector4 nv4 = translationMatrix.translate(e4.getVec4());
 				
-				Vector4 normal = calculateNormal(nv1, nv2, nv3);
+				Vector3 normal = calculateNormal(nv1, nv2, nv3);
 				
 				triangles.add(nv1.x()); triangles.add(nv1.y()); triangles.add(nv1.z()); 
 				triangles.add(nv2.x()); triangles.add(nv2.y()); triangles.add(nv2.z());
@@ -297,7 +297,7 @@ public class RenderWidget extends FlexTable {
 				if (parent != null)
 					m = parent.querySubpart(nf);
 				if (m == null) {
-					HashMap<String, LDrawModel> list = data.getParts();
+					Map<String, LDrawModel> list = data.getParts();
 					
 					if (list.containsKey(nf))
 						m = list.get(nf);

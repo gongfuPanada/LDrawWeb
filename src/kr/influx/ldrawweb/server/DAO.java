@@ -27,15 +27,8 @@ public class DAO extends DAOBase {
 	}
 	
 	public void wipe() {
-		Query<PartData> q = ofy().query(PartData.class).offset(4300);
-		
-		for (PartData p : q) {
-			p.setKey(p.partId);
-			ofy().put(p);
-		}
-		
-		/*ofy().delete(ofy().query(Part.class));
-		ofy().delete(ofy().query(PartData.class));*/
+		ofy().delete(ofy().query(Part.class));
+		ofy().delete(ofy().query(PartData.class));
 	}
 	
 	public Account queryUser(String email) {
