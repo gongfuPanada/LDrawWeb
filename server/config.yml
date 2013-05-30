@@ -1,3 +1,6 @@
 debug: true
 
-dat_path: contents
+storage: local
+
+dat_path: contents/dat
+mesh_path: contents/mesh

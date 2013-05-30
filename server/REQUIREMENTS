@@ -1,4 +1,5 @@
+Flask
+baker
 gevent
 pyyaml
-flask
-baker
+requests

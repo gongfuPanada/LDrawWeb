@@ -8,11 +8,13 @@
 """
 
 import os
+from UserDict import UserDict
 
 import yaml
 
 
 DEFAULT_CONFIG_FILE = 'config.yml'
+ROOT_PATH = os.path.join(os.path.dirname(__file__), '..')
 
 
 def update_config(filename=None):
@@ -25,7 +27,14 @@ def update_config(filename=None):
         config.update(yaml.load(f.read()))
 
 
-config = dict()
+class ConfigDict(UserDict):
+    def __getitem__(self, key):
+        if not key in self:
+            return None
+        return UserDict.__getitem__(self, key)
+
+
+config = ConfigDict()
 try:
     update_config()
 except:

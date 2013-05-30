@@ -8,7 +8,9 @@
 """
 
 import logging
+import os.path
 import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import baker
 from gevent.wsgi import WSGIServer
@@ -18,7 +20,10 @@ from ldrawweb import (config as config_, update_config,
 from ldrawweb.app import Application
 
 
-@baker.command(params={'config': 'path to config file',
+@baker.command(shortopts={'config': 'C',
+                          'host': 'h',
+                          'port': 'p'},
+               params={'config': 'path to config file',
                        'port': 'port number',
                        'host': 'host address'})
 def run(config=None, host='127.0.0.1', port=8080):
@@ -29,13 +34,14 @@ def run(config=None, host='127.0.0.1', port=8080):
                          (config or DEFAULT_CONFIG_FILE))
     # basic logging config
     if config_['debug']:
-        Application.debug = True
         logging.basicConfig(format=logging.DEBUG)
+        # start debug server
+        Application.run(debug=True, host=host, port=port)
     else:
         logging.basicConfig(format=logging.INFO)
-    # start server
-    server = WSGIServer((host, port), Application)
-    server.serve_forever()
+        # start server
+        server = WSGIServer((host, port), Application)
+        server.serve_forever()
 
 
 baker.run()
