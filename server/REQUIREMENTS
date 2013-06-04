@@ -1,5 +1,6 @@
 Flask
 baker
+boto
 gevent
 pyyaml
 requests

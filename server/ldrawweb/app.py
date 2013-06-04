@@ -7,9 +7,10 @@
     Copyright (c) 2013 Park "segfault" Joon-Kyu <segfault87@gmail.com>
 """
 
+import json
 import os
 
-from flask import Flask, abort, render_template
+from flask import Flask, abort, render_template, request
 from jinja2 import FileSystemLoader
 from werkzeug.wrappers import Response
 
@@ -63,7 +64,12 @@ def index():
 
 @app.route('/view')
 def view():
-    return render_template('view.html')
+    data = {}
+    if 'uri' in request.args:
+        data['uri'] = request.args.get('uri')
+    else:
+        data['model'] = json.dumps({'hello': 'world', 2: 3, 'foo': [1, 2, 3]})
+    return render_template('view.html', **data)
 
 
 @app.route(DEFAULT_URI_PREFIX_DAT + 'g/<path:path>')
