@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'ldraw.dart';
+import '../ldrawlib/ldraw.dart';
 
 main() {
   List<String> argv = (new Options()).arguments;
@@ -8,6 +8,7 @@ main() {
     File f = new File(file);
     f.readAsLines().then((List<String> list) {
         LDrawModel model = parseModel(list);
+        print(model.commands);
       });
   }
 }

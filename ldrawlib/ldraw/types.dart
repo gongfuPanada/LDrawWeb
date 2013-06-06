@@ -2,22 +2,6 @@
 
 part of ldraw;
 
-/* math */
-
-class Vec4 {
-  num val[4];
-
-  Vec4(this.val[0], this.val[1], this.val[2], this.val[3]);
-  Vec4(this.val[0], this.val[1], this.val[2]) : val[3] = 1.0;
-  Vec4() : val[0] = 0.0, val[1] = 0.0, val[2] = 0.0, val[3] = 1.0;
-}
-
-class Matrix4 {
-  num val[16];
-
-  
-}
-
 /* colors and materials */
 
 class LDrawColor {
@@ -35,34 +19,64 @@ class LDrawBaseString extends LDrawCommand {
   String str;
   
   LDrawBaseString(this.str);
+
+  String toString() => '0 $str'.trim();
 }
 
 /* meta commands */
 
 class LDrawStep extends LDrawCommand {
+  LDrawStep();
+
+  String toString() => '0 STEP';
 }
 
 class LDrawClear extends LDrawCommand {
+  LDrawClear();
+
+  String toString() => '0 CLEAR';
 }
 
 class LDrawPause extends LDrawCommand {
+  LDrawPause();
+
+  String toString() => '0 PAUSE';
 }
 
 class LDrawSave extends LDrawCommand {
+  LDrawSave();
+
+  String toString() => '0 SAVE';
 }
 
 class LDrawBfc extends LDrawCommand {  
+  static const CW = 0;
+  static const CCW = 1;
+  static const CLIP = 2;
+  static const CLIP_CW = 3;
+  static const CLIP_CCW = 4;
+  static const NOCLIP = 5;
+  static const INVERTNEXT = 6;
+
+  int command;
+
+  LDrawBfc(this.command);
 }
 
 class LDrawComment extends LDrawBaseString {
+  LDrawComment(String s) : super(s);
 }
 
 class LDrawWrite extends LDrawBaseString {
+  LDrawWrite(String s) : super(s);
 }
 
 /* drawing commands */
 
 class LDrawDrawingCommand extends LDrawCommand {
+}
+
+class LDrawPrimitiveDrawingCommand extends LDrawDrawingCommand {
 }
 
 class LDrawLine1 extends LDrawDrawingCommand {
@@ -74,7 +88,7 @@ class LDrawLine1 extends LDrawDrawingCommand {
   LDrawLine1(this.color, this.position, this.matrix, this.name);
 }
 
-class LDrawLine2 extends LDrawDrawingCommand {
+class LDrawLine2 extends LDrawPrimitiveDrawingCommand {
   LDrawColor color;
   Vec4 v1;
   Vec4 v2;
@@ -82,7 +96,7 @@ class LDrawLine2 extends LDrawDrawingCommand {
   LDrawLine2(this.color, this.v1, this.v2);
 }
 
-class LDrawLine3 extends LDrawDrawingCommand {
+class LDrawLine3 extends LDrawPrimitiveDrawingCommand {
   LDrawColor color;
   Vec4 v1;
   Vec4 v2;
@@ -91,7 +105,7 @@ class LDrawLine3 extends LDrawDrawingCommand {
   LDrawLine3(this.color, this.v1, this.v2, this.v3);
 }
 
-class LDrawLine4 extends LDrawDrawingCommand {
+class LDrawLine4 extends LDrawPrimitiveDrawingCommand {
   LDrawColor color;
   Vec4 v1;
   Vec4 v2;
@@ -101,7 +115,7 @@ class LDrawLine4 extends LDrawDrawingCommand {
   LDrawLine4(this.color, this.v1, this.v2, this.v3, this.v4);
 }
 
-class LDrawLine5 extends LDrawDrawingCommand {
+class LDrawLine5 extends LDrawPrimitiveDrawingCommand {
   LDrawColor color;
   Vec4 v1;
   Vec4 v2;
@@ -113,15 +127,32 @@ class LDrawLine5 extends LDrawDrawingCommand {
 
 /* models */
 
-class LDrawMetadata {
+class LDrawHeader {
+  static const BFC_UNSPECIFIED = -1;
+  static const BFC_NOCERTIFY = 0;
+  static const BFC_CERTIFIED_CCW = 1;
+  static const BFC_CERTIFIED_CW = 2;
+
   String name;
+  String filename;
   String author;
+  int bfc;
+  List<String> metadata;
+
+  LDrawHeader() {
+    metadata = new List<String>();
+    bfc = BFC_UNSPECIFIED;
+  }
 }
 
 class LDrawModel {
-  String filename;
-  LDrawMetadata metadata;
-  List<LDrawElement> elements;
+  LDrawHeader header;
+  List<LDrawCommand> commands;
+
+  LDrawModel() {
+    header = new LDrawHeader();
+    commands = new List<LDrawCommand>();
+  }
 }
 
 class LDrawMultipartModel extends LDrawModel {

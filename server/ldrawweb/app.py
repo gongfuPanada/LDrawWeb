@@ -59,7 +59,7 @@ def uri_for_mesh(path=None):
 
 @app.route('/')
 def index():
-    return 'hello world %s' % config['debug']
+    raise NotImplemented
 
 
 @app.route('/view')
@@ -68,7 +68,7 @@ def view():
     if 'uri' in request.args:
         data['uri'] = request.args.get('uri')
     else:
-        data['model'] = json.dumps({'hello': 'world', 2: 3, 'foo': [1, 2, 3]})
+        raise NotImplemented
     return render_template('view.html', **data)
 
 
