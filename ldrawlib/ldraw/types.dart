@@ -61,6 +61,36 @@ class LDrawBfc extends LDrawCommand {
   int command;
 
   LDrawBfc(this.command);
+
+  String toString() {
+    String cmd;
+    switch (command) {
+      case CW:
+        cmd = "CW";
+        break;
+      case CCW:
+        cmd = "CCW";
+        break;
+      case CLIP:
+        cmd = "CLIP";
+        break;
+      case CLIP_CW:
+        cmd = "CLIP CW";
+        break;
+      case CLIP_CCW:
+        cmd = "CLIP CCW";
+        break;
+      case NOCLIP:
+        cmd = "NOCLIP";
+        break;
+      case INVERTNEXT:
+        cmd = "INVERTNEXT";
+        break;
+      default:
+        return null;
+    }
+    return '0 BFC $cmd';
+  }     
 }
 
 class LDrawComment extends LDrawBaseString {
@@ -81,7 +111,6 @@ class LDrawPrimitiveDrawingCommand extends LDrawDrawingCommand {
 
 class LDrawLine1 extends LDrawDrawingCommand {
   LDrawColor color;
-  Vec4 position;
   Matrix4 matrix;
   String name;
 
@@ -128,10 +157,10 @@ class LDrawLine5 extends LDrawPrimitiveDrawingCommand {
 /* models */
 
 class LDrawHeader {
-  static const BFC_UNSPECIFIED = -1;
-  static const BFC_NOCERTIFY = 0;
-  static const BFC_CERTIFIED_CCW = 1;
-  static const BFC_CERTIFIED_CW = 2;
+  static const int BFC_UNSPECIFIED = -1;
+  static const int BFC_NOCERTIFY = 0;
+  static const int BFC_CERTIFIED_CCW = 1;
+  static const int BFC_CERTIFIED_CW = 2;
 
   String name;
   String filename;

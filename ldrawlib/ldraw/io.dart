@@ -3,12 +3,6 @@
 part of ldraw;
 
 bool parseHeader(LDrawModel model, String cmd) {
-  if (model.header.name == null) {
-    // Name
-    model.header.name = cmd;
-    return true;
-  }
-
   List<String> header = splitBy(cmd, count: 1);
   if (header.isEmpty) {
     // Omit empty
@@ -20,16 +14,29 @@ bool parseHeader(LDrawModel model, String cmd) {
   if (header.length == 2)
     value = header[1];
 
-  if (name == 'author:') {
+  if (name == 'file') {
+    // omit MPD header
+  } else if (name == 'author:') {
     model.header.author = value;
   } else if (name == 'name:') {
     model.header.filename = value;
-  } else if (name == 'bfc') {
-
+  } else if (name == 'bfc' && model.header.bfc == LDrawHeader.BFC_UNSPECIFIED) {
+    value = value.toLowerCase();
+    if (value == 'nocertify')
+      model.header.bfc = LDrawHeader.BFC_NOCERTIFY;
+    else if (value == 'certify' || value == 'certify ccw')
+      model.header.bfc = LDrawHeader.BFC_CERTIFIED_CCW; /* CCW is implied */
+    else if (value == 'certify cw')
+      model.header.bfc = LDrawHeader.BFC_CERTIFIED_CW;
+    else
+      print('Unrecognized BFC certification status: $value');
   } else if (name.startsWith('!')) {
     model.header.metadata.add(cmd);
   } else {
-    return false;
+    if (model.header.name == null)
+      model.header.name = value;
+    else
+      return false; /* which means there is no more header */
   }
   
   return true;
