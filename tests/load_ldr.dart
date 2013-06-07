@@ -7,10 +7,10 @@ main() {
   for (String file in argv) {
     File f = new File(file);
     f.readAsLines().then((List<String> list) {
-        print(file);
+      print(file);
         LDrawModel model = parseModel(list);
-	//for (LDrawCommand cmd in model.commands)
-	//  print(cmd);
+	for (LDrawCommand cmd in model.commands)
+	  print(cmd);
       });
   }
 }

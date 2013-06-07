@@ -2,6 +2,8 @@
 
 part of ldraw;
 
+const num EPSILON = 0.000001;
+
 class Vec4 {
   List<num> val;
 
@@ -55,6 +57,10 @@ class Vec4 {
     return '(${x()}, ${y()}, ${z()})';
   }
 
+  String toDat() {
+    return '${x()} ${y()} ${z()}';
+  }
+
   Vec4 operator +(Vec4 rhs) {
     return new Vec4.xyz(x()+rhs.x(), y()+rhs.y(), z()+rhs.z());
   }
@@ -106,7 +112,7 @@ class Mat4 {
   }
 
   Mat4.init(num a, num b, num c, num d, num e, num f, num g,
-      num h, num i, {num x: 0.0, num y: 0.0, num z: 0.0}) {
+      num h, num i, [num x=0.0, num y=0.0, num z=0.0]) {
     val = new Float32List(16);
     val[0]  = a;   val[1]  = b;   val[2]  = c;   val[3] = x;
     val[4]  = d;   val[5]  = e;   val[6]  = f;   val[7] = y;
@@ -190,5 +196,13 @@ class Mat4 {
       ' ${val[4]}, ${val[5]}, ${val[6]}, ${val[7]},\n'
       ' ${val[8]}, ${val[9]}, ${val[10]}, ${val[11]},\n'
       ' ${val[12]}, ${val[13]}, ${val[14]}, ${val[15]}]';
+  }
+
+  String toDat() {
+    return
+      '${val[3]} ${val[7]} ${val[11]} '
+      '${val[0]} ${val[1]} ${val[2]} '
+      '${val[4]} ${val[5]} ${val[6]} '
+      '${val[8]} ${val[9]} ${val[10]}';
   }
 }

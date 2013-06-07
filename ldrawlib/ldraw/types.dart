@@ -114,7 +114,9 @@ class LDrawLine1 extends LDrawDrawingCommand {
   Matrix4 matrix;
   String name;
 
-  LDrawLine1(this.color, this.position, this.matrix, this.name);
+  LDrawLine1(this.color, this.matrix, this.name);
+
+  String toString() => '1 ${color.id} ${matrix.toDat()} $name';
 }
 
 class LDrawLine2 extends LDrawPrimitiveDrawingCommand {
@@ -123,6 +125,8 @@ class LDrawLine2 extends LDrawPrimitiveDrawingCommand {
   Vec4 v2;
 
   LDrawLine2(this.color, this.v1, this.v2);
+
+  String toString() => '2 ${color.id} ${v1.toDat()} ${v2.toDat()}';
 }
 
 class LDrawLine3 extends LDrawPrimitiveDrawingCommand {
@@ -132,6 +136,8 @@ class LDrawLine3 extends LDrawPrimitiveDrawingCommand {
   Vec4 v3;
 
   LDrawLine3(this.color, this.v1, this.v2, this.v3);
+
+  String toString() => '3 ${color.id} ${v1.toDat()} ${v2.toDat()} ${v3.toDat()}';
 }
 
 class LDrawLine4 extends LDrawPrimitiveDrawingCommand {
@@ -142,6 +148,8 @@ class LDrawLine4 extends LDrawPrimitiveDrawingCommand {
   Vec4 v4;
 
   LDrawLine4(this.color, this.v1, this.v2, this.v3, this.v4);
+
+  String toString() => '4 ${color.id} ${v1.toDat()} ${v2.toDat()} ${v3.toDat()} ${v4.toDat()}';
 }
 
 class LDrawLine5 extends LDrawPrimitiveDrawingCommand {
@@ -152,6 +160,8 @@ class LDrawLine5 extends LDrawPrimitiveDrawingCommand {
   Vec4 p2;
 
   LDrawLine5(this.color, this.v1, this.v2, this.p1, this.p2);
+
+  String toString() => '5 ${color.id} ${v1.toDat()} ${v2.toDat()} ${p1.toDat()} ${p2.toDat()}';
 }
 
 /* models */

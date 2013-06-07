@@ -2,8 +2,14 @@
 
 part of ldraw;
 
+class ParsingException implements Exception {
+  String message;
+
+  ParsingException(this.message);
+}
+
 bool parseHeader(LDrawModel model, String cmd) {
-  List<String> header = splitBy(cmd, count: 1);
+  List<String> header = splitBy(cmd, 1);
   if (header.isEmpty) {
     // Omit empty
     return true;
@@ -46,7 +52,7 @@ LDrawCommand parseLine0(String line) {
   if (line == null || line.trim().length == 0)
     return new LDrawComment('');
 
-  List<String> cmd = splitBy(line, count: 1);
+  List<String> cmd = splitBy(line, 1);
 
   String type = cmd[0].toLowerCase();
   if (type == 'step') {
@@ -76,7 +82,7 @@ LDrawCommand parseLine0(String line) {
     } else if (bfc == 'invertnext') {
       type = LDrawBfc.INVERTNEXT;
     } else {
-      print('Invalid BFC directive: ${cmd[1]}');
+      throw new ParsingException('Invalid BFC directive: ${cmd[1]}');
       return null;
     }
 
@@ -89,23 +95,91 @@ LDrawCommand parseLine0(String line) {
 }
 
 LDrawCommand parseLine1(String line) {
+  List<String> t = splitBy(line, 13);
+  if (t.length < 14)
+    throw new ParsingException('Parameter count does not match. 14 expected, ${t.length} found.');
 
+  try {
+    LDrawColor color = new LDrawColor(int.parse(t[0]));
+    Mat4 matrix = new Mat4.init(
+        double.parse(t[4]), double.parse(t[5]), double.parse(t[6]),
+        double.parse(t[7]), double.parse(t[8]), double.parse(t[9]),
+        double.parse(t[10]), double.parse(t[11]), double.parse(t[12]),
+        double.parse(t[1]), double.parse(t[2]), double.parse(t[3]));
+
+    return new LDrawLine1(color, matrix, t[13]);
+  } on FormatException catch (e) {
+    throw new ParsingException('Invalid token: ${e.message}');
+  }
 }
 
 LDrawCommand parseLine2(String line) {
+  List<String> t = splitBy(line, 7);
+  if (t.length < 7)
+    throw new ParsingException('Parameter count does not match. 7 expected, ${t.length} found.');
 
+  try {
+    LDrawColor color = new LDrawColor(int.parse(t[0]));
+    Vec4 v1 = new Vec4.xyz(double.parse(t[1]), double.parse(t[2]), double.parse(t[3]));
+    Vec4 v2 = new Vec4.xyz(double.parse(t[4]), double.parse(t[5]), double.parse(t[6]));
+
+    return new LDrawLine2(color, v1, v2);
+  } on FormatException catch (e) {
+    throw new ParsingException('Invalid token: ${e.message}');
+  }
 }
 
 LDrawCommand parseLine3(String line) {
+  List<String> t = splitBy(line, 10);
+  if (t.length < 10)
+    throw new ParsingException('Parameter count does not match. 10 expected, ${t.length} found.');
 
+  try {
+    LDrawColor color = new LDrawColor(int.parse(t[0]));
+    Vec4 v1 = new Vec4.xyz(double.parse(t[1]), double.parse(t[2]), double.parse(t[3]));
+    Vec4 v2 = new Vec4.xyz(double.parse(t[4]), double.parse(t[5]), double.parse(t[6]));
+    Vec4 v3 = new Vec4.xyz(double.parse(t[7]), double.parse(t[8]), double.parse(t[9]));
+
+    return new LDrawLine3(color, v1, v2, v3);
+  } on FormatException catch (e) {
+    throw new ParsingException('Invalid token: ${e.message}');
+  }
 }
 
 LDrawCommand parseLine4(String line) {
+  List<String> t = splitBy(line, 13);
+  if (t.length < 13)
+    throw new ParsingException('Parameter count does not match. 13 expected, ${t.length} found.');
 
+  try {
+    LDrawColor color = new LDrawColor(int.parse(t[0]));
+    Vec4 v1 = new Vec4.xyz(double.parse(t[1]), double.parse(t[2]), double.parse(t[3]));
+    Vec4 v2 = new Vec4.xyz(double.parse(t[4]), double.parse(t[5]), double.parse(t[6]));
+    Vec4 v3 = new Vec4.xyz(double.parse(t[7]), double.parse(t[8]), double.parse(t[9]));
+    Vec4 v4 = new Vec4.xyz(double.parse(t[10]), double.parse(t[11]), double.parse(t[12]));
+
+    return new LDrawLine4(color, v1, v2, v3, v4);
+  } on FormatException catch (e) {
+    throw new ParsingException('Invalid token: ${e.message}');
+  }
 }
 
 LDrawCommand parseLine5(String line) {
+  List<String> t = splitBy(line, 13);
+  if (t.length < 13)
+    throw new ParsingException('Parameter count does not match. 13 expected, ${t.length} found.');
 
+  try {
+    LDrawColor color = new LDrawColor(int.parse(t[0]));
+    Vec4 v1 = new Vec4.xyz(double.parse(t[1]), double.parse(t[2]), double.parse(t[3]));
+    Vec4 v2 = new Vec4.xyz(double.parse(t[4]), double.parse(t[5]), double.parse(t[6]));
+    Vec4 v3 = new Vec4.xyz(double.parse(t[7]), double.parse(t[8]), double.parse(t[9]));
+    Vec4 v4 = new Vec4.xyz(double.parse(t[10]), double.parse(t[11]), double.parse(t[12]));
+
+    return new LDrawLine5(color, v1, v2, v3, v4);
+  } on FormatException catch (e) {
+    throw new ParsingException('Invalid token: ${e.message}');
+  }
 }
 
 Map parsers = {
@@ -120,10 +194,12 @@ Map parsers = {
 LDrawModel parseModel(Iterable<String> stream) {
   bool isHeader = true;
   LDrawModel model = new LDrawModel();
+  int lineno = 0;
 
   for (String line in stream) {
+    ++lineno;
     line = line.trim();
-    List<String> strings = splitBy(line, count: 1);
+    List<String> strings = splitBy(line, 1);
 
     if (strings.length == 0)
       continue;
@@ -142,16 +218,21 @@ LDrawModel parseModel(Iterable<String> stream) {
           model.commands.add(command);
       }
     } else {
-      if (isHeader)
-        isHeader = false;
-      if (parsers[id] == null) {
-        print('Unknown line type $id!');
+      try {
+        if (isHeader)
+          isHeader = false;
+        if (parsers[id] == null) {
+          throw new ParsingException('Unknown line type $id!');
+          continue;
+        }
+        
+        LDrawCommand command = parsers[id](cmd);
+        if (command != null)
+          model.commands.add(command);
+      } on ParsingException catch (e) {
+        print('Parsing error in line $lineno: ${e.message}');
         continue;
       }
-
-      LDrawCommand command = parsers[id](cmd);
-      if (command != null)
-        model.commands.add(command);
     }
   }
 
@@ -159,5 +240,5 @@ LDrawModel parseModel(Iterable<String> stream) {
 }
 
 LDrawMultipartModel parseMultipartModel(Iterable<String> stream) {
-
+  
 }
