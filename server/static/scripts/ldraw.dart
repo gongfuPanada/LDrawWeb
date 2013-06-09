@@ -1,1 +1,1 @@
-../../../ldrawlib/ldraw.dart
+../../../ldrawlib/ldraw_frontend.dart

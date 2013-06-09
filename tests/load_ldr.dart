@@ -1,5 +1,6 @@
+import 'dart:collection';
 import 'dart:io';
-import '../ldrawlib/ldraw.dart';
+import '../ldrawlib/ldraw_backend.dart';
 
 main() {
   List<String> argv = (new Options()).arguments;
@@ -7,10 +8,13 @@ main() {
   for (String file in argv) {
     File f = new File(file);
     f.readAsLines().then((List<String> list) {
-      print(file);
-        LDrawModel model = parseModel(list);
-	for (LDrawCommand cmd in model.commands)
-	  print(cmd);
+	print(file);
+	LDrawMultipartModel model = new LDrawMultipartModel();
+	parseMultipartModel(model, list.iterator);
+	LDrawModel m = model.findPart('lever.ldr');
+	print(m.header.name);
+	for (LDrawCommand c in model.filterRefCmds())
+	  print(c);
       });
   }
 }

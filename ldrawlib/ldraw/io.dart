@@ -6,6 +6,24 @@ class ParsingException implements Exception {
   String message;
 
   ParsingException(this.message);
+
+  String toString() => this.message;
+}
+
+class ParsingError implements Error {
+  String message;
+
+  ParsingError(this.message);
+
+  String toString() => this.message;
+}
+
+class NextPart implements Exception {
+  String filename;
+
+  NextPart(this.filename);
+
+  String toString() => 'Next part \'$filename\'';
 }
 
 bool parseHeader(LDrawModel model, String cmd) {
@@ -40,7 +58,7 @@ bool parseHeader(LDrawModel model, String cmd) {
     model.header.metadata.add(cmd);
   } else {
     if (model.header.name == null)
-      model.header.name = value;
+      model.header.name = cmd; 
     else
       return false; /* which means there is no more header */
   }
@@ -191,54 +209,79 @@ Map parsers = {
   '5': parseLine5,
 };
 
-LDrawModel parseModel(Iterable<String> stream) {
+void parseModel(LDrawModel model, Iterator<String> iterator,
+		{bool multipart: false}) {
   bool isHeader = true;
-  LDrawModel model = new LDrawModel();
   int lineno = 0;
-
-  for (String line in stream) {
+  
+  String line;
+  while (iterator.moveNext()) {
     ++lineno;
-    line = line.trim();
+    line = iterator.current;
     List<String> strings = splitBy(line, 1);
 
     if (strings.length == 0)
       continue;
 
-    String id = strings[0];
-    String cmd;
-    if (strings.length > 1)
-      cmd = strings[1];
-
-    if (id == '0' && cmd != null && isHeader) {
-      if (!parseHeader(model, cmd)) {
-        // This is not header
-        isHeader = false;
-        LDrawCommand command = parseLine0(cmd);
-        if (command != null)
-          model.commands.add(command);
+    try {
+      String id = strings[0];
+      String cmd;
+      if (strings.length > 1)
+	cmd = strings[1];
+      
+      if (id == '0' && cmd != null && cmd.startsWith('FILE ')) {
+	if (multipart)
+	  throw new NextPart(cmd.substring(4).trim());
+	else
+	  throw new ParsingError('Attempted to decode multipart document.');
+      } else if (id == '0' && cmd != null && isHeader) {
+	if (!parseHeader(model, cmd)) {
+	  // This is not header
+	  isHeader = false;
+	  LDrawCommand command = parseLine0(cmd);
+	  if (command != null)
+	    model.commands.add(command);
+	}
+      } else {
+	if (isHeader)
+	  isHeader = false;
+	if (parsers[id] == null) {
+	  throw new ParsingException('Unknown line type $id!');
+	  continue;
+	}
+	
+	LDrawCommand command = parsers[id](cmd);
+	if (command != null)
+	  model.commands.add(command);
       }
-    } else {
-      try {
-        if (isHeader)
-          isHeader = false;
-        if (parsers[id] == null) {
-          throw new ParsingException('Unknown line type $id!');
-          continue;
-        }
-        
-        LDrawCommand command = parsers[id](cmd);
-        if (command != null)
-          model.commands.add(command);
-      } on ParsingException catch (e) {
-        print('Parsing error in line $lineno: ${e.message}');
-        continue;
-      }
+    } on ParsingException catch (e) {
+      print('Parsing error in line $lineno: ${e.message}');
+      continue;
     }
   }
-
-  return model;
 }
 
-LDrawMultipartModel parseMultipartModel(Iterable<String> stream) {
-  
+void parseMultipartModel(LDrawMultipartModel model, Iterator<String> iterator) {
+  String nextPart = null;
+  String line;
+
+  while (true) {
+    try {
+      if (nextPart != null) {
+	// Read subpart
+	LDrawModel subpart = new LDrawModel();
+	model.parts[nextPart] = subpart;
+	parseModel(subpart, iterator, multipart: true);
+      } else {
+	if (!iterator.moveNext())
+	  break;
+	line = iterator.current.trim();
+	parseModel(model, iterator, multipart: true);
+      }
+    } on NextPart catch (e) {
+      nextPart = normalizePath(e.filename);
+      continue;
+    }
+    break;
+  }
 }

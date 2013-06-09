@@ -16,10 +16,11 @@ from werkzeug.wrappers import Response
 
 from ldrawweb import config, ROOT_PATH
 from ldrawweb.ldraw import MIME_TYPE
+from ldrawweb.local import query_local
 from ldrawweb import util
 
 
-__all__ = ['Application']
+__all__ = ['uri_for_dat', 'uri_for_mesh', 'Application']
 
 
 DEFAULT_URI_PREFIX_DAT = '/geometry/dat/'
@@ -31,30 +32,32 @@ app = Flask(__name__, static_folder=os.path.join(ROOT_PATH, 'static'),
             template_folder=os.path.join(ROOT_PATH, 'templates'))
 
 
-def uri_for_dat(path=None):
-    if config['dat_uri_prefix'] is None:
-        prefix = DEFAULT_URI_PREFIX_DAT
-    else:
-        prefix = config['dat_uri_prefix']
+def uri_for(prefix, path=None):
     if path is not None:
-        if not prefix.endswith('/'):
-            prefix += '/'
-        return '%s%s' % (prefix, path)
+        return os.path.join(prefix, path)
     else:
         return prefix
+
+
+def uri_for_dat(path=None):
+    return uri_for(config['dat_uri_prefix'] or DEFAULT_URI_PREFIX_DAT, path)
 
 
 def uri_for_mesh(path=None):
-    if config['mesh_uri_prefix'] is None:
-        prefix = DEFAULT_URI_PREFIX_MESH
-    else:
-        prefix = config['mesh_uri_prefix']
-    if path is not None:
-        if not prefix.endswith('/'):
-            prefix += '/'
-        return '%s%s' % (prefix, path)
-    else:
-        return prefix
+    return uri_for(config['mesh_uri_prefix'] or DEFAULT_URI_PREFIX_MESH, path)
+
+
+def local_resource(path, basepath):
+    if config['storage'] != 'local':
+        abort(403)
+    physpath = query_local(path, basepath)
+    if physpath is None:
+        abort(404)
+    try:
+        f = open(physpath)
+    except IOError:
+        abort(404)
+    return Response(f, direct_passthrough=True, content_type=MIME_TYPE)
 
 
 @app.route('/')
@@ -74,26 +77,22 @@ def view():
 
 @app.route(DEFAULT_URI_PREFIX_DAT + 'g/<path:path>')
 def dat_global(path):
-    if config['storage'] != 'local':
-        abort(403)
-    physpath = config['dat_path'] + '/' + util.normalize_path(path)
-    try:
-        f = open(physpath)
-    except IOError:
-        abort(404)
-    return Response(f, direct_passthrough=True, content_type=MIME_TYPE)
+    return local_resource(path, config['dat_path'])
 
 
 @app.route(DEFAULT_URI_PREFIX_MESH + 'g/<path:path>')
 def mesh_global(path):
-    if config['storage'] != 'local':
-        abort(403)
-    physpath = config['mesh_path'] + '/' + util.normalize_path(path)
-    try:
-        f = open(physpath)
-    except IOError:
-        abort(404)
-    return Response(f, direct_passthrough=True, content_type='application/json')
+    return local_resource(path, config['mesh_path'])
+
+
+@app.route(DEFAULT_URI_PREFIX_DAT + '<int:uid>/<string:name>')
+def dat_user(uid, name):
+    raise NotImplemented
+
+
+@app.route(DEFAULT_URI_PREFIX_MESH + '<int:uid>/<string:name>')
+def mesh_user(uid, name):
+    raise NotImplemented
 
 
 Application = app

@@ -192,8 +192,39 @@ class LDrawModel {
     header = new LDrawHeader();
     commands = new List<LDrawCommand>();
   }
+
+  Iterable<LDrawCommand> filterRefCmds() {
+    return commands.where((LDrawCommand c) => c is LDrawLine1);
+  }
+
+  List<LDrawCommand> filterDrawingCmds() {
+    return commands.where((LDrawCommand c) => c is LDrawLine2 ||
+			                      c is LDrawLine3 ||
+			                      c is LDrawLine4 ||
+			                      c is LDrawLine5);
+  }
+  
+  bool hasPart(String partName) {
+    return findPart(partName) != null;
+  }
+  
+  // Find contextual item
+  LDrawModel findPart(String partName) {
+    return null;
+  }
 }
 
 class LDrawMultipartModel extends LDrawModel {
   Map<String, LDrawModel> parts;
+
+  LDrawMultipartModel() : super() {
+    parts = new Map<String, LDrawModel>();
+  }
+
+  LDrawModel findPart(String partName) {
+    partName = normalizePath(partName);
+    if (parts.containsKey(partName))
+      return parts[partName];
+    return null;
+  }
 }

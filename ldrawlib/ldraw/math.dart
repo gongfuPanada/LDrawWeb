@@ -4,7 +4,7 @@ part of ldraw;
 
 const num EPSILON = 0.000001;
 
-class Vec4 {
+class Vec4 implements Comparable {
   List<num> val;
 
   Vec4() {
@@ -40,13 +40,18 @@ class Vec4 {
   setZ(num v) => val[2] = v;
   setW(num v) => val[3] = v;
 
+  int compareTo(Vec4 other) {
+    print(length());
+    return length().compareTo(other.length());
+  }
+
   num length() {
     return sqrt(x()*x() + y()*y() + z()*z());
   }
 
   Vec4 normalize() {
     num r = length();
-    
+
     if (r != 0.0)
       return new Vec4.xyz(x() / r, y() / r, z() / r);
     else

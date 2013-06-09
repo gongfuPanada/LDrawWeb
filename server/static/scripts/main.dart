@@ -1,6 +1,8 @@
 import 'dart:html';
 import 'dart:json';
 
+import 'ldraw.dart';
+
 CanvasElement getCanvas(String id) {
   return query('#$id');
 }
