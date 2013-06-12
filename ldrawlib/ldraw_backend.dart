@@ -6,8 +6,10 @@ import 'dart:collection';
 import 'dart:math';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:uri';
 
 part 'ldraw/io.dart';
+part 'ldraw/io_backend.dart';
 part 'ldraw/math.dart';
 part 'ldraw/meshgen.dart';
 part 'ldraw/resolver.dart';

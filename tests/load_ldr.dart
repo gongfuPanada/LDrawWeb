@@ -4,6 +4,7 @@ import '../ldrawlib/ldraw_backend.dart';
 
 main() {
   List<String> argv = (new Options()).arguments;
+  Resolver r = new Resolver();
 
   for (String file in argv) {
     File f = new File(file);
@@ -11,10 +12,7 @@ main() {
 	print(file);
 	LDrawMultipartModel model = new LDrawMultipartModel();
 	parseMultipartModel(model, list.iterator);
-	LDrawModel m = model.findPart('lever.ldr');
-	print(m.header.name);
-	for (LDrawCommand c in model.filterRefCmds())
-	  print(c);
+        r.resolveModel(model);
       });
   }
 }

@@ -19,6 +19,10 @@ class Resolver {
     datFiles = new HashMap<String, LDrawModel>();
   }
 
+  Iterable<String> getItemsToBeLoaded() {
+    return registry.keys.where((String key) => registry[key] == TAG_TO_BE_LOADED);
+  }
+
   void resolveModel(LDrawModel model) {
     for (LDrawLine1 cmd in model.filterRefCmds()) {
       LDrawModel subpart = model.findPart(cmd.name);
@@ -27,10 +31,22 @@ class Resolver {
       } else {
 	String partName = normalizePath(cmd.name);
 	if (queryPart(partName) == TAG_NOT_LOADED) {
-	  registry[partName] = TAG_LOADING;
-	  
+	  registry[partName] = TAG_TO_BE_LOADED;
 	}
       }
+    }
+
+    for (String s in getItemsToBeLoaded()) {
+      String uri = DAT_ENDPOINT + 'g/$s';
+      print(uri);
+      HttpClient client = new HttpClient();
+      client.getUrl(Uri.parse(uri))
+        .then((HttpClientRequest request) {
+          return request.close();
+        })
+        .then((HttpClientResponse response) {
+          print(response);
+        });
     }
   }
 
