@@ -73,7 +73,7 @@ void blah(Model model) {
   GL.enable(DEPTH_TEST);
   GL.enable(BLEND);
   GL.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-  GL.lineWidth(3.0);
+  GL.lineWidth(2.0);
 
   Mat3 normalMatrix = new Mat3();
 
@@ -108,10 +108,19 @@ void blah(Model model) {
 
   model.recycle();
 
-  num pt = 0.0;
-  int cstp = -1;
+  num pt = 0.0, it = 0.0;
+  int idx = 0;
   void draw(num frame) {
     GL.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+
+    if (frame - it > 300.0) {
+      ++idx;
+      it = frame;
+    }
+    if (idx >= model.indices.length)
+      idx = 0;
+
+    Index index = model.indices[idx];
 
     matrixRotate(mv, axis, (pt - frame) / 500.0);
     mv.toInverseMat3(normalMatrix);
@@ -140,7 +149,7 @@ void blah(Model model) {
       GL.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
       GL.bindBuffer(ARRAY_BUFFER, nbufs[c]);
       GL.vertexAttribPointer(s.vertexNormal, 3, FLOAT, false, 0, 0);
-      GL.drawArrays(TRIANGLES, 0, elems[c]);
+      GL.drawArrays(TRIANGLES, 0, index.start[c] + index.count[c]);
     }
 
     m.bindEdgeShader();
@@ -155,7 +164,7 @@ void blah(Model model) {
     GL.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
     GL.bindBuffer(ARRAY_BUFFER, edgec);
     GL.vertexAttribPointer(s.vertexColor, 3, FLOAT, false, 0, 0);
-    GL.drawArrays(LINES, 0, edgecnt);
+    GL.drawArrays(LINES, 0, index.edgeStart + index.edgeCount);
 
     GL.finish();
 

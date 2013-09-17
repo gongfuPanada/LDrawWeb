@@ -52,7 +52,8 @@ abstract class Face {
     if (vertexCount < 3)
       return null;
 
-    return Vec4.cross(vertices[1] - vertices[2], vertices[1] - vertices[0]).normalize() * -1.0;
+    return Vec4.cross(vertices[1] - vertices[2],
+        vertices[1] - vertices[0]).normalize() * -1.0;
   }
 
   String toString() => vertices.toString();
@@ -699,7 +700,7 @@ class Model {
 
   // index
   List<String> subparts;
-  Map<String, List<Index> subpartIndices;
+  Map<String, List<Index>> subpartIndices;
   List<Index> indices;
   BoundingBox boundingBox;
   bool built;
@@ -744,7 +745,7 @@ class Model {
 
     Set<String> visitedSubparts = new HashSet<String>();
 
-    void traverse(LDrawModel model, Color color, Mat4 matrix, bool divideIndices) {
+    void traverseMesh(LDrawModel model, Color color, Mat4 matrix, bool divideIndices) {
       if (model == null)
         return;
 
@@ -762,7 +763,7 @@ class Model {
             div = false;
           else
             div = true;
-          traverse(root.findPart(path), c, matrix * cmd.matrix, div);
+          traverseMesh(root.findPart(path), c, matrix * cmd.matrix, div);
           visitedSubparts.add(path);
         } else {
           /* merge into big mesh chunks */
@@ -792,9 +793,12 @@ class Model {
       }
     }
 
-    traverse(root, ColorMap.instance.query(BASE_MODEL_COLOR), new Mat4.identity(), true);
+    traverseMesh(root, ColorMap.instance.query(BASE_MODEL_COLOR),
+        new Mat4.identity(), true);
 
-    for (MeshCategory c in meshChunks.keys) {
+    Set<MeshCategory> categories = new Set.from(meshChunks.keys);
+
+    for (MeshCategory c in categories) {
       meshChunks[c].finish();
     }
 
@@ -804,23 +808,63 @@ class Model {
     subparts = new List<String>();
     
     /* build subpart hierarchy */
+    Map<MeshCategory, int> curTriIndex = new HashMap<MeshCategory, int>();
+    int curEdgeIndex = 0;
+    MeshCategory defaultColorBfc = new MeshCategory(ColorMap.instance.query(16), true);
+    MeshCategory defaultColor = new MeshCategory(ColorMap.instance.query(16), false);
+
     void traverseIndex(LDrawModel model) {
       if (model == null)
         return;
 
       for (LDrawLine1 cmd in model.filterRefCmds()) {
-        if (root.hasPart(cmd.name)) {
-          traverseIndex(root.findPart(cmd.name));
+        String name = normalizePath(cmd.name);
 
-          String name = normalizePath(cmd.name);
+        if (root.hasPart(name)) {
+          traverseIndex(root.findPart(name));
+
           if (!subparts.contains(name))
             subparts.add(name);
+        } else {
+          Index idx = new Index(this);
+
+          MeshCategory partColorBfc = new MeshCategory(ColorMap.instance.query(cmd.color), true);
+          MeshCategory partColor = new MeshCategory(ColorMap.instance.query(cmd.color), false);
+
+          for (MeshCategory c in categories) {
+            int count;
+            if (submodels[name].meshes.containsKey(c))
+              count = submodels[name].meshes[c].count;
+            else
+              count = 0;
+
+            try {
+              if (partColorBfc == c)
+                count += submodels[name].meshes[defaultColorBfc].count;
+              else if (partColor == c)
+                count += submodels[name].meshes[defaultColor].count;
+            } catch (e) {}
+
+            print(count);
+
+            if (!curTriIndex.containsKey(c))
+              curTriIndex[c] = 0;
+
+            idx.add(c, curTriIndex[c], count);
+            curTriIndex[c] += count;
+          }
+
+          idx.setEdgeIndex(curEdgeIndex, submodels[name].edges.count);
+          curEdgeIndex += submodels[name].edges.count;
+
+          idx.finish();
+          indices.add(idx);
         }
       }
     }
     traverseIndex(root);
 
-    print('subparts: $subparts');
+    print(indices);
 
     built = true;
   }
