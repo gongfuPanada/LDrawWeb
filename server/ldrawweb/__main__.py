@@ -26,7 +26,7 @@ from ldrawweb.app import Application
                params={'config': 'path to config file',
                        'port': 'port number',
                        'host': 'host address'})
-def run(config=None, host='127.0.0.1', port=8080):
+def run(config=None, host='0.0.0.0', port=8080):
     try:
         update_config(config)
     except:

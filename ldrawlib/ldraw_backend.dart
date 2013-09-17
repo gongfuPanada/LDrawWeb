@@ -3,15 +3,19 @@
 library ldraw;
 
 import 'dart:collection';
+import 'dart:core';
 import 'dart:math';
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:json';
 import 'dart:typed_data';
-import 'dart:uri';
 
+part 'ldraw/colors.dart';
 part 'ldraw/io.dart';
 part 'ldraw/io_backend.dart';
+part 'ldraw/kdtree.dart';
 part 'ldraw/math.dart';
-part 'ldraw/meshgen.dart';
+part 'ldarw/postprocess.dart';
 part 'ldraw/resolver.dart';
 part 'ldraw/types.dart';
 part 'ldraw/util.dart';

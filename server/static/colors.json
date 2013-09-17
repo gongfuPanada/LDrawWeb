@@ -1,0 +1,2542 @@
+{
+  "216": {
+    "material": {
+      "color": [
+        179, 
+        16, 
+        4, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Rust"
+  }, 
+  "212": {
+    "material": {
+      "color": [
+        134, 
+        193, 
+        225, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Bright_Light_Blue"
+  }, 
+  "133": {
+    "material": {
+      "fraction": 0.4, 
+      "color": [
+        0, 
+        0, 
+        0, 
+        255
+      ], 
+      "speckle_value": [
+        219, 
+        172, 
+        52
+      ], 
+      "edge": [
+        219, 
+        172, 
+        52
+      ], 
+      "speckle_size_min": 1, 
+      "speckle_size_max": 3
+    }, 
+    "type": "speckle", 
+    "name": "Speckle_Black_Gold"
+  }, 
+  "132": {
+    "material": {
+      "fraction": 0.4, 
+      "color": [
+        0, 
+        0, 
+        0, 
+        255
+      ], 
+      "speckle_value": [
+        137, 
+        135, 
+        136
+      ], 
+      "edge": [
+        137, 
+        135, 
+        136
+      ], 
+      "speckle_size_min": 1, 
+      "speckle_size_max": 3
+    }, 
+    "type": "speckle", 
+    "name": "Speckle_Black_Silver"
+  }, 
+  "137": {
+    "material": {
+      "color": [
+        86, 
+        119, 
+        186, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "pearlescent", 
+    "name": "Metal_Blue"
+  }, 
+  "135": {
+    "material": {
+      "color": [
+        156, 
+        163, 
+        168, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "pearlescent", 
+    "name": "Pearl_Light_Gray"
+  }, 
+  "134": {
+    "material": {
+      "color": [
+        150, 
+        74, 
+        39, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "pearlescent", 
+    "name": "Copper"
+  }, 
+  "494": {
+    "material": {
+      "color": [
+        208, 
+        208, 
+        208, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "metal", 
+    "name": "Electric_Contact_Alloy"
+  }, 
+  "495": {
+    "material": {
+      "color": [
+        174, 
+        122, 
+        89, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "metal", 
+    "name": "Electric_Contact_Copper"
+  }, 
+  "496": {
+    "material": {
+      "color": [
+        163, 
+        162, 
+        164, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Light_Bluish_Gray"
+  }, 
+  "490": {
+    "material": {
+      "color": [
+        215, 
+        240, 
+        0, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Lime"
+  }, 
+  "493": {
+    "material": {
+      "color": [
+        101, 
+        103, 
+        97, 
+        255
+      ], 
+      "edge": [
+        89, 
+        89, 
+        89
+      ]
+    }, 
+    "type": "metal", 
+    "name": "Magnet"
+  }, 
+  "24": {
+    "material": {
+      "color": [
+        127, 
+        127, 
+        127, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Edge_Colour"
+  }, 
+  "25": {
+    "material": {
+      "color": [
+        254, 
+        138, 
+        24, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Orange"
+  }, 
+  "26": {
+    "material": {
+      "color": [
+        146, 
+        57, 
+        120, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Magenta"
+  }, 
+  "27": {
+    "material": {
+      "color": [
+        187, 
+        233, 
+        11, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Lime"
+  }, 
+  "20": {
+    "material": {
+      "color": [
+        201, 
+        202, 
+        226, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Violet"
+  }, 
+  "21": {
+    "material": {
+      "color": [
+        224, 
+        255, 
+        176, 
+        250
+      ], 
+      "luminance": 15, 
+      "edge": [
+        164, 
+        195, 
+        116
+      ]
+    }, 
+    "type": "glow_in_the_dark", 
+    "name": "Glow_In_Dark_Opaque"
+  }, 
+  "22": {
+    "material": {
+      "color": [
+        129, 
+        0, 
+        123, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Purple"
+  }, 
+  "23": {
+    "material": {
+      "color": [
+        32, 
+        50, 
+        176, 
+        255
+      ], 
+      "edge": [
+        30, 
+        30, 
+        30
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Blue_Violet"
+  }, 
+  "28": {
+    "material": {
+      "color": [
+        149, 
+        138, 
+        115, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Tan"
+  }, 
+  "29": {
+    "material": {
+      "color": [
+        228, 
+        173, 
+        200, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Bright_Pink"
+  }, 
+  "0": {
+    "material": {
+      "color": [
+        5, 
+        19, 
+        29, 
+        255
+      ], 
+      "edge": [
+        89, 
+        89, 
+        89
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Black"
+  }, 
+  "4": {
+    "material": {
+      "color": [
+        201, 
+        26, 
+        9, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Red"
+  }, 
+  "5": {
+    "material": {
+      "color": [
+        200, 
+        112, 
+        160, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Pink"
+  }, 
+  "87": {
+    "material": {
+      "color": [
+        109, 
+        110, 
+        92, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "metal", 
+    "name": "Metallic_Dark_Gray"
+  }, 
+  "120": {
+    "material": {
+      "color": [
+        217, 
+        228, 
+        167, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Lime"
+  }, 
+  "125": {
+    "material": {
+      "color": [
+        249, 
+        186, 
+        97, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Orange"
+  }, 
+  "129": {
+    "material": {
+      "vfraction": 0.4, 
+      "glitter_color": [
+        140, 
+        0, 
+        255
+      ], 
+      "color": [
+        100, 
+        0, 
+        97, 
+        128
+      ], 
+      "edge": [
+        40, 
+        0, 
+        37
+      ], 
+      "fraction": 0.3, 
+      "size": 1
+    }, 
+    "type": "glitter", 
+    "name": "Glitter_Trans_Purple"
+  }, 
+  "54": {
+    "material": {
+      "color": [
+        218, 
+        176, 
+        0, 
+        128
+      ], 
+      "edge": [
+        195, 
+        186, 
+        63
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Neon_Yellow"
+  }, 
+  "57": {
+    "material": {
+      "color": [
+        240, 
+        143, 
+        28, 
+        128
+      ], 
+      "edge": [
+        164, 
+        92, 
+        40
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Orange"
+  }, 
+  "52": {
+    "material": {
+      "color": [
+        165, 
+        165, 
+        203, 
+        128
+      ], 
+      "edge": [
+        40, 
+        0, 
+        37
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Purple"
+  }, 
+  "379": {
+    "material": {
+      "color": [
+        89, 
+        113, 
+        132, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Sand_Blue"
+  }, 
+  "378": {
+    "material": {
+      "color": [
+        160, 
+        188, 
+        172, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Sand_Green"
+  }, 
+  "297": {
+    "material": {
+      "color": [
+        204, 
+        156, 
+        43, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "pearlescent", 
+    "name": "Pearl_Gold"
+  }, 
+  "373": {
+    "material": {
+      "color": [
+        132, 
+        94, 
+        132, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Sand_Purple"
+  }, 
+  "375": {
+    "material": {
+      "color": [
+        193, 
+        194, 
+        193, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Light_Gray"
+  }, 
+  "66": {
+    "material": {
+      "color": [
+        202, 
+        176, 
+        0, 
+        128
+      ], 
+      "edge": [
+        142, 
+        116, 
+        0
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Trans_Yellow"
+  }, 
+  "313": {
+    "material": {
+      "color": [
+        84, 
+        169, 
+        200, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Maersk_Blue"
+  }, 
+  "67": {
+    "material": {
+      "color": [
+        255, 
+        255, 
+        255, 
+        128
+      ], 
+      "edge": [
+        195, 
+        195, 
+        195
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Trans_Clear"
+  }, 
+  "191": {
+    "material": {
+      "color": [
+        248, 
+        187, 
+        61, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Bright_Light_Orange"
+  }, 
+  "115": {
+    "material": {
+      "color": [
+        199, 
+        210, 
+        60, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Medium_Lime"
+  }, 
+  "114": {
+    "material": {
+      "vfraction": 0.2, 
+      "glitter_color": [
+        146, 
+        57, 
+        120
+      ], 
+      "color": [
+        223, 
+        102, 
+        149, 
+        128
+      ], 
+      "edge": [
+        154, 
+        42, 
+        102
+      ], 
+      "fraction": 0.17, 
+      "size": 1
+    }, 
+    "type": "glitter", 
+    "name": "Glitter_Trans_Dark_Pink"
+  }, 
+  "117": {
+    "material": {
+      "vfraction": 0.1, 
+      "glitter_color": [
+        255, 
+        255, 
+        255
+      ], 
+      "color": [
+        255, 
+        255, 
+        255, 
+        128
+      ], 
+      "edge": [
+        195, 
+        195, 
+        195
+      ], 
+      "fraction": 0.08, 
+      "size": 1
+    }, 
+    "type": "glitter", 
+    "name": "Glitter_Trans_Clear"
+  }, 
+  "273": {
+    "material": {
+      "color": [
+        0, 
+        51, 
+        178, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Blue"
+  }, 
+  "110": {
+    "material": {
+      "color": [
+        67, 
+        84, 
+        163, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Violet"
+  }, 
+  "112": {
+    "material": {
+      "color": [
+        104, 
+        116, 
+        202, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Medium_Violet"
+  }, 
+  "82": {
+    "material": {
+      "color": [
+        140, 
+        92, 
+        32, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "metal", 
+    "name": "Metallic_Gold"
+  }, 
+  "83": {
+    "material": {
+      "color": [
+        26, 
+        40, 
+        49, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "metal", 
+    "name": "Metallic_Black"
+  }, 
+  "80": {
+    "material": {
+      "color": [
+        165, 
+        169, 
+        180, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "metal", 
+    "name": "Metallic_Silver"
+  }, 
+  "81": {
+    "material": {
+      "color": [
+        137, 
+        155, 
+        95, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "metal", 
+    "name": "Metallic_Green"
+  }, 
+  "86": {
+    "material": {
+      "color": [
+        124, 
+        80, 
+        58, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Flesh"
+  }, 
+  "118": {
+    "material": {
+      "color": [
+        179, 
+        215, 
+        209, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Aqua"
+  }, 
+  "84": {
+    "material": {
+      "color": [
+        204, 
+        112, 
+        42, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Medium_Dark_Flesh"
+  }, 
+  "85": {
+    "material": {
+      "color": [
+        63, 
+        54, 
+        145, 
+        255
+      ], 
+      "edge": [
+        30, 
+        30, 
+        30
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Purple"
+  }, 
+  "3": {
+    "material": {
+      "color": [
+        0, 
+        131, 
+        143, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Turquoise"
+  }, 
+  "7": {
+    "material": {
+      "color": [
+        155, 
+        161, 
+        157, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Gray"
+  }, 
+  "366": {
+    "material": {
+      "color": [
+        250, 
+        156, 
+        28, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Earth_Orange"
+  }, 
+  "308": {
+    "material": {
+      "color": [
+        53, 
+        33, 
+        0, 
+        255
+      ], 
+      "edge": [
+        89, 
+        89, 
+        89
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Brown"
+  }, 
+  "449": {
+    "material": {
+      "color": [
+        129, 
+        0, 
+        123, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Purple"
+  }, 
+  "383": {
+    "material": {
+      "color": [
+        224, 
+        224, 
+        224, 
+        255
+      ], 
+      "edge": [
+        164, 
+        164, 
+        164
+      ]
+    }, 
+    "type": "chrome", 
+    "name": "Chrome_Silver"
+  }, 
+  "406": {
+    "material": {
+      "color": [
+        0, 
+        29, 
+        104, 
+        255
+      ], 
+      "edge": [
+        89, 
+        89, 
+        89
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Dark_Blue"
+  }, 
+  "100": {
+    "material": {
+      "color": [
+        254, 
+        186, 
+        189, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Salmon"
+  }, 
+  "294": {
+    "material": {
+      "color": [
+        189, 
+        198, 
+        173, 
+        250
+      ], 
+      "luminance": 15, 
+      "edge": [
+        129, 
+        138, 
+        113
+      ]
+    }, 
+    "type": "glow_in_the_dark", 
+    "name": "Glow_In_Dark_Trans"
+  }, 
+  "39": {
+    "material": {
+      "color": [
+        193, 
+        223, 
+        240, 
+        128
+      ], 
+      "edge": [
+        133, 
+        163, 
+        180
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Very_Light_Blue"
+  }, 
+  "38": {
+    "material": {
+      "color": [
+        255, 
+        128, 
+        13, 
+        128
+      ], 
+      "edge": [
+        189, 
+        36, 
+        0
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Neon_Orange"
+  }, 
+  "33": {
+    "material": {
+      "color": [
+        0, 
+        32, 
+        160, 
+        128
+      ], 
+      "edge": [
+        0, 
+        0, 
+        100
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Dark_Blue"
+  }, 
+  "32": {
+    "material": {
+      "color": [
+        0, 
+        0, 
+        0, 
+        200
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Black_IR_Lens"
+  }, 
+  "31": {
+    "material": {
+      "color": [
+        225, 
+        213, 
+        237, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Lavender"
+  }, 
+  "30": {
+    "material": {
+      "color": [
+        172, 
+        120, 
+        186, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Medium_Lavender"
+  }, 
+  "37": {
+    "material": {
+      "color": [
+        223, 
+        102, 
+        149, 
+        128
+      ], 
+      "edge": [
+        163, 
+        42, 
+        89
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Dark_Pink"
+  }, 
+  "36": {
+    "material": {
+      "color": [
+        201, 
+        26, 
+        9, 
+        128
+      ], 
+      "edge": [
+        136, 
+        0, 
+        0
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Red"
+  }, 
+  "35": {
+    "material": {
+      "color": [
+        86, 
+        230, 
+        70, 
+        128
+      ], 
+      "edge": [
+        157, 
+        168, 
+        107
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Bright_Green"
+  }, 
+  "34": {
+    "material": {
+      "color": [
+        35, 
+        120, 
+        65, 
+        128
+      ], 
+      "edge": [
+        30, 
+        98, 
+        57
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Green"
+  }, 
+  "511": {
+    "material": {
+      "color": [
+        250, 
+        250, 
+        250, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_White"
+  }, 
+  "335": {
+    "material": {
+      "color": [
+        214, 
+        117, 
+        114, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Sand_Red"
+  }, 
+  "334": {
+    "material": {
+      "color": [
+        187, 
+        165, 
+        61, 
+        255
+      ], 
+      "edge": [
+        187, 
+        178, 
+        61
+      ]
+    }, 
+    "type": "chrome", 
+    "name": "Chrome_Gold"
+  }, 
+  "330": {
+    "material": {
+      "color": [
+        155, 
+        154, 
+        90, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Olive_Green"
+  }, 
+  "60": {
+    "material": {
+      "color": [
+        100, 
+        90, 
+        76, 
+        255
+      ], 
+      "edge": [
+        40, 
+        30, 
+        16
+      ]
+    }, 
+    "type": "chrome", 
+    "name": "Chrome_Antique_Brass"
+  }, 
+  "61": {
+    "material": {
+      "color": [
+        108, 
+        150, 
+        191, 
+        255
+      ], 
+      "edge": [
+        32, 
+        42, 
+        104
+      ]
+    }, 
+    "type": "chrome", 
+    "name": "Chrome_Blue"
+  }, 
+  "62": {
+    "material": {
+      "color": [
+        60, 
+        179, 
+        113, 
+        255
+      ], 
+      "edge": [
+        0, 
+        119, 
+        53
+      ]
+    }, 
+    "type": "chrome", 
+    "name": "Chrome_Green"
+  }, 
+  "63": {
+    "material": {
+      "color": [
+        170, 
+        77, 
+        142, 
+        255
+      ], 
+      "edge": [
+        110, 
+        17, 
+        82
+      ]
+    }, 
+    "type": "chrome", 
+    "name": "Chrome_Pink"
+  }, 
+  "64": {
+    "material": {
+      "color": [
+        27, 
+        42, 
+        52, 
+        255
+      ], 
+      "edge": [
+        89, 
+        89, 
+        89
+      ]
+    }, 
+    "type": "chrome", 
+    "name": "Chrome_Black"
+  }, 
+  "65": {
+    "material": {
+      "color": [
+        245, 
+        205, 
+        47, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Yellow"
+  }, 
+  "179": {
+    "material": {
+      "color": [
+        137, 
+        135, 
+        136, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "pearlescent", 
+    "name": "Flat_Silver"
+  }, 
+  "178": {
+    "material": {
+      "color": [
+        180, 
+        136, 
+        62, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "pearlescent", 
+    "name": "Flat_Dark_Gold"
+  }, 
+  "68": {
+    "material": {
+      "color": [
+        243, 
+        207, 
+        155, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Very_Light_Orange"
+  }, 
+  "69": {
+    "material": {
+      "color": [
+        205, 
+        98, 
+        152, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Purple"
+  }, 
+  "256": {
+    "material": {
+      "color": [
+        33, 
+        33, 
+        33, 
+        255
+      ], 
+      "edge": [
+        89, 
+        89, 
+        89
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Black"
+  }, 
+  "288": {
+    "material": {
+      "color": [
+        24, 
+        70, 
+        50, 
+        255
+      ], 
+      "edge": [
+        89, 
+        89, 
+        89
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Green"
+  }, 
+  "183": {
+    "material": {
+      "color": [
+        242, 
+        243, 
+        242, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "pearlescent", 
+    "name": "Pearl_White"
+  }, 
+  "2": {
+    "material": {
+      "color": [
+        37, 
+        122, 
+        62, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Green"
+  }, 
+  "6": {
+    "material": {
+      "color": [
+        88, 
+        57, 
+        39, 
+        255
+      ], 
+      "edge": [
+        30, 
+        30, 
+        30
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Brown"
+  }, 
+  "504": {
+    "material": {
+      "color": [
+        137, 
+        135, 
+        136, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Flat_Silver"
+  }, 
+  "503": {
+    "material": {
+      "color": [
+        230, 
+        227, 
+        218, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Very_Light_Gray"
+  }, 
+  "450": {
+    "material": {
+      "color": [
+        182, 
+        123, 
+        80, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Fabuland_Brown"
+  }, 
+  "462": {
+    "material": {
+      "color": [
+        255, 
+        167, 
+        11, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Medium_Orange"
+  }, 
+  "8": {
+    "material": {
+      "color": [
+        109, 
+        110, 
+        92, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Gray"
+  }, 
+  "226": {
+    "material": {
+      "color": [
+        255, 
+        240, 
+        58, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Bright_Light_Yellow"
+  }, 
+  "92": {
+    "material": {
+      "color": [
+        208, 
+        145, 
+        104, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Flesh"
+  }, 
+  "11": {
+    "material": {
+      "color": [
+        85, 
+        165, 
+        175, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Turquoise"
+  }, 
+  "10": {
+    "material": {
+      "color": [
+        75, 
+        159, 
+        74, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Bright_Green"
+  }, 
+  "13": {
+    "material": {
+      "color": [
+        252, 
+        151, 
+        172, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Pink"
+  }, 
+  "12": {
+    "material": {
+      "color": [
+        242, 
+        112, 
+        94, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Salmon"
+  }, 
+  "15": {
+    "material": {
+      "color": [
+        255, 
+        255, 
+        255, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "White"
+  }, 
+  "14": {
+    "material": {
+      "color": [
+        242, 
+        205, 
+        55, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Yellow"
+  }, 
+  "17": {
+    "material": {
+      "color": [
+        194, 
+        218, 
+        184, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Green"
+  }, 
+  "16": {
+    "material": {
+      "color": [
+        127, 
+        127, 
+        127, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Main_Colour"
+  }, 
+  "19": {
+    "material": {
+      "color": [
+        228, 
+        205, 
+        158, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Tan"
+  }, 
+  "18": {
+    "material": {
+      "color": [
+        251, 
+        230, 
+        150, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Yellow"
+  }, 
+  "272": {
+    "material": {
+      "color": [
+        13, 
+        50, 
+        91, 
+        255
+      ], 
+      "edge": [
+        30, 
+        30, 
+        30
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Blue"
+  }, 
+  "89": {
+    "material": {
+      "color": [
+        76, 
+        97, 
+        219, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Blue_Violet"
+  }, 
+  "151": {
+    "material": {
+      "color": [
+        230, 
+        227, 
+        224, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Very_Light_Bluish_Gray"
+  }, 
+  "150": {
+    "material": {
+      "color": [
+        187, 
+        189, 
+        188, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "pearlescent", 
+    "name": "Pearl_Very_Light_Grey"
+  }, 
+  "232": {
+    "material": {
+      "color": [
+        86, 
+        190, 
+        214, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Sky_Blue"
+  }, 
+  "46": {
+    "material": {
+      "color": [
+        245, 
+        205, 
+        47, 
+        128
+      ], 
+      "edge": [
+        142, 
+        116, 
+        0
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Yellow"
+  }, 
+  "47": {
+    "material": {
+      "color": [
+        252, 
+        252, 
+        252, 
+        128
+      ], 
+      "edge": [
+        195, 
+        195, 
+        195
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Clear"
+  }, 
+  "44": {
+    "material": {
+      "color": [
+        150, 
+        112, 
+        159, 
+        128
+      ], 
+      "edge": [
+        90, 
+        52, 
+        99
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Light_Purple"
+  }, 
+  "45": {
+    "material": {
+      "color": [
+        252, 
+        151, 
+        172, 
+        128
+      ], 
+      "edge": [
+        168, 
+        113, 
+        140
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Pink"
+  }, 
+  "42": {
+    "material": {
+      "color": [
+        192, 
+        255, 
+        0, 
+        128
+      ], 
+      "edge": [
+        132, 
+        195, 
+        0
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Neon_Green"
+  }, 
+  "43": {
+    "material": {
+      "color": [
+        174, 
+        233, 
+        239, 
+        128
+      ], 
+      "edge": [
+        114, 
+        179, 
+        176
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Light_Blue"
+  }, 
+  "40": {
+    "material": {
+      "color": [
+        99, 
+        95, 
+        82, 
+        128
+      ], 
+      "edge": [
+        23, 
+        19, 
+        22
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Black"
+  }, 
+  "41": {
+    "material": {
+      "color": [
+        85, 
+        154, 
+        183, 
+        128
+      ], 
+      "edge": [
+        25, 
+        105, 
+        115
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Trans_Medium_Blue"
+  }, 
+  "322": {
+    "material": {
+      "color": [
+        62, 
+        194, 
+        221, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Medium_Azure"
+  }, 
+  "323": {
+    "material": {
+      "color": [
+        189, 
+        220, 
+        216, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Aqua"
+  }, 
+  "320": {
+    "material": {
+      "color": [
+        114, 
+        14, 
+        15, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Red"
+  }, 
+  "321": {
+    "material": {
+      "color": [
+        20, 
+        152, 
+        215, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Azure"
+  }, 
+  "326": {
+    "material": {
+      "color": [
+        223, 
+        238, 
+        165, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Yellowish_Green"
+  }, 
+  "324": {
+    "material": {
+      "color": [
+        196, 
+        0, 
+        38, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Red"
+  }, 
+  "9": {
+    "material": {
+      "color": [
+        180, 
+        210, 
+        227, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Blue"
+  }, 
+  "142": {
+    "material": {
+      "color": [
+        220, 
+        190, 
+        97, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "pearlescent", 
+    "name": "Pearl_Light_Gold"
+  }, 
+  "148": {
+    "material": {
+      "color": [
+        87, 
+        88, 
+        87, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "pearlescent", 
+    "name": "Pearl_Dark_Gray"
+  }, 
+  "77": {
+    "material": {
+      "color": [
+        254, 
+        204, 
+        207, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Pink"
+  }, 
+  "76": {
+    "material": {
+      "fraction": 0.4, 
+      "color": [
+        99, 
+        95, 
+        97, 
+        255
+      ], 
+      "speckle_value": [
+        137, 
+        135, 
+        136
+      ], 
+      "edge": [
+        137, 
+        135, 
+        136
+      ], 
+      "speckle_size_min": 1, 
+      "speckle_size_max": 3
+    }, 
+    "type": "speckle", 
+    "name": "Speckle_Dark_Bluish_Gray_Silver"
+  }, 
+  "75": {
+    "material": {
+      "fraction": 0.4, 
+      "color": [
+        0, 
+        0, 
+        0, 
+        255
+      ], 
+      "speckle_value": [
+        171, 
+        96, 
+        56
+      ], 
+      "edge": [
+        171, 
+        96, 
+        56
+      ], 
+      "speckle_size_min": 1, 
+      "speckle_size_max": 3
+    }, 
+    "type": "speckle", 
+    "name": "Speckle_Black_Copper"
+  }, 
+  "74": {
+    "material": {
+      "color": [
+        115, 
+        220, 
+        161, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Medium_Green"
+  }, 
+  "73": {
+    "material": {
+      "color": [
+        92, 
+        157, 
+        209, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Medium_Blue"
+  }, 
+  "72": {
+    "material": {
+      "color": [
+        108, 
+        110, 
+        104, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Bluish_Gray"
+  }, 
+  "71": {
+    "material": {
+      "color": [
+        160, 
+        165, 
+        169, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Bluish_Gray"
+  }, 
+  "70": {
+    "material": {
+      "color": [
+        88, 
+        42, 
+        18, 
+        255
+      ], 
+      "edge": [
+        89, 
+        89, 
+        89
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Reddish_Brown"
+  }, 
+  "484": {
+    "material": {
+      "color": [
+        169, 
+        85, 
+        0, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Dark_Orange"
+  }, 
+  "79": {
+    "material": {
+      "color": [
+        255, 
+        255, 
+        255, 
+        224
+      ], 
+      "edge": [
+        195, 
+        195, 
+        195
+      ]
+    }, 
+    "type": "translucent", 
+    "name": "Milky_White"
+  }, 
+  "78": {
+    "material": {
+      "color": [
+        246, 
+        215, 
+        179, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Light_Flesh"
+  }, 
+  "1": {
+    "material": {
+      "color": [
+        0, 
+        85, 
+        191, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Blue"
+  }, 
+  "351": {
+    "material": {
+      "color": [
+        247, 
+        133, 
+        177, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "solid", 
+    "name": "Medium_Dark_Pink"
+  }, 
+  "350": {
+    "material": {
+      "color": [
+        208, 
+        102, 
+        16, 
+        255
+      ], 
+      "edge": [
+        51, 
+        51, 
+        51
+      ]
+    }, 
+    "type": "rubber", 
+    "name": "Rubber_Orange"
+  }
+}

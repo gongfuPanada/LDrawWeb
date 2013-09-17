@@ -101,7 +101,6 @@ LDrawCommand parseLine0(String line) {
       type = LDrawBfc.INVERTNEXT;
     } else {
       throw new ParsingException('Invalid BFC directive: ${cmd[1]}');
-      return null;
     }
 
     return new LDrawBfc(type);
@@ -118,7 +117,7 @@ LDrawCommand parseLine1(String line) {
     throw new ParsingException('Parameter count does not match. 14 expected, ${t.length} found.');
 
   try {
-    LDrawColor color = new LDrawColor(int.parse(t[0]));
+    int color = int.parse(t[0]);
     Mat4 matrix = new Mat4.init(
         double.parse(t[4]), double.parse(t[5]), double.parse(t[6]),
         double.parse(t[7]), double.parse(t[8]), double.parse(t[9]),
@@ -137,7 +136,7 @@ LDrawCommand parseLine2(String line) {
     throw new ParsingException('Parameter count does not match. 7 expected, ${t.length} found.');
 
   try {
-    LDrawColor color = new LDrawColor(int.parse(t[0]));
+    int color = int.parse(t[0]);
     Vec4 v1 = new Vec4.xyz(double.parse(t[1]), double.parse(t[2]), double.parse(t[3]));
     Vec4 v2 = new Vec4.xyz(double.parse(t[4]), double.parse(t[5]), double.parse(t[6]));
 
@@ -153,7 +152,7 @@ LDrawCommand parseLine3(String line) {
     throw new ParsingException('Parameter count does not match. 10 expected, ${t.length} found.');
 
   try {
-    LDrawColor color = new LDrawColor(int.parse(t[0]));
+    int color = int.parse(t[0]);
     Vec4 v1 = new Vec4.xyz(double.parse(t[1]), double.parse(t[2]), double.parse(t[3]));
     Vec4 v2 = new Vec4.xyz(double.parse(t[4]), double.parse(t[5]), double.parse(t[6]));
     Vec4 v3 = new Vec4.xyz(double.parse(t[7]), double.parse(t[8]), double.parse(t[9]));
@@ -170,7 +169,7 @@ LDrawCommand parseLine4(String line) {
     throw new ParsingException('Parameter count does not match. 13 expected, ${t.length} found.');
 
   try {
-    LDrawColor color = new LDrawColor(int.parse(t[0]));
+    int color = int.parse(t[0]);
     Vec4 v1 = new Vec4.xyz(double.parse(t[1]), double.parse(t[2]), double.parse(t[3]));
     Vec4 v2 = new Vec4.xyz(double.parse(t[4]), double.parse(t[5]), double.parse(t[6]));
     Vec4 v3 = new Vec4.xyz(double.parse(t[7]), double.parse(t[8]), double.parse(t[9]));
@@ -188,7 +187,7 @@ LDrawCommand parseLine5(String line) {
     throw new ParsingException('Parameter count does not match. 13 expected, ${t.length} found.');
 
   try {
-    LDrawColor color = new LDrawColor(int.parse(t[0]));
+    int color = int.parse(t[0]);
     Vec4 v1 = new Vec4.xyz(double.parse(t[1]), double.parse(t[2]), double.parse(t[3]));
     Vec4 v2 = new Vec4.xyz(double.parse(t[4]), double.parse(t[5]), double.parse(t[6]));
     Vec4 v3 = new Vec4.xyz(double.parse(t[7]), double.parse(t[8]), double.parse(t[9]));
@@ -213,11 +212,11 @@ void parseModel(LDrawModel model, Iterator<String> iterator,
 		{bool multipart: false}) {
   bool isHeader = true;
   int lineno = 0;
-  
+
   String line;
   while (iterator.moveNext()) {
     ++lineno;
-    line = iterator.current;
+    line = iterator.current.trim();
     List<String> strings = splitBy(line, 1);
 
     if (strings.length == 0)
@@ -247,7 +246,6 @@ void parseModel(LDrawModel model, Iterator<String> iterator,
 	  isHeader = false;
 	if (parsers[id] == null) {
 	  throw new ParsingException('Unknown line type $id!');
-	  continue;
 	}
 	
 	LDrawCommand command = parsers[id](cmd);

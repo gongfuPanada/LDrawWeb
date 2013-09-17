@@ -2,7 +2,4 @@
 
 part of ldraw;
 
-class Mesh {
-
-}
 

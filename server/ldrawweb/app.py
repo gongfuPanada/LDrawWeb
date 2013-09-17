@@ -10,7 +10,7 @@
 import json
 import os
 
-from flask import Flask, abort, render_template, request
+from flask import Flask, abort, make_response, render_template, request
 from jinja2 import FileSystemLoader
 from werkzeug.wrappers import Response
 
@@ -48,6 +48,7 @@ def uri_for_mesh(path=None):
 
 
 def local_resource(path, basepath):
+    print path, basepath
     if config['storage'] != 'local':
         abort(403)
     physpath = query_local(path, basepath)
@@ -72,7 +73,9 @@ def view():
         data['uri'] = request.args.get('uri')
     else:
         raise NotImplemented
-    return render_template('view.html', **data)
+    response = make_response(render_template('view.html', **data))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 
 @app.route(DEFAULT_URI_PREFIX_DAT + 'g/<path:path>')

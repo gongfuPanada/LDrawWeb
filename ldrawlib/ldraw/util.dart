@@ -8,7 +8,7 @@ String normalizePath(String path) {
   return path.toLowerCase().replaceAll('\\', '/');
 }
 
-String splitBy(String str, [int count = null]) {
+List<String> splitBy(String str, [int count = null]) {
   List<String> output = new List<String>();
   int hit = 0;
   String trailing = '';
@@ -29,4 +29,38 @@ String splitBy(String str, [int count = null]) {
   if (!trailing.isEmpty)
     output.add(trailing.trim());
   return output;
+}
+
+bool isPrimitive(var obj) {
+  return (obj == null) || (obj is String) || (obj is num) || (obj is bool);
+}
+
+Object buildJsonPrimitive(Object obj) {
+  Object visit(v) {
+    if (!isPrimitive(v) && !(v is Map) && !(v is List))
+      v = v.toJson();
+    
+    if (isPrimitive(v)) {
+      return v;
+    } else if (v is Map) {
+      Map m = new Map();
+      Map lm = v;
+      lm.forEach((key, value) {
+        m[visit(key)] = visit(value);
+      });
+      return m;
+    } else if (v is List) {
+      List l = new List();
+      List ll = v;
+      for (int i = 0; i < ll.length; ++i)
+        l.add(visit(ll[i]));
+      return l;
+    } else {
+      print('object $v has no toJson() implemented');
+      return null;
+    }
+  }
+
+  var v = visit(obj);
+  return v;
 }

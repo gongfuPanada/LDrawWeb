@@ -4,14 +4,18 @@
   <head>
     <meta charset="utf-8" />
     <title>LDrawWeb</title>
+    <style type='text/css'>
+      body { font-family: sans-serif; }
+    </style>
   </head>
   <body>
-    <div id='data' style='display: none'
+    <div id="data" style="display: none"
 	 {% if uri %}data-uri="{{ uri }}"{% endif %}
 	 {% if model %}data-model="{{ model }}"{% endif %}
-    />
+    ></div>
     <script type="application/dart" src="{{ url_for('static', filename='scripts/main.dart') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='scripts/dart.js') }}"></script>				
-    <canvas id="mainCanvas" width="1024" height="768" />
+    <canvas id="mainCanvas" width="1024" height="768"></canvas>
+    <div id="progress" style="position: absolute; z-index: 3; overflow:scroll; width: 400px; height: 100%; left: 1054px; top: 0;" ></div>
   </body>
 </html>
