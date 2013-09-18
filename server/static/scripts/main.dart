@@ -117,10 +117,10 @@ void blah(Model model) {
       ++idx;
       it = frame;
     }
-    if (idx >= model.indices.length)
+    if (idx >= model.steps.length)
       idx = 0;
 
-    Index index = model.indices[idx];
+    Index index = model.indices[model.steps[idx]];
 
     matrixRotate(mv, axis, (pt - frame) / 500.0);
     mv.toInverseMat3(normalMatrix);

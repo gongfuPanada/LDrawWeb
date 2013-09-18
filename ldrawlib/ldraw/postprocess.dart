@@ -579,20 +579,23 @@ class BoundingBox {
     num miny, maxy;
     num minz, maxz;
 
-    if (a.x > b.x)
-      maxx = a.x, minx = b.x;
-    else
-      maxx = b.x, minx = a.x;
+    if (a.x > b.x) {
+      maxx = a.x; minx = b.x;
+    } else {
+      maxx = b.x; minx = a.x;
+    }
 
-    if (a.y > b.y)
-      maxy = a.y, miny = b.y;
-    else
-      maxy = b.y, miny = a.y;
+    if (a.y > b.y) {
+      maxy = a.y; miny = b.y;
+    } else {
+      maxy = b.y; miny = a.y;
+    }
 
-    if (a.z > b.z)
-      maxz = a.z, minz = b.z;
-    else
-      maxz = b.z, minz = a.z;
+    if (a.z > b.z) {
+      maxz = a.z; minz = b.z;
+    } else {
+      maxz = b.z; minz = a.z;
+    }
 
     min = new Vec4.xyz(minx, miny, minz);
     max = new Vec4.xyz(maxx, maxy, maxz);
@@ -702,6 +705,7 @@ class Model {
   List<String> subparts;
   Map<String, List<Index>> subpartIndices;
   List<Index> indices;
+  List<int> steps;
   BoundingBox boundingBox;
   bool built;
 
@@ -806,10 +810,12 @@ class Model {
     indices = new List<Index>();
     subpartIndices = new HashMap<String, List<Index>>();
     subparts = new List<String>();
+    steps = new List<int>();
     
     /* build subpart hierarchy */
     Map<MeshCategory, int> curTriIndex = new HashMap<MeshCategory, int>();
     int curEdgeIndex = 0;
+    int stepIndex = -1;
     MeshCategory defaultColorBfc = new MeshCategory(ColorMap.instance.query(16), true);
     MeshCategory defaultColor = new MeshCategory(ColorMap.instance.query(16), false);
 
@@ -817,54 +823,66 @@ class Model {
       if (model == null)
         return;
 
-      for (LDrawLine1 cmd in model.filterRefCmds()) {
-        String name = normalizePath(cmd.name);
+      for (LDrawCommand cmd in model.commands) {
+        if (cmd is LDrawLine1) {
+          LDrawLine1 refcmd = cmd;
+          String name = normalizePath(refcmd.name);
 
-        if (root.hasPart(name)) {
-          traverseIndex(root.findPart(name));
+          if (root.hasPart(name)) {
+            traverseIndex(root.findPart(name));
 
-          if (!subparts.contains(name))
-            subparts.add(name);
-        } else {
-          Index idx = new Index(this);
+            if (!subparts.contains(name))
+              subparts.add(name);
+          } else {
+            Index idx = new Index(this);
 
-          MeshCategory partColorBfc = new MeshCategory(ColorMap.instance.query(cmd.color), true);
-          MeshCategory partColor = new MeshCategory(ColorMap.instance.query(cmd.color), false);
-
-          for (MeshCategory c in categories) {
-            int count;
-            if (submodels[name].meshes.containsKey(c))
-              count = submodels[name].meshes[c].count;
-            else
-              count = 0;
-
-            try {
-              if (partColorBfc == c)
-                count += submodels[name].meshes[defaultColorBfc].count;
-              else if (partColor == c)
-                count += submodels[name].meshes[defaultColor].count;
-            } catch (e) {}
-
-            print(count);
-
-            if (!curTriIndex.containsKey(c))
-              curTriIndex[c] = 0;
-
-            idx.add(c, curTriIndex[c], count);
-            curTriIndex[c] += count;
+            ++stepIndex;
+            
+            MeshCategory partColorBfc = new MeshCategory(
+                ColorMap.instance.query(refcmd.color), true);
+            MeshCategory partColor = new MeshCategory(
+                ColorMap.instance.query(refcmd.color), false);
+            
+            for (MeshCategory c in categories) {
+              int count;
+              if (submodels[name].meshes.containsKey(c))
+                count = submodels[name].meshes[c].count;
+              else
+                count = 0;
+              
+              try {
+                if (partColorBfc == c)
+                  count += submodels[name].meshes[defaultColorBfc].count;
+                else if (partColor == c)
+                  count += submodels[name].meshes[defaultColor].count;
+              } catch (e) {}
+              
+              if (!curTriIndex.containsKey(c))
+                curTriIndex[c] = 0;
+              
+              idx.add(c, curTriIndex[c], count);
+              curTriIndex[c] += count;
+            }
+            
+            idx.setEdgeIndex(curEdgeIndex, submodels[name].edges.count);
+            curEdgeIndex += submodels[name].edges.count;
+            
+            idx.finish();
+            indices.add(idx);
           }
-
-          idx.setEdgeIndex(curEdgeIndex, submodels[name].edges.count);
-          curEdgeIndex += submodels[name].edges.count;
-
-          idx.finish();
-          indices.add(idx);
+        } else if (cmd is LDrawStep || cmd is LDrawPause) {
+          steps.add(stepIndex);
         }
       }
     }
     traverseIndex(root);
 
-    print(indices);
+    /* add last step */
+    if (steps.length == 0 || steps.last != stepIndex)
+      steps.add(stepIndex);
+
+    print(steps);
+    print(indices.length);
 
     built = true;
   }
