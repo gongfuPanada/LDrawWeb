@@ -42,7 +42,7 @@ abstract class Face {
     if (edges == null) {
       edges = new List<Edge>();
       for (int i = 0; i < vertexCount; ++i)
-	edges.add(vertices[i], vertices[(i + 1) % vertexCount]);
+	edges.add(new Edge(vertices[i], vertices[(i + 1) % vertexCount]));
     }
 
     return edges[index];

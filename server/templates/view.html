@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <title>LDrawWeb</title>
     <style type='text/css'>
-      body { font-family: sans-serif; }
+      body { font-family: sans-serif; background-color: #eee; margin: 0; }
     </style>
   </head>
   <body>
@@ -15,7 +15,7 @@
     ></div>
     <script type="application/dart" src="{{ url_for('static', filename='scripts/main.dart') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='scripts/dart.js') }}"></script>				
-    <canvas id="mainCanvas" width="1024" height="768"></canvas>
-    <div id="progress" style="position: absolute; z-index: 3; overflow:scroll; width: 400px; height: 100%; left: 1054px; top: 0;" ></div>
+    <canvas id="mainCanvas"></canvas>
+    <div id="progress" style="position: absolute; z-index: 3; overflow:scroll; width: 400px; height: 100%; left: 1054px; top: 0; display: none;" ></div>
   </body>
 </html>

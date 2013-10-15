@@ -7,9 +7,11 @@ import 'dart:html';
 import 'dart:math';
 import 'dart:web_gl';
 import 'dart:typed_data';
+
 import 'ldraw.dart';
 
 part 'renderer/math.dart';
+part 'renderer/model.dart';
 part 'renderer/shaders.dart';
 part 'renderer/utils.dart';
 

@@ -3,9 +3,7 @@
 part of renderer;
 
 RenderingContext setupContext(CanvasElement canvas,
-			      {bool alpha: true,
-				  bool antialias: true,
-				  bool stencil: false}) {
+    {bool alpha: true, bool antialias: true, bool stencil: false}) {
   RenderingContext gl =
     canvas.getContext3d(alpha: alpha, antialias: antialias, stencil: stencil);
   if (gl == null)
@@ -15,8 +13,7 @@ RenderingContext setupContext(CanvasElement canvas,
 }
 
 void initializeView(CanvasElement elem,
-		    void onSuccess(RenderingContext gl),
-		    void onFailed()) {
+    void onSuccess(CanvasElement elem, RenderingContext gl), void onFailed()) {
   if (elem == null) {
     onFailed();
     return;
@@ -29,9 +26,12 @@ void initializeView(CanvasElement elem,
     return;
   }
 
-  gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-  gl.clearColor(0, 0, 0, 255);
-  gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
+  onSuccess(elem, gl);
+}
 
-  onSuccess(gl);
+void resizeView(CanvasElement elem, int width, int height)
+{
+  elem.width = width;
+  elem.height = height;
+  GL.viewport(0, 0, width, height); 
 }

@@ -1,3 +1,5 @@
 server/contents/*
 *.pyc
+*.dart.js.deps
+*.dart.js.map
 *.dart.js

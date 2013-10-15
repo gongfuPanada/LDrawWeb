@@ -13,6 +13,7 @@ class BaseShader {
   Shader fs;
   UniformLocation projectionMatrix;
   UniformLocation modelViewMatrix;
+  UniformLocation translationFactor;
 
   BaseShader(String vsText, String fsText) {
     vs = compileShader(VERTEX_SHADER, vsText);
@@ -24,6 +25,7 @@ class BaseShader {
 
     projectionMatrix = GL.getUniformLocation(program, "projection");
     modelViewMatrix = GL.getUniformLocation(program, "modelView");
+    translationFactor = GL.getUniformLocation(program, "translation");
   }
 
   void use() {

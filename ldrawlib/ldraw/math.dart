@@ -134,11 +134,13 @@ class Vec4 implements Comparable {
     return a.x*b.x + a.y*b.y + a.z*b.z;
   }
 
-  static Vec4 cross(Vec4 a, Vec4 b) {
-    return new Vec4.xyz(
-        a.y*b.z - a.z*b.y,
-        a.z*b.x - a.x*b.z,
-        a.x*b.y - a.y*b.x);
+  static Vec4 cross(Vec4 a, Vec4 b, [Vec4 out = null]) {
+    if (out == null)
+      out = new Vec4();
+
+    out.set(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
+
+    return out;
   }
 
   static bool equals(Vec4 a, Vec4 b) {
@@ -311,6 +313,13 @@ class Mat4 {
     val[12] = 0.0; val[13] = 0.0; val[14] = 0.0; val[15] = 1.0;
   }
 
+  void zero() {
+    val[0]  = 0.0; val[1]  = 0.0; val[2]  = 0.0; val[3]  = 0.0;
+    val[4]  = 0.0; val[5]  = 0.0; val[6]  = 0.0; val[7]  = 0.0;
+    val[8]  = 0.0; val[9]  = 0.0; val[10] = 0.0; val[11] = 0.0;
+    val[12] = 0.0; val[13] = 0.0; val[14] = 0.0; val[15] = 0.0;
+  }
+
   void clone(Mat4 v) {
     for (int i = 0; i < 16; ++i)
       val[i] = v.val[i];
@@ -363,16 +372,24 @@ class Mat4 {
   Mat4 transpose([Mat4 target = null]) {
     Mat4 n;
     if (target == null)
-      n = new Mat4.copy(this);
-    else
-      n = target;
+      target = new Mat4();
 
-    n.set(0, 1, get(1, 0)); n.set(1, 0, get(0, 1));
-    n.set(0, 2, get(2, 0)); n.set(2, 0, get(0, 2));
-    n.set(1, 2, get(2, 1)); n.set(2, 1, get(1, 2));
-    n.set(3, 0, get(0, 3)); n.set(0, 3, get(3, 0));
-    n.set(3, 1, get(1, 3)); n.set(1, 3, get(3, 1));
-    n.set(3, 2, get(2, 3)); n.set(2, 3, get(3, 2));
+    target.val[0] = val[0];
+    target.val[1] = val[4];
+    target.val[2] = val[8];
+    target.val[3] = val[12];
+    target.val[4] = val[1];
+    target.val[5] = val[5];
+    target.val[6] = val[9];
+    target.val[7] = val[13];
+    target.val[8] = val[2];
+    target.val[9] = val[6];
+    target.val[10] = val[10];
+    target.val[11] = val[14];
+    target.val[12] = val[3];
+    target.val[13] = val[7];
+    target.val[14] = val[11];
+    target.val[15] = val[15];
 
     return n;
   }

@@ -2,35 +2,59 @@
 
 part of renderer;
 
-Mat4 perspectiveMatrix(num fovY, num aspectRatio, num zNear, num zFar) {
+Mat4 perspectiveMatrix(num fovY, num aspectRatio, num zNear, num zFar, [Mat4 out = null]) {
   assert(zNear > 0.0 && zFar > 0.0);
 
   num height = tan(fovY * 0.5) * zNear;
   num width = height * aspectRatio;
 
-  return frustumMatrix(-width, width, -height, height, zNear, zFar);
+  return frustumMatrix(-width, width, -height, height, zNear, zFar, out);
 }
 
-Mat4 frustumMatrix(num left, num right, num bottom, num top, num near, num far) {
-  Mat4 m = new Mat4();
-  setFrustumMatrix(m, left, right, bottom, top, near, far);
-  return m;
+void lookAt(Matrix4 view, Vec4 position, Vec4 lookAt, Vec4 up) {
+  Vec4 z = position - lookAt;
+  z.normalize(z);
+  Vec4 x = Vec4.cross(up, z);
+  x.normalize(x);
+  Vec4 y = Vec4.cross(z, x);
+  y.normalize(y);
+  
+  view.zero();
+  view.set(3, 3, 1.0);
+  view.set(0, 0, x.x);
+  view.set(1, 0, x.y);
+  view.set(2, 0, x.z);
+  view.set(0, 1, y.x);
+  view.set(1, 1, y.y);
+  view.set(2, 1, y.z);
+  view.set(0, 2, z.x);
+  view.set(1, 2, z.y);
+  view.set(2, 2, z.z);
+  view.transpose(view);
+  Vec4 rotatedEye = view * -position;
+  view.set(0, 3, rotatedEye.x);
+  view.set(1, 3, rotatedEye.y);
+  view.set(2, 3, rotatedEye.z);
 }
 
-void setFrustumMatrix(Mat4 m, num left, num right, num bottom, num top,
-		      num near, num far) {
+Mat4 frustumMatrix(num left, num right, num bottom, num top, num near, num far, [Mat4 out = null]) {
+  if (out == null)
+    out = new Mat4();
+
   num near2 = near * 2.0;
   num rl = right - left;
   num tb = top - bottom;
   num fn = far - near;
-  m.clear();
-  m.set(0, 0, near2 / rl);
-  m.set(1, 1, near2 / tb);
-  m.set(0, 2, (right + left) / rl);
-  m.set(1, 2, (top + bottom) / tb);
-  m.set(2, 2, -(far + near) / fn);
-  m.set(3, 2, -1.0);
-  m.set(2, 3, -(near2 * far) / fn);
+  out.clear();
+  out.set(0, 0, near2 / rl);
+  out.set(1, 1, near2 / tb);
+  out.set(0, 2, (right + left) / rl);
+  out.set(1, 2, (top + bottom) / tb);
+  out.set(2, 2, -(far + near) / fn);
+  out.set(3, 2, -1.0);
+  out.set(2, 3, -(near2 * far) / fn);
+
+  return out;
 }
 
 void matrixRotate(Mat4 mat, Vec4 axis, num angle) {
