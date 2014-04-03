@@ -50,16 +50,21 @@ def index():
     raise NotImplemented
 
 
-@app.route('/view')
+@app.route('/view', methods=['GET', 'POST'])
 def view():
     data = {}
-    if 'uri' in request.args:
-        uri = request.args.get('uri')
-        if uri.startswith('http://') or uri.startswith('https://'):
-            data['model'] = requests.get(uri).content.decode('utf-8', 'IGNORE')
-        data['uri'] = request.args.get('uri')
+    if 'file' in request.files:
+        f = request.files['file']
+        data['model'] = f.read()
+        f.close()
     else:
-        raise NotImplemented
+        if 'uri' in request.args:
+            uri = request.args.get('uri')
+            if uri.startswith('http://') or uri.startswith('https://'):
+                data['model'] = requests.get(uri).content.decode('utf-8', 'IGNORE')
+                data['uri'] = request.args.get('uri')
+        else:
+            raise NotImplemented
     response = make_response(render_template('view.html', **data))
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response

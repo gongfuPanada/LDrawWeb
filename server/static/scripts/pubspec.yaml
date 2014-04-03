@@ -1,0 +1,4 @@
+name: ldrawweb
+dependencies:
+  browser:
+
