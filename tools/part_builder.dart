@@ -9,8 +9,9 @@ import '../ldrawlib/ldraw_backend.dart';
 bool rescanAll = false;
 List<String> buildTargets = null;
 
-const string DAT_PATH = "server/contents/dat/parts";
-const string PROCESSED_PATH = "server/contents/postprocessed/parts";
+const string COLORS_PATH = 'server/static/colors.json';
+const string DAT_PATH = 'server/contents/dat/parts';
+const string PROCESSED_PATH = 'server/contents/postprocessed/parts';
 
 void parseArgs(List<String> argv) {
   for (String arg in argv) {
@@ -51,10 +52,9 @@ void main(List<String> argv) {
     buildTargets = glob(DAT_PATH);
   }
 
-  httpGetJson('http://localhost:8080/s/colors.json', (response) {
-    map = new ColorMap.fromJson(response);
-    startJob();
-  });
+  File colors = new File(COLORS_PATH);
+  map = new ColorMap.fromJson(JSON.decode(new String.fromCharCodes(colors.readAsBytesSync())));
+  startJob();
 }
 
 void startJob() {

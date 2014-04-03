@@ -89,41 +89,125 @@ class QuadFace extends Face {
 }
 
 class EdgeGroup {
-  List<num> edgeVertices;
-  List<num> edgeColors;
+  /* temporary */
+  List<num> vertexBuffer_;
+  List<num> colorBuffer_;
+  bool built;
+
+  Float32List vertices;
+  Float32List colors;
 
   EdgeGroup.fromJson(Map json) {
-    edgeVertices = json['edgeVertices'];
-    edgeColors = json['edgeColors'];
+    vertices = new Float32List.fromList(json['vertices']);
+    colors = new Float32List.fromList(json['colors']);
+    built = true;
   }
   
   EdgeGroup() {
-    edgeVertices = new List<num>();
-    edgeColors = new List<num>();
+    clear();
   }
 
   int get count {
-    return (edgeVertices.length / 3).floor();
+    if (built)
+      return (vertices.length / 3).floor();
+    else
+      return (vertexBuffer_.length / 3).floor();
+  }
+
+  void clear() {
+    vertices = null;
+    colors = null;
+
+    vertexBuffer_ = null;
+    colorBuffer_ = null;
+
+    built = false;
   }
 
   void add(Vec4 pos, Color c) {
-    edgeVertices.add(pos.x);
-    edgeVertices.add(pos.y);
-    edgeVertices.add(pos.z);
+    if (built)
+      throw new Error('Cannot add to a finished edge group');
+
+    if (vertexBuffer_ == null)
+      vertexBuffer_ = new List<num>();
+    if (colorBuffer_ == null)
+      colorBuffer_ = new List<num>();
+
+    vertexBuffer_.add(pos.x);
+    vertexBuffer_.add(pos.y);
+    vertexBuffer_.add(pos.z);
 
     if (c.isMainColor) {
-      edgeColors.add(-1.0);
-      edgeColors.add(-1.0);
-      edgeColors.add(-1.0);
+      colorBuffer_.add(-1.0);
+      colorBuffer_.add(-1.0);
+      colorBuffer_.add(-1.0);
     } else if (c.isEdgeColor) {
-      edgeColors.add(null);
-      edgeColors.add(null);
-      edgeColors.add(null);
+      colorBuffer_.add(-2.0);
+      colorBuffer_.add(-2.0);
+      colorBuffer_.add(-2.0);
     } else {
-      edgeColors.add(c.color.r);
-      edgeColors.add(c.color.g);
-      edgeColors.add(c.color.b);
+      colorBuffer_.add(c.color.r);
+      colorBuffer_.add(c.color.g);
+      colorBuffer_.add(c.color.b);
     }
+  }
+
+  void commitMerge(List queue) {
+    if (queue.length == 0) {
+      vertices = new Float32List(0);
+      colors = new Float32List(0);
+      built = true;
+      return;
+    }
+
+    clear();
+
+    List last = queue[queue.length - 1];
+    int count = (last[1] + last[2]) * 3; /* starting index + count */
+
+    vertices = new Float32List(count);
+    colors = new Float32List(count);
+
+    Vec4 v = new Vec4();
+    int index = 0;
+
+    for (List item in queue) {
+      EdgeGroup other = item[0];
+      Color c = item[3];
+      Mat4 matrix = item[4];
+
+      for (int i = 0; i < other.count * 3; i += 3) {
+        v.set(other.vertices[i], other.vertices[i+1], other.vertices[i+2]);
+        matrix.transform(v, v);
+        vertices[index]     = v.x;
+        vertices[index + 1] = v.y;
+        vertices[index + 2] = v.z;
+
+        if (c.isMainColor) {
+          colors[index]     = other.colors[i];
+          colors[index + 1] = other.colors[i + 1];
+          colors[index + 2] = other.colors[i + 2];
+        } else {
+          if (other.colors[i] < -1.0) {
+            colors[index]     = c.edge.r;
+            colors[index + 1] = c.edge.g;
+            colors[index + 2] = c.edge.b;
+          } else if (other.colors[i] < 0.0) {
+            colors[index]     = c.color.r;
+            colors[index + 1] = c.color.g;
+            colors[index + 2] = c.color.b;
+          } else {
+            colors[index]     = other.colors[i];
+            colors[index + 1] = other.colors[i + 1];
+            colors[index + 2] = other.colors[i + 2];
+          }
+        }
+
+        index += 3;
+      }
+    }
+
+    built = true;
   }
 
   void merge(EdgeGroup g, Color c, [Mat4 transform = null]) {
@@ -131,34 +215,34 @@ class EdgeGroup {
     Vec4 v = new Vec4();
     for (int i = 0; i < g.count; ++i) {
       if (transform == null) {
-        edgeVertices.add(g.edgeVertices[index]);
-        edgeVertices.add(g.edgeVertices[index + 1]);
-        edgeVertices.add(g.edgeVertices[index + 2]);
+        vertices.add(g.vertices[index]);
+        vertices.add(g.vertices[index + 1]);
+        vertices.add(g.vertices[index + 2]);
       } else {
-        v.set(g.edgeVertices[index], g.edgeVertices[index + 1], g.edgeVertices[index + 2]);
+        v.set(g.vertices[index], g.vertices[index + 1], g.vertices[index + 2]);
         transform.transform(v, v);
-        edgeVertices.add(v.x);
-        edgeVertices.add(v.y);
-        edgeVertices.add(v.z);
+        vertices.add(v.x);
+        vertices.add(v.y);
+        vertices.add(v.z);
       }
 
       if (c.isMainColor) {
-        edgeColors.add(g.edgeColors[index]);
-        edgeColors.add(g.edgeColors[index + 1]);
-        edgeColors.add(g.edgeColors[index + 2]);
+        colors.add(g.colors[index]);
+        colors.add(g.colors[index + 1]);
+        colors.add(g.colors[index + 2]);
       } else {
-        if (g.edgeColors[index] == null) {
-          edgeColors.add(c.edge.r);
-          edgeColors.add(c.edge.g);
-          edgeColors.add(c.edge.b);
-        } else if (g.edgeColors[index] < 0.0) {
-          edgeColors.add(c.color.r);
-          edgeColors.add(c.color.g);
-          edgeColors.add(c.color.b);
+        if (g.colors[index] < -1.0) {
+          colorBuffer_.add(c.edge.r);
+          colorBuffer_.add(c.edge.g);
+          colorBuffer_.add(c.edge.b);
+        } else if (g.colors[index] < 0.0) {
+          colorBuffer_.add(c.color.r);
+          colorBuffer_.add(c.color.g);
+          colorBuffer_.add(c.color.b);
         } else {
-          edgeColors.add(g.edgeColors[index]);
-          edgeColors.add(g.edgeColors[index + 1]);
-          edgeColors.add(g.edgeColors[index + 2]);
+          colorBuffer_.add(g.colors[index]);
+          colorBuffer_.add(g.colors[index + 1]);
+          colorBuffer_.add(g.colors[index + 2]);
         }
       }
       
@@ -166,53 +250,118 @@ class EdgeGroup {
     }
   }
 
+  void finish() {
+    if (built)
+      throw new Error('This edge group is already finished');
+
+    if (vertexBuffer_ == null && colorBuffer_ == null) {
+      vertices = new Float32List(0);
+      colors = new Float32List(0);
+    } else {
+      vertices = new Float32List.fromList(vertexBuffer_);
+      colors = new Float32List.fromList(colorBuffer_);
+    }
+
+    vertexBuffer_ = null;
+    colorBuffer_ = null;
+
+    built = true;
+  }
+
   Map toJson() {
     return {
-      'edgeVertices': edgeVertices,
-      'edgeColors': edgeColors
+      'vertices': vertices,
+      'colors': colors
     };
   }
 }
 
 class MeshGroup {
   /* temporary */
-  List<Face> faces;
-
-  List<num> vertexArray;
-  List<num> normalArray;
+  List<Face> faces_;
   bool built;
 
+  Float32List vertices;
+  Float32List normals;
+
   MeshGroup.fromJson(Map json) {
-    vertexArray = json['vertexArray'];
-    normalArray = json['normalArray'];
-    built = json['built'];
+    vertices = new Float32List.fromList(json['vertices']);
+    normals = new Float32List.fromList(json['normals']);
+    built = true;
   }
 
   MeshGroup() {
-    built = false;
-    faces = null;
-    vertexArray = null;
-    normalArray = null;
+    clear();
   }
 
   void add(Face face) {
-    if (faces == null)
-      faces = new List<Face>();
+    if (built)
+      throw new Error('Cannot add to a finished mesh group');
 
-    faces.add(face);
+    if (faces_ == null)
+      faces_ = new List<Face>();
+
+    faces_.add(face);
   }
 
-  void merge(MeshGroup other, [Mat4 transform = null]) {
+  void commitMerge(List queue) {
+    if (queue.length == 0) {
+      vertices = new Float32List(0);
+      normals = new Float32List(0);
+      faces_ = null;
+      built = true;
+      return;
+    }
+
+    clear();
+
+    List last = queue[queue.length - 1];
+    int count = (last[1] + last[2]) * 3; /* starting index + count */
+
+    vertices = new Float32List(count);
+    normals = new Float32List(count);
+
+    int index = 0;
+
+    for (List item in queue) {
+      MeshGroup other = item[0];
+      Mat4 matrix = item[3];
+      Mat4 rotmat = new Mat4.copy(matrix);
+      rotmat.setTranslation(0.0, 0.0, 0.0);
+      Vec4 v = new Vec4();
+      Vec4 n = new Vec4();
+      
+      for (int i = 0; i < other.count * 3; i += 3) {
+        /* transform */
+        v.set(other.vertices[i], other.vertices[i+1], other.vertices[i+2]);
+        matrix.transform(v, v);
+        n.set(other.normals[i], other.normals[i+1], other.normals[i+2]);
+        rotmat.transform(n, n);
+        n.normalize(n);
+
+        vertices[index] = v.x;
+        vertices[index+1] = v.y;
+        vertices[index+2] = v.z;
+        normals[index] = n.x;
+        normals[index+1] = n.y;
+        normals[index+2] = n.z;
+
+        index += 3;
+      }
+    }
+  }
+
+  /*void merge(MeshGroup other, [Mat4 transform = null]) {
     assert(other.built);
 
-    if (vertexArray == null)
-      vertexArray = new List<num>();
-    if (normalArray == null)
-      normalArray = new List<num>();
+    int firstLength = 0;
+
+    vertices = new Float32List();
+    normals = new Float32List();
 
     if (transform == null) {
-      vertexArray.addAll(other.vertexArray);
-      normalArray.addAll(other.normalArray);
+      vertices.addAll(other.vertices);
+      normals.addAll(other.normals);
     } else {
       int index = 0;
       Mat4 rotmat = new Mat4.copy(transform);
@@ -220,41 +369,41 @@ class MeshGroup {
       Vec4 v = new Vec4();
       Vec4 n = new Vec4();
       for (int i = 0; i < other.count; ++i) {
-        v.set(other.vertexArray[index], other.vertexArray[index + 1], other.vertexArray[index + 2]);
+        v.set(other.vertices[index], other.vertices[index + 1], other.vertices[index + 2]);
         transform.transform(v, v);
-        n.set(other.normalArray[index], other.normalArray[index + 1], other.normalArray[index + 2]);
+        n.set(other.normals[index], other.normals[index + 1], other.normals[index + 2]);
         rotmat.transform(n, n);
         n.normalize(n);
-        vertexArray.add(v.x);
-        vertexArray.add(v.y);
-        vertexArray.add(v.z);
-        normalArray.add(n.x);
-        normalArray.add(n.y);
-        normalArray.add(n.z);
+        vertices.add(v.x);
+        vertices.add(v.y);
+        vertices.add(v.z);
+        normals.add(n.x);
+        normals.add(n.y);
+        normals.add(n.z);
         index += 3;
       }
     }
-  }
+  }*/
 
   void clear() {
-    faces = null;
-    vertexArray = null;
-    normalArray = null;
+    faces_ = null;
+    vertices = null;
+    normals = null;
     built = false;
   }
 
   int get count {
-    if (!built && faces != null)
-      return faces.length;
-    else if (vertexArray != null)
-      return (vertexArray.length / 3).floor();
+    if (!built && faces_ != null)
+      return faces_.length;
+    else if (vertices != null)
+      return (vertices.length / 3).floor();
     else
       return 0;
   }
 
   void finish() {
     if (!built) {
-      if (faces == null && vertexArray != null && normalArray != null) {
+      if (faces_ == null && vertices != null && normals != null) {
         built = true;
         return;
       }
@@ -262,14 +411,14 @@ class MeshGroup {
       return;
     }
 
-    vertexArray = new List<num>();
-    normalArray = new List<num>();
+    List<num> va = new List<num>();
+    List<num> na = new List<num>();
 
     int index = 0;
 
     /* build adjacency map */
     KdTree<Adjacency> faceMap = new KdTree<Adjacency>();
-    for (Face f in faces) {
+    for (Face f in faces_) {
       for (Vec4 v in f.vertices) {
 	KdNodeData<Adjacency> node = faceMap.exact(v);
 	Adjacency a;
@@ -283,18 +432,18 @@ class MeshGroup {
       }
     }
 
-    void buildBuffer(List<num> vertexArray, List<num> normalArray, Vec4 v, Vec4 n) {
-      vertexArray.add(v.x);
-      vertexArray.add(v.y);
-      vertexArray.add(v.z);
-      normalArray.add(n.x);
-      normalArray.add(n.y);
-      normalArray.add(n.z);
+    void buildBuffer(List<num> vertices, List<num> normals, Vec4 v, Vec4 n) {
+      vertices.add(v.x);
+      vertices.add(v.y);
+      vertices.add(v.z);
+      normals.add(n.x);
+      normals.add(n.y);
+      normals.add(n.z);
     }
 
     /* build normal and write */
     index = 0;
-    for (Face f in faces) {
+    for (Face f in faces_) {
       Vec4 faceNormal = f.getNormal();
       for (int idx in f.indexOrder) {
         Vec4 v = f.vertices[idx];
@@ -311,22 +460,24 @@ class MeshGroup {
               blendedNormal.normalize(blendedNormal);
             }
           }
-          buildBuffer(vertexArray, normalArray, v, blendedNormal);
+          buildBuffer(va, na, v, blendedNormal);
         } else {
-          buildBuffer(vertexArray, normalArray, v, faceNormal);
+          buildBuffer(va, na, v, faceNormal);
         }
       }
     }
 
-    faces.clear();
+    vertices = new Float32List.fromList(va);
+    normals = new Float32List.fromList(na);
+
+    faces_.clear();
     built = true;
   }
 
   Map toJson() {
     return {
-      'vertexArray': vertexArray,
-      'normalArray': normalArray,
-      'built': true
+      'vertices': vertices,
+      'normals': normals,
     };
   }
 }
@@ -415,21 +566,74 @@ class FeatureMap {
     });
   }
 
-  void add(Mat4 matrix, bool flipNormal) {
-    matrices.add(matrix, flipNormal);
+  void add(Mat4 matrix, bool flip) {
+    matrices.add(matrix);
+    flipNormal.add(flip);
   }
 
   List toJson() {
     return {
       'matrices': matrices,
-      'flipNormal': new List<int>.generate(flipNormal.length, (int index) => flipNormal[index] ? 1 : 0);
+      'flipNormal': new List<int>.generate(flipNormal.length, (int index) => (flipNormal[index] ? 1 : 0)),
+    };
+  }
+}
+
+class GlobalFeatureSet {
+  static Map kFeatures = {
+    'stud.dat': null,
+    'stu2.dat': 'stud.dat',
+    'stud2.dat': null,
+    'stu22.dat': 'stud2.dat',
+    'stud3.dat': null,
+    'stu23.dat': 'stud3.dat',
+    'stud4.dat': null,
+    'stu24.dat': 'stud4.dat',
+  };
+  static List kUniqueFeatures = ['stud.dat', 'stud2.dat', 'stud3.dat', 'stud4.dat'];
+
+  static GlobalFeatureSet instance_ = null;
+
+  static GlobalFeatureSet get instance {
+    if (instance_ == null)
+      instance_ = new GlobalFeatureSet();
+    return instance_;
+  }
+
+  Map<String, Part> parts;
+
+  GlobalFeatureSet() {
+    parts = new Map<String, Part>();
+  }
+
+  Part query(String part) {
+    part = normalizePath(part);
+    if (parts.containsKey(part))
+      return parts[part];
+    else
+      return null;
+  }
+
+  void loadAll(void onComplete()) {
+    int count = kUniqueFeatures.length;
+
+    for (String part in kUniqueFeatures) {
+      httpGetJson('$MESH_ENDPOINT/g/p/$part.json', (response) {
+        print('feature $part loaded');
+        parts[part] = new Part.fromJson(response);
+        if (--count == 0) {
+          onComplete();
+        }
+      }, onFailed: (int statusCode) {
+        if (--count == 0) {
+          onComplete();
+        }
+      });
     }
   }
 }
 
 class Part {
-  static Set<String> kFeatures = new HashSet.from(['stud.dat']);
-
   LDrawHeader header;
   Set<Color> activeColors;
   Map<MeshCategory, MeshGroup> meshes;
@@ -442,19 +646,22 @@ class Part {
     json['activeColors'].forEach((value) {
       activeColors.add(new Color.fromJson(value));
     });
+
     meshes = new HashMap<MeshCategory, MeshGroup>();
     json['meshes'].forEach((key, value) {
       MeshCategory cat = new MeshCategory.fromJson(JSON.decode(key));
       meshes[cat] = new MeshGroup.fromJson(value);
     });
+
     features = new HashMap<String, Map<MeshCategory, FeatureMap>>();
     json['features'].forEach((key, value) {
       features[key] = new HashMap<MeshCategory, FeatureMap>();
-      value.forEach((key, value) {
-        MeshCategory cat = new MeshGroup.fromJson(JSON.decode(key));
-        features[cat] = new FeatureMap.fromJson(value);
+      value.forEach((key2, value2) {
+        MeshCategory cat = new MeshCategory.fromJson(JSON.decode(key2));
+        features[key][cat] = new FeatureMap.fromJson(value2);
       });
     });
+
     edges = new EdgeGroup.fromJson(json['edges']);
   }
 
@@ -521,13 +728,16 @@ class Part {
             col = ColorMap.instance.query(refcmd.color);
 
           String name = normalizePath(refcmd.name);
-          if (kFeatures.contains(name) ) {
+          if (GlobalFeatureSet.kFeatures.containsKey(name)) {
+            String featureName = GlobalFeatureSet.kFeatures[name];
+            if (featureName == null)
+              featureName = name;
             Map<MeshCategory, FeatureMap> currentFeatures;
-            if (features.containsKey(name)) {
-              currentFeatures = features[name];
+            if (features.containsKey(featureName)) {
+              currentFeatures = features[featureName];
             } else {
               currentFeatures = new HashMap<MeshCategory, FeatureMap>();
-              features[name] = currentFeatures;
+              features[featureName] = currentFeatures;
             }
             MeshCategory category = new MeshCategory(col, true);
             FeatureMap featureMap;
@@ -650,6 +860,7 @@ class Part {
 
     for (MeshGroup m in meshes.values)
       m.finish();
+    edges.finish();
   }
 
   Map toJson() {
@@ -731,9 +942,8 @@ class Index {
   int edgeStart;
   int edgeCount;
   BoundingBox boundingBox;
-  Model parent;
 
-  Index(this.parent) {
+  Index() {
     start = new HashMap<MeshCategory, int>();
     count = new HashMap<MeshCategory, int>();
   }
@@ -748,13 +958,13 @@ class Index {
     edgeCount = count;
   }
 
-  void finish() {
+  void finish(Model parent) {
     boundingBox = new BoundingBox();
 
     Vec4 v = new Vec4();
     for (MeshCategory c in count.keys) {
       int s = start[c], cnt = count[c];
-      List<num> vertices = parent.meshChunks[c].vertexArray;
+      List<num> vertices = parent.meshChunks[c].vertices;
       for (int i = s; i < s + cnt; ++i) {
         v.set(vertices[i*3], vertices[i*3+1], vertices[i*3+2]);
         boundingBox.update(v);
@@ -769,6 +979,7 @@ class Model {
   // disposable
   Map<String, Part> submodels;
   Map<MeshCategory, MeshGroup> meshChunks;
+  Map<MeshCategory, MeshGroup> featureChunks;
   EdgeGroup edges;
 
   // index
@@ -815,9 +1026,15 @@ class Model {
 
   void compile() {
     meshChunks = new HashMap<MeshCategory, MeshGroup>();
+    featureChunks = new HashMap<MeshCategory, MeshGroup>();
     edges = new EdgeGroup();
 
     Set<String> visitedSubparts = new HashSet<String>();
+
+    Map meshMergeQueue = new Map();
+    List colorMergeQueue = new List();
+
+    int colorOffset = 0;
 
     void traverseMesh(LDrawModel model, Color color, Mat4 matrix, bool divideIndices) {
       if (model == null)
@@ -846,29 +1063,42 @@ class Model {
           Part p = submodels[path];
           /* group by colors */
           for (MeshCategory cat in p.meshes.keys) {
-            MeshGroup group;
             /* inherit color */
             MeshCategory from = cat;
             if (cat.color.isMainColor)
               cat = new MeshCategory(c, cat.bfc);
-            /* allocate new mesh chunk */
-            if (!meshChunks.containsKey(cat)) {
-              group = new MeshGroup();
-              meshChunks[cat] = group;
-            } else {
-              group = meshChunks[cat];
-            }
-            /* merge */
-            group.merge(p.meshes[from], matrix * cmd.matrix);
+            /* add to merge queue */
+            if (!meshMergeQueue.containsKey(cat))
+              meshMergeQueue[cat] = [];
+            int startCount;
+            var target = meshMergeQueue[cat];
+            if (target.length == 0)
+              startCount = 0;
+            else
+              startCount = target[target.length - 1][1] + target[target.length - 1][2];
+            target.add([p.meshes[from], startCount, p.meshes[from].count, matrix * cmd.matrix]);
           }
           /* merge colors */
-          edges.merge(p.edges, c, matrix * cmd.matrix);
+          colorMergeQueue.add([p.edges, colorOffset, p.edges.count, c, matrix * cmd.matrix]);
+          colorOffset += p.edges.count;
         }
       }
     }
 
     traverseMesh(root, ColorMap.instance.query(BASE_MODEL_COLOR),
         new Mat4.identity(), true);
+
+    meshMergeQueue.forEach((key, value) {
+      MeshGroup group;
+      if (!meshChunks.containsKey(key)) {
+        group = new MeshGroup();
+        meshChunks[key] = group;
+      } else {
+        group = meshChunks[key];
+      }
+      group.commitMerge(value);
+    });
+    edges.commitMerge(colorMergeQueue);
 
     Set<MeshCategory> categories = new Set.from(meshChunks.keys);
 
@@ -907,7 +1137,7 @@ class Model {
             if (!submodels.containsKey(name) || submodels[name] == null)
               continue;
 
-            Index idx = new Index(this);
+            Index idx = new Index();
 
             ++stepIndex;
             
@@ -940,7 +1170,7 @@ class Model {
             idx.setEdgeIndex(curEdgeIndex, submodels[name].edges.count);
             curEdgeIndex += submodels[name].edges.count;
             
-            idx.finish();
+            idx.finish(this);
             indices.add(idx);
           }
         } else if (cmd is LDrawStep || cmd is LDrawPause) {
@@ -978,6 +1208,7 @@ class Model {
     /* free all vertex array (may free some of heap after uploading into VBO) */
     submodels = null;
     meshChunks = null;
+    featureChunks = null;
     edges = null;
   }
 

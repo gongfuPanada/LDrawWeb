@@ -53,13 +53,13 @@ class RenderableModel {
       vertexBuffers[c] = GL.createBuffer();
       GL.bindBuffer(ARRAY_BUFFER, vertexBuffers[c]);
       GL.bufferDataTyped(ARRAY_BUFFER,
-          new Float32List.fromList(model.meshChunks[c].vertexArray),
+          new Float32List.fromList(model.meshChunks[c].vertices),
           STATIC_DRAW);
       
       normalBuffers[c] = GL.createBuffer();
       GL.bindBuffer(ARRAY_BUFFER, normalBuffers[c]);
       GL.bufferDataTyped(ARRAY_BUFFER,
-          new Float32List.fromList(model.meshChunks[c].normalArray),
+          new Float32List.fromList(model.meshChunks[c].normals),
           STATIC_DRAW);
 
       triCounts[c] = model.meshChunks[c].count;
@@ -68,12 +68,12 @@ class RenderableModel {
     edgeVertices = GL.createBuffer();
     GL.bindBuffer(ARRAY_BUFFER, edgeVertices);
     GL.bufferDataTyped(ARRAY_BUFFER,
-        new Float32List.fromList(model.edges.edgeVertices),
+        new Float32List.fromList(model.edges.vertices),
         STATIC_DRAW);
     edgeColors = GL.createBuffer();
     GL.bindBuffer(ARRAY_BUFFER, edgeColors);
     GL.bufferDataTyped(ARRAY_BUFFER,
-        new Float32List.fromList(model.edges.edgeColors),
+        new Float32List.fromList(model.edges.colors),
         STATIC_DRAW);
     edgeCount = model.edges.count;
 

@@ -16,7 +16,9 @@ void main() {
   RenderingContext gl = setupContext(canvas);
   httpGetJson('/s/colors.json', (response) {
     map = new ColorMap.fromJson(response);
-    setup(canvas, gl);
+    GlobalFeatureSet.instance.loadAll(() {
+      setup(canvas, gl);
+    });
   });
 }
 

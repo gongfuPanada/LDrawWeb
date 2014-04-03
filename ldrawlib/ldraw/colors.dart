@@ -116,7 +116,7 @@ class ColorMap {
 				  (c1.b + c2.b) * 0.5);
 
       return new Color.solid(id, blended, name: 'Blended color');
-    } else if ((id % 0xff000000) == 0x04000000) {
+    } else if ((id & 0xff000000) == 0x04000000) {
       int v = id & 0xfff;
 
       Vec4 color = new Vec4.xyz(((v & 0xf00) >> 8) / 15.0,
@@ -127,6 +127,13 @@ class ColorMap {
 			       ((v & 0x00f000) >> 12) / 15.0);
 
       return new Color.solid(id, color, edge: edge, name: 'MLCad custom color');
+    } else if ((id & 0xff000000) == 0x02000000) {
+      Vec4 color = new Vec4.xyz(((id & 0xff0000) >> 16) / 255.0,
+				((id & 0x00ff00) >>  8) / 255.0,
+				((id & 0x0000ff)      ) / 255.0);
+      Vec4 edge = new Vec4.xyz(color.r * 0.5, color.g * 0.5, color.b * 0.5);
+      
+      return new Color.solid(id, color, edge: edge, name: 'Direct color');
     } else {
       if (colors.containsKey(id))
 	return colors[id];

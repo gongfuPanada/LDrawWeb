@@ -45,24 +45,6 @@ def uri_for_mesh(path=None):
     return uri_for('/geometry/postprocessed', path)
 
 
-def local_resource_dat(path):
-    if config['storage'] != 'local':
-        abort(403)
-    physpath = query_local(path, config['dat_path'])
-    if physpath is None:
-        abort(404)
-    return send_file(physpath, mimetype=LDRAW_MIME_TYPE)
-
-
-def local_resource_json(path):
-    if config['storage'] != 'local':
-        abort(403)
-    physpath = query_local(path, config['mesh_path'])
-    if physpath is None:
-        abort(404)
-    return send_file(physpath, mimetype='application/json')
-
-
 @app.route('/')
 def index():
     raise NotImplemented
@@ -86,12 +68,22 @@ def view():
 
 @app.route('/geometry/dat/g/<path:path>')
 def dat_global(path):
-    return local_resource_dat(path)
+    if config['storage'] != 'local':
+        abort(403)
+    physpath = query_local(path, config['dat_path'])
+    if physpath is None:
+        abort(404)
+    return send_file(physpath, mimetype=LDRAW_MIME_TYPE)
 
 
 @app.route('/geometry/postprocessed/g/<path:path>')
 def mesh_global(path):
-    return local_resource_json(path)
+    if config['storage'] != 'local':
+        abort(403)
+    physpath = query_local(path, config['mesh_path'])
+    if physpath is None:
+        abort(404)
+    return send_file(physpath, mimetype='application/json')
 
 
 @app.route('/geometry/dat/<int:uid>/<string:name>')
