@@ -62,7 +62,7 @@ def view():
             uri = request.args.get('uri')
             if uri.startswith('http://') or uri.startswith('https://'):
                 data['model'] = requests.get(uri).content.decode('utf-8', 'IGNORE')
-                data['uri'] = request.args.get('uri')
+            data['uri'] = request.args.get('uri')
         else:
             raise NotImplemented
     response = make_response(render_template('view.html', **data))
