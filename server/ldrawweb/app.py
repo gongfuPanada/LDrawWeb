@@ -10,21 +10,19 @@
 import json
 import os
 
-from flask import Flask, abort, make_response, render_template, request
+from flask import Flask, abort, make_response, render_template, request, \
+                  send_file
 from jinja2 import FileSystemLoader
 from werkzeug.wrappers import Response
+import requests
 
 from ldrawweb import config, ROOT_PATH
-from ldrawweb.ldraw import MIME_TYPE
+from ldrawweb.ldraw import LDRAW_MIME_TYPE
 from ldrawweb.local import query_local
 from ldrawweb import util
 
 
 __all__ = ['uri_for_dat', 'uri_for_mesh', 'Application']
-
-
-DEFAULT_URI_PREFIX_DAT = '/geometry/dat/'
-DEFAULT_URI_PREFIX_MESH = '/geometry/mesh/'
 
 
 app = Flask(__name__, static_folder=os.path.join(ROOT_PATH, 'static'),
@@ -40,25 +38,29 @@ def uri_for(prefix, path=None):
 
 
 def uri_for_dat(path=None):
-    return uri_for(config['dat_uri_prefix'] or DEFAULT_URI_PREFIX_DAT, path)
+    return uri_for('/geometry/dat', path)
 
 
 def uri_for_mesh(path=None):
-    return uri_for(config['mesh_uri_prefix'] or DEFAULT_URI_PREFIX_MESH, path)
+    return uri_for('/geometry/postprocessed', path)
 
 
-def local_resource(path, basepath):
-    print path, basepath
+def local_resource_dat(path):
     if config['storage'] != 'local':
         abort(403)
-    physpath = query_local(path, basepath)
+    physpath = query_local(path, config['dat_path'])
     if physpath is None:
         abort(404)
-    try:
-        f = open(physpath)
-    except IOError:
+    return send_file(physpath, mimetype=LDRAW_MIME_TYPE)
+
+
+def local_resource_json(path):
+    if config['storage'] != 'local':
+        abort(403)
+    physpath = query_local(path, config['mesh_path'])
+    if physpath is None:
         abort(404)
-    return Response(f, direct_passthrough=True, content_type=MIME_TYPE)
+    return send_file(physpath, mimetype='application/json')
 
 
 @app.route('/')
@@ -70,7 +72,11 @@ def index():
 def view():
     data = {}
     if 'uri' in request.args:
-        data['uri'] = request.args.get('uri')
+        uri = request.args.get('uri')
+        if uri.startswith('http://') or uri.startswith('https://'):
+            data['model'] = requests.get(uri).content.decode('utf-8', 'IGNORE')
+        else:
+            data['uri'] = request.args.get('uri')
     else:
         raise NotImplemented
     response = make_response(render_template('view.html', **data))
@@ -78,22 +84,22 @@ def view():
     return response
 
 
-@app.route(DEFAULT_URI_PREFIX_DAT + 'g/<path:path>')
+@app.route('/geometry/dat/g/<path:path>')
 def dat_global(path):
-    return local_resource(path, config['dat_path'])
+    return local_resource_dat(path)
 
 
-@app.route(DEFAULT_URI_PREFIX_MESH + 'g/<path:path>')
+@app.route('/geometry/postprocessed/g/<path:path>')
 def mesh_global(path):
-    return local_resource(path, config['mesh_path'])
+    return local_resource_json(path)
 
 
-@app.route(DEFAULT_URI_PREFIX_DAT + '<int:uid>/<string:name>')
+@app.route('/geometry/dat/<int:uid>/<string:name>')
 def dat_user(uid, name):
     raise NotImplemented
 
 
-@app.route(DEFAULT_URI_PREFIX_MESH + '<int:uid>/<string:name>')
+@app.route('/geometry/postprocessed/<int:uid>/<string:name>')
 def mesh_user(uid, name):
     raise NotImplemented
 

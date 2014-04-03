@@ -10,7 +10,7 @@ class ParsingException implements Exception {
   String toString() => this.message;
 }
 
-class ParsingError implements Error {
+class ParsingError implements Exception {
   String message;
 
   ParsingError(this.message);

@@ -200,12 +200,12 @@ class MaterialManager {
     }
 
     activeShader.use();
-    activeShader.bind(c);
+    (activeShader as LDrawShader).bind(c);
   }
 
   void bindEdgeShader() {
     activeShader = edgeShader;
     activeShader.use();
-    activeShader.bind();
+    (activeShader as EdgeShader).bind();
   }
 }

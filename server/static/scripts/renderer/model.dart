@@ -3,8 +3,8 @@
 part of renderer;
 
 class RenderableModel {
-  const num DEFAULT_PART_FALL_DURATION = 500.0;
-  const num DEFAULT_PART_DELAY_DURATION = 75.0;
+  num DEFAULT_PART_FALL_DURATION = 500.0;
+  num DEFAULT_PART_DELAY_DURATION = 75.0;
 
   Map<MeshCategory, Buffer> vertexBuffers;
   Map<MeshCategory, Buffer> normalBuffers;

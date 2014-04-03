@@ -3,6 +3,7 @@
 part of ldraw;
 
 const int BASE_MODEL_COLOR = 7;
+const num NORMAL_BLEND_THRESHOLD = 0.523598776;
 
 class Edge {
   Vec4 v1, v2;
@@ -56,6 +57,8 @@ abstract class Face {
         vertices[1] - vertices[0]).normalize() * -1.0;
   }
 
+  List<int> get indexOrder;
+
   String toString() => vertices.toString();
 }
 
@@ -65,6 +68,11 @@ class TriangleFace extends Face {
   TriangleFace(Vec4 a, Vec4 b, Vec4 c) {
     vertices = [a, b, c];
   }
+
+  List<int> indexOrder_ = [0, 1, 2];
+  List<int> get indexOrder {
+    return indexOrder_;
+  }
 }
 
 class QuadFace extends Face {
@@ -72,6 +80,11 @@ class QuadFace extends Face {
 
   QuadFace(Vec4 a, Vec4 b, Vec4 c, Vec4 d) {
     vertices = [a, b, c, d];
+  }
+
+  List<int> indexOrder_ = [0, 1, 2, 2, 3, 0];
+  List<int> get indexOrder {
+    return indexOrder_;
   }
 }
 
@@ -270,7 +283,7 @@ class MeshGroup {
       }
     }
 
-    void buildArray(Vec4 v, Vec4 n) {
+    void buildBuffer(List<num> vertexArray, List<num> normalArray, Vec4 v, Vec4 n) {
       vertexArray.add(v.x);
       vertexArray.add(v.y);
       vertexArray.add(v.z);
@@ -283,17 +296,25 @@ class MeshGroup {
     index = 0;
     for (Face f in faces) {
       Vec4 faceNormal = f.getNormal();
-      if (f.vertexCount == 3) {
-	buildArray(f.vertices[0], faceNormal);
-	buildArray(f.vertices[1], faceNormal);
-	buildArray(f.vertices[2], faceNormal);
-      } else if (f.vertexCount == 4) {
-	buildArray(f.vertices[0], faceNormal);
-	buildArray(f.vertices[1], faceNormal);
-	buildArray(f.vertices[2], faceNormal);
-	buildArray(f.vertices[2], faceNormal);
-	buildArray(f.vertices[3], faceNormal);
-	buildArray(f.vertices[0], faceNormal);
+      for (int idx in f.indexOrder) {
+        Vec4 v = f.vertices[idx];
+        Adjacency adj = faceMap.exact(v).tag;
+        List<Face> adjacentFaces = adj.query(v, f);
+        /* look for adjacent faces and blend their normals to smooth the faces */
+        if (adjacentFaces.length > 0) {
+          Vec4 blendedNormal = new Vec4.copy(faceNormal);
+          for (Face otherFace in adjacentFaces) {
+            Vec4 otherNormal = otherFace.getNormal();
+            num angle = Vec4.angle(otherNormal, blendedNormal);
+            if (Vec4.angle(otherNormal, blendedNormal).abs() < NORMAL_BLEND_THRESHOLD) {
+              Vec4.interpolate(blendedNormal, otherNormal, blendedNormal);
+              blendedNormal.normalize(blendedNormal);
+            }
+          }
+          buildBuffer(vertexArray, normalArray, v, blendedNormal);
+        } else {
+          buildBuffer(vertexArray, normalArray, v, faceNormal);
+        }
       }
     }
 
@@ -322,10 +343,10 @@ class Adjacency {
     faces.add(face);
   }
 
-  List<Face> query(Vec4 v) {
+  List<Face> query(Vec4 v, [Face self = null]) {
     List<Face> result = new List<Face>();
     for (Face f in faces) {
-      if (f.contains(v))
+      if (f.contains(v) && f != self)
 	result.add(f);
     }
     return result;
@@ -374,25 +395,72 @@ class MeshCategory extends Comparable<MeshCategory> {
   }
 }
 
+class FeatureMap {
+  List<Mat4> matrices;
+  List<bool> flipNormal;
+
+  FeatureMap() {
+    matrices = new List<Mat4>();
+    flipNormal = new List<bool>();
+  }
+
+  FeatureMap.fromJson(Map map) {
+    matrices = new List<Mat4>();
+    flipNormal = new List<bool>();
+    map['matrices'].forEach((value) {
+      matrices.add(new Mat4.fromJson(value));
+    });
+    map['flipNormal'].forEach((value) {
+      flipNormal.add(value ? true : false);
+    });
+  }
+
+  void add(Mat4 matrix, bool flipNormal) {
+    matrices.add(matrix, flipNormal);
+  }
+
+  List toJson() {
+    return {
+      'matrices': matrices,
+      'flipNormal': new List<int>.generate(flipNormal.length, (int index) => flipNormal[index] ? 1 : 0);
+    }
+  }
+}
+
 class Part {
+  static Set<String> kFeatures = new HashSet.from(['stud.dat']);
+
+  LDrawHeader header;
   Set<Color> activeColors;
   Map<MeshCategory, MeshGroup> meshes;
+  Map<String, Map<MeshCategory, FeatureMap>> features;
   EdgeGroup edges;
 
   Part.fromJson(Map json) {
     activeColors = new Set();
+    header = new LDrawHeader.fromJson(json['header']);
     json['activeColors'].forEach((value) {
       activeColors.add(new Color.fromJson(value));
     });
     meshes = new HashMap<MeshCategory, MeshGroup>();
     json['meshes'].forEach((key, value) {
-      meshes[new MeshCategory.fromJson(key)] = new MeshGroup.fromJson(value);
+      MeshCategory cat = new MeshCategory.fromJson(JSON.decode(key));
+      meshes[cat] = new MeshGroup.fromJson(value);
+    });
+    features = new HashMap<String, Map<MeshCategory, FeatureMap>>();
+    json['features'].forEach((key, value) {
+      features[key] = new HashMap<MeshCategory, FeatureMap>();
+      value.forEach((key, value) {
+        MeshCategory cat = new MeshGroup.fromJson(JSON.decode(key));
+        features[cat] = new FeatureMap.fromJson(value);
+      });
     });
     edges = new EdgeGroup.fromJson(json['edges']);
   }
 
   Part.fromLDrawModel(LDrawModel model, Resolver pool,
       {bool excludeRefs: false}) {
+    header = model.header;
     parseLDrawModel(model, pool, excludeRefs);
   }
 
@@ -401,6 +469,7 @@ class Part {
 
     activeColors = new Set<Color>();
     meshes = new HashMap<MeshCategory, MeshGroup>();
+    features = new HashMap<String, Map<MeshCategory, FeatureMap>>();
     edges = new EdgeGroup();
 
     KdTree<Adjacency> kdTree = new KdTree();
@@ -444,20 +513,44 @@ class Part {
 
 	  if (part == null)
 	    continue;
+
+          Color col;
 	  if (refcmd.color == 16)
-	    colorStack.add(colorStack.last);
-	  else
-	    colorStack.add(ColorMap.instance.query(refcmd.color));
-	  bool c;
-	  if (bfcCertified)
-	    c = cull && localCull;
-	  else
-	    c = false;
-	  bool invertChild = invert != invertNext;
-	  if (refcmd.matrix.det() < 0.0)
-	    invertChild = !invertChild;
-	  traverse(part, matrix * refcmd.matrix, c, invertChild, depth + 1);
-	  colorStack.removeLast();
+            col = colorStack.last;
+          else
+            col = ColorMap.instance.query(refcmd.color);
+
+          String name = normalizePath(refcmd.name);
+          if (kFeatures.contains(name) ) {
+            Map<MeshCategory, FeatureMap> currentFeatures;
+            if (features.containsKey(name)) {
+              currentFeatures = features[name];
+            } else {
+              currentFeatures = new HashMap<MeshCategory, FeatureMap>();
+              features[name] = currentFeatures;
+            }
+            MeshCategory category = new MeshCategory(col, true);
+            FeatureMap featureMap;
+            if (currentFeatures.containsKey(category)) {
+              featureMap = currentFeatures[category];
+            } else {
+              featureMap = new FeatureMap();
+              currentFeatures[category] = featureMap;
+            }
+            featureMap.add(matrix * refcmd.matrix, !ccw);
+          } else {
+            colorStack.add(col);
+            bool c;
+            if (bfcCertified)
+              c = cull && localCull;
+            else
+              c = false;
+            bool invertChild = invert != invertNext;
+            if (refcmd.matrix.det() < 0.0)
+              invertChild = !invertChild;
+            traverse(part, matrix * refcmd.matrix, c, invertChild, depth + 1);
+            colorStack.removeLast();
+          }
         } else if (cmd is LDrawLine2) {
           LDrawLine2 line = cmd;
           Color col = ColorMap.instance.query(line.color);
@@ -562,7 +655,9 @@ class Part {
   Map toJson() {
     return {
       'activeColors': new List.from(activeColors),
+      'header': header.toJson(),
       'meshes': meshes,
+      'features': features,
       'edges': edges
     };
   }
@@ -666,31 +761,6 @@ class Index {
       }
     }
   }
-}
-
-/* isolated process */
-void partBuildWorker() {
-  port.receive((var msg, SendPort reply) {
-    /* heavily sucks because in dart2js isolate force every workers to do these superfluous pack/unpacks... */
-    try {
-      Stopwatch watch = new Stopwatch();
-
-      int id = msg[0];
-      Resolver r = new Resolver.fromJson(msg[1]);
-      ColorMap c = new ColorMap.fromJson(msg[2]);
-      List<String> parts = msg[3];
-
-      for (String part in parts) {
-        watch.reset();
-        watch.start();
-        Part built = new Part.fromLDrawModel(r.getPart(part), r);
-        watch.stop();
-        reply.send([id, part, buildJsonPrimitive(built), watch.elapsedMilliseconds]);
-      }
-    } catch (e) {
-      print('Error in isolate:\n$e');
-    }
-  });
 }
 
 class Model {
@@ -834,6 +904,9 @@ class Model {
             if (!subparts.contains(name))
               subparts.add(name);
           } else {
+            if (!submodels.containsKey(name) || submodels[name] == null)
+              continue;
+
             Index idx = new Index(this);
 
             ++stepIndex;
@@ -926,7 +999,21 @@ class Model {
     return set;
   }
 
-  void buildPartSynchronously(String partName, Resolver r) {
+  void loadPart(String partName, {void onLoaded(String s, Part p): null,
+                                  void onLoadFailed(String s, int statusCode): null}) {
+    partName = normalizePath(partName);
+    httpGetJson('$MESH_ENDPOINT/g/parts/$partName.json', (response) {
+      Part p = new Part.fromJson(response);
+      submodels[partName] = p;
+      if (onLoaded != null)
+        onLoaded(partName, p);
+    }, onFailed: (int statusCode) {
+      if (onLoadFailed != null)
+        onLoadFailed(partName, statusCode);
+    });
+  }
+
+  void buildPartsSynchronously(String partName, Resolver r) {
     partName = normalizePath(partName);
 
     if (!submodels.containsKey(partName))
@@ -935,9 +1022,9 @@ class Model {
     submodels[partName] = new Part.fromLDrawModel(r.getPart(partName), r);
   }
 
-  const int MAX_WORKERS = 4;
+  int MAX_WORKERS = 4;
 
-  void buildPartAsynchronously(Resolver r,
+  void buildPartsAsynchronously(Resolver r,
       void onPartBuilt(int workerId, String partName, Part partData,
           int totalParts, int remainingParts, int elapsed),
       void onFinished()) {
@@ -949,8 +1036,7 @@ class Model {
     Map serializableColorMap = ColorMap.instance.rawData;
     Map serializableResolver = buildJsonPrimitive(r);
 
-    ReceivePort receiver = new ReceivePort();
-    receiver.receive((List response, var _) {
+    void receive(List response) {
       if (response != null) {
         int id = response[0];
         String partName = response[1];
@@ -970,18 +1056,22 @@ class Model {
             onFinished();
         }
       }
-    });
+    }
 
     for (int i = 0; i < workers; ++i) {
-      SendPort sender = spawnFunction(partBuildWorker);
       List<String> dividedParts = new List<String>();
       for (int j = 0; j < parts.length; ++j) {
         if (j % workers == i)
           dividedParts.add(parts[j]);
       }
       print('worker queue $i: $dividedParts');
-      sender.send([i, serializableResolver, serializableColorMap, dividedParts],
-          receiver.toSendPort());
+
+      var msg = [i, serializableResolver, serializableColorMap, dividedParts];
+      var response = new ReceivePort();
+      Future<Isolate> remote = Isolate.spawnUri(ISOLATE_URI_PART_BUILDER, ['a'], response.sendPort);
+      remote.then((_) => response.first).then((sendPort) {
+        print(sendPort);
+      });
     }
   }
 }

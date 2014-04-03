@@ -11,11 +11,11 @@ class ResolverException implements Exception {
 }
 
 class Resolver {
-  const int TAG_NOT_LOADED = -4;
-  const int TAG_TO_BE_LOADED = -3;
-  const int TAG_LOADING = -2;
-  const int TAG_NOT_FOUND = -1;
-  const int TAG_DAT_PRESENT = 1;
+  int TAG_NOT_LOADED = -4;
+  int TAG_TO_BE_LOADED = -3;
+  int TAG_LOADING = -2;
+  int TAG_NOT_FOUND = -1;
+  int TAG_DAT_PRESENT = 1;
   
   Map<String, int> registry;
   Map<String, LDrawModel> datFiles;
@@ -71,6 +71,73 @@ class Resolver {
     stack.remove(model);
   }
 
+  void resolveModelLocally(LDrawModel base, String ldrawPath,
+                           {void onUpdate(String name, LDrawModel model): null}) {
+    cyclicRefTest(base);
+
+    File searchPart(String partName) {
+      File p = new File('$ldrawPath/p/$partName');
+      File parts = new File('$ldrawPath/parts/$partName');
+
+      if (parts.existsSync())
+        return parts;
+      else if (p.existsSync())
+        return p;
+
+      return null;
+    }
+
+    void traverse(LDrawModel model) {
+      for (LDrawLine1 cmd in model.filterRefCmds()) {
+	LDrawModel subpart = base.findPart(cmd.name);
+	if (subpart != null) {
+	  traverse(subpart);
+	} else {
+	  String partName = normalizePath(cmd.name);
+	  if (queryPart(partName) == TAG_NOT_LOADED) {
+	    registry[partName] = TAG_TO_BE_LOADED;
+	  }
+	}
+      }
+      
+      List<String> itemsToBeLoaded = new List.from(getItemsToBeLoaded());
+      for (String s in itemsToBeLoaded) {
+        s = normalizePath(s);
+        if (registry.containsKey(s) && registry[s] == TAG_DAT_PRESENT)
+          continue;
+        File f = searchPart(s);
+        if (f == null) {
+          print('part $s not found!');
+          registry[s] = TAG_NOT_FOUND;
+        } else {
+          List<String> contents;
+          try {
+            contents = f.readAsLinesSync(encoding: UTF8);
+          } catch (FileSystemException) {
+            contents = f.readAsLinesSync(encoding: LATIN1);
+          }
+          LDrawModel newModel = new LDrawModel();
+          try {
+            parseModel(newModel, contents.iterator);
+          } catch (e) {
+            registry[s] = TAG_NOT_FOUND;
+            if (onUpdate != null)
+              onUpdate(s, null);
+            return;
+          }
+          datFiles[s] = newModel;
+          registry[s] = TAG_DAT_PRESENT;
+          if (onUpdate != null)
+            onUpdate(s, newModel);
+          traverse(newModel);
+        }
+      }
+    }
+
+    traverse(base);
+    cyclicRefTest(base);
+  }
+
   void resolveModel(LDrawModel base,
 		    {void onUpdate(String name, LDrawModel model): null,
 		     void onFinished(): null}) {
@@ -88,44 +155,44 @@ class Resolver {
 	  }
 	}
       }
-      
+
       for (String s in getItemsToBeLoaded()) {
 	s = normalizePath(s);
 	registry[s] = TAG_LOADING;
 	String uri = DAT_ENDPOINT + 'g/$s';
 	httpGetPlainText(uri, (List<String> response) {
-	    LDrawModel newModel = new LDrawModel();
-	    try {
-	      parseModel(newModel, response.iterator);
-	    } catch (e) {
-	      registry[s] = TAG_NOT_FOUND;
-	      if (onUpdate != null)
-		onUpdate(s, null);
-	      if (onFinished != null && getItemsInQueue().isEmpty)
-		onFinished();
-	      return;
-	    }
-	    datFiles[s] = newModel;
-	    registry[s] = TAG_DAT_PRESENT;
-	    traverse(newModel);
-	    if (onUpdate != null)
-	      onUpdate(s, newModel);
-	    if (getItemsInQueue().isEmpty) {
-	      cyclicRefTest(base);
-	      if (onFinished != null)
-		onFinished();
-	    }
-	  },
-	  onFailed: () {
-	    registry[s] = TAG_NOT_FOUND;
-	    if (onUpdate != null)
-	      onUpdate(s, null);
-	    if (getItemsInQueue().isEmpty) {
+          LDrawModel newModel = new LDrawModel();
+          try {
+            parseModel(newModel, response.iterator);
+          } catch (e) {
+            registry[s] = TAG_NOT_FOUND;
+            if (onUpdate != null)
+              onUpdate(s, null);
+            if (onFinished != null && getItemsInQueue().isEmpty)
+              onFinished();
+            return;
+          }
+          datFiles[s] = newModel;
+          registry[s] = TAG_DAT_PRESENT;
+          traverse(newModel);
+          if (onUpdate != null)
+            onUpdate(s, newModel);
+          if (getItemsInQueue().isEmpty) {
+            cyclicRefTest(base);
+            if (onFinished != null)
+              onFinished();
+          }
+        },
+        onFailed: (int resCode) {
+          registry[s] = TAG_NOT_FOUND;
+          if (onUpdate != null)
+            onUpdate(s, null);
+          if (getItemsInQueue().isEmpty) {
 	    cyclicRefTest(base);
 	    if (onFinished != null)
 	      onFinished();
-	    }
-	  });
+          }
+        });
       }
     }
 

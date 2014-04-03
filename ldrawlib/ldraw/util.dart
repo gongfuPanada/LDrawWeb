@@ -43,10 +43,15 @@ Object buildJsonPrimitive(Object obj) {
     if (isPrimitive(v)) {
       return v;
     } else if (v is Map) {
-      Map m = new Map();
+      Map m = new HashMap();
       Map lm = v;
       lm.forEach((key, value) {
-        m[visit(key)] = visit(value);
+        var kv;
+        if (isPrimitive(key))
+          kv = key;
+        else
+          kv = JSON.encode(visit(key));
+        m[kv] = visit(value);
       });
       return m;
     } else if (v is List) {

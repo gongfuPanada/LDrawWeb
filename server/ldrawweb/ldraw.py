@@ -12,11 +12,13 @@
 from ldrawweb.util import str2int as int_
 
 
-__all__ = ['MIME_TYPE', 'MIME_TYPES', 'ValidationError', 'validate']
+__all__ = ['LDRAW_MIME_TYPE', 'LDRAW_MIME_TYPES', 'ValidationError', 'validate']
 
 
-MIME_TYPE = 'application/x-ldraw'
-MIME_TYPES = ('application/x-ldraw', 'application/x-multi-part-ldraw')
+LDRAW_MIME_TYPE = 'application/x-ldraw'
+LDRAW_MIME_TYPES = ('application/x-ldraw', 'application/x-multi-part-ldraw')
+
+
 LINE_TYPES = ('0', '1', '2', '3', '4', '5')
 LINE_TYPE_PARAMS = {
     '1': [int_, float, float, float, float, float, float, float, float,

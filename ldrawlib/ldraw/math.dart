@@ -23,6 +23,12 @@ class Vec4 implements Comparable {
       val[i] = array[i];
   }
 
+  Vec4.fromJson(List array) {
+    val = new Float32List(4);
+    for (int i = 0; i < 4; ++i)
+      val[i] = array[i];
+  }
+
   Vec4.xyz(num x, num y, num z) {
     val = new Float32List(4);
     val[0] = x; val[1] = y; val[2] = z; val[3] = 1.0;
@@ -143,6 +149,15 @@ class Vec4 implements Comparable {
     return out;
   }
 
+  static Vec4 interpolate(Vec4 a, Vec4 b, [Vec4 out = null]) {
+    if (out == null)
+      out = new Vec4();
+
+    out.set((a.x + b.x) * 0.5, (a.y + b.y) * 0.5, (a.z + b.z) * 0.5, (a.w + b.w) * 0.5);
+
+    return out;
+  }
+
   static bool equals(Vec4 a, Vec4 b) {
     num x = (a.x - b.x).abs();
     num y = (a.y - b.y).abs();
@@ -245,6 +260,12 @@ class Mat4 {
   }
 
   Mat4.fromList(List array) {
+    val = new Float32List(16);
+    for (int i = 0; i < 16; ++i)
+      val[i] = array[i];
+  }
+
+  Mat4.fromJson(List array) {
     val = new Float32List(16);
     for (int i = 0; i < 16; ++i)
       val[i] = array[i];

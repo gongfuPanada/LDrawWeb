@@ -32,7 +32,11 @@ def run(config=None, host='0.0.0.0', port=8080):
     except:
         logging.critical('config file %r not found!' %
                          (config or DEFAULT_CONFIG_FILE))
-    # basic logging config
+    # enable compression if run standalone
+    from flask.ext.compress import Compress
+    Compress(Application)
+    Application.config['COMPRESS_DEBUG'] = True
+    # basic logging confi
     if config_['debug']:
         logging.basicConfig(format=logging.DEBUG)
         # start debug server

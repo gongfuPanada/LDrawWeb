@@ -8,25 +8,25 @@ void httpGetPlainText(String uri, void callback(List<String> response),
 		      {void onFailed(int status): null}) {
   HttpRequest.request(uri)
     .then((HttpRequest request) {
-	if (request.status / 100 >= 4) {
-	  if (onFailed != null)
-	    onFailed(request.status);
-	} else {
-	  List<String> lines = request.responseText.split('\n');
-	  callback(lines);
-	}
-      });
+      List<String> lines = request.responseText.split('\n');
+      callback(lines);
+    })
+    .catchError((Error error) {
+      if (onFailed != null) {
+        onFailed(404);
+      }
+    });
 }
 
 void httpGetJson(String uri, void callback(response),
 		 {void onFailed(int status): null}) {
   HttpRequest.request(uri)
     .then((HttpRequest request) {
-	if (request.status / 100 >= 4) {
-	  if (onFailed != null)
-	    onFailed(request.status);
-	} else {
-	  callback(parse(request.responseText));
-	}
-      });
+      callback(JSON.decode(request.responseText));
+    })
+    .catchError((Error error) {
+      if (onFailed != null) {
+        onFailed(404);
+      }
+    });
 }
