@@ -27,10 +27,10 @@ void setup(CanvasElement elem, RenderingContext gl) {
   resizeView(elem, window.innerWidth, window.innerHeight);
   new MaterialManager();
   Map<String, String> attrs = query('#data').attributes;
-  if (attrs.containsKey('data-uri')) {
-    httpGetPlainText(attrs['data-uri'], readFile);
-  } else if (attrs.containsKey('data-model')) {
+  if (attrs.containsKey('data-model')) {
     readFile(attrs['data-model'].split('\n'));
+  } else if (attrs.containsKey('data-uri')) {
+    httpGetPlainText(attrs['data-uri'], readFile);
   }
 }
 

@@ -24,9 +24,9 @@ void httpGetJson(String uri, void callback(response),
     .then((HttpRequest request) {
       callback(JSON.decode(request.responseText));
     })
-    /*.catchError((Error error) {
+    .catchError((Error error) {
       if (onFailed != null) {
         onFailed(404);
       }
-    })*/;
+    });
 }
