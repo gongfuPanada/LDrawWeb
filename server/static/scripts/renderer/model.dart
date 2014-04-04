@@ -8,11 +8,17 @@ class RenderableModel {
 
   Map<MeshCategory, Buffer> vertexBuffers;
   Map<MeshCategory, Buffer> normalBuffers;
+  Map<MeshCategory, Buffer> studVertexBuffers;
+  Map<MeshCategory, Buffer> studNormalBuffers;
   Buffer edgeVertices;
   Buffer edgeColors;
+  Buffer studEdgeVertices;
+  Buffer studEdgeColors;
 
   Map<MeshCategory, int> triCounts;
+  Map<MeshCategory, int> studTriCounts;
   int edgeCount;
+  int studEdgeCount;
   List<MeshCategory> renderingOrder;
   List<int> steps;
   List<Index> indices;
@@ -44,38 +50,75 @@ class RenderableModel {
     renderingOrder = new List.from(model.meshChunks.keys);
     renderingOrder.sort();
 
-    /* build vertex/normal buffer for meshes */
+    /* prepare vertex/normal buffer for meshes */
     vertexBuffers = new HashMap<MeshCategory, Buffer>();
     normalBuffers = new HashMap<MeshCategory, Buffer>();
     triCounts = new HashMap<MeshCategory, int>();
+    if (model.hasFeatures) {
+      studVertexBuffers = new HashMap<MeshCategory, Buffer>();
+      studNormalBuffers = new HashMap<MeshCategory, Buffer>();
+      studTriCounts = new HashMap<MeshCategory, int>();
+    }
 
     for (MeshCategory c in renderingOrder) {
+      /* build basic geometry */
       vertexBuffers[c] = GL.createBuffer();
       GL.bindBuffer(ARRAY_BUFFER, vertexBuffers[c]);
       GL.bufferDataTyped(ARRAY_BUFFER,
-          new Float32List.fromList(model.meshChunks[c].vertices),
+          model.meshChunks[c].vertices,
           STATIC_DRAW);
       
       normalBuffers[c] = GL.createBuffer();
       GL.bindBuffer(ARRAY_BUFFER, normalBuffers[c]);
       GL.bufferDataTyped(ARRAY_BUFFER,
-          new Float32List.fromList(model.meshChunks[c].normals),
+          model.meshChunks[c].normals,
           STATIC_DRAW);
+
+      /* build stud buffer */
+      if (model.hasFeatures) {
+        studVertexBuffers[c] = GL.createBuffer();
+        GL.bindBuffer(ARRAY_BUFFER, studVertexBuffers[c]);
+        GL.bufferDataTyped(ARRAY_BUFFER,
+            model.featureChunks[c].vertices,
+            STATIC_DRAW);
+        
+        studNormalBuffers[c] = GL.createBuffer();
+        GL.bindBuffer(ARRAY_BUFFER, studNormalBuffers[c]);
+        GL.bufferDataTyped(ARRAY_BUFFER,
+            model.featureChunks[c].normals,
+            STATIC_DRAW);
+      }
 
       triCounts[c] = model.meshChunks[c].count;
     }
 
+    /* build edge buffer */
     edgeVertices = GL.createBuffer();
     GL.bindBuffer(ARRAY_BUFFER, edgeVertices);
     GL.bufferDataTyped(ARRAY_BUFFER,
-        new Float32List.fromList(model.edges.vertices),
+        model.edges.vertices,
         STATIC_DRAW);
     edgeColors = GL.createBuffer();
     GL.bindBuffer(ARRAY_BUFFER, edgeColors);
     GL.bufferDataTyped(ARRAY_BUFFER,
-        new Float32List.fromList(model.edges.colors),
+        model.edges.colors,
         STATIC_DRAW);
     edgeCount = model.edges.count;
+
+    /* build edge buffer for studs */
+    if (model.hasFeatures) {
+      studEdgeVertices = GL.createBuffer();
+      GL.bindBuffer(ARRAY_BUFFER, studEdgeVertices);
+      GL.bufferDataTyped(ARRAY_BUFFER,
+          model.featureEdges.vertices,
+          STATIC_DRAW);
+      edgeColors = GL.createBuffer();
+      GL.bindBuffer(ARRAY_BUFFER, edgeColors);
+      GL.bufferDataTyped(ARRAY_BUFFER,
+          model.featureEdges.colors,
+          STATIC_DRAW);
+      studEdgeCount = model.featureEdges.count;
+    }
 
     indices = model.indices;
     steps = model.steps;
@@ -127,6 +170,18 @@ class RenderableModel {
         Index idx = indices[currentIndex];
         GL.drawArrays(TRIANGLES, 0, idx.start[c] + idx.count[c]);
       }
+
+      if (studVertexBuffers != null) {
+        GL.bindBuffer(ARRAY_BUFFER, studVertexBuffers[c]);
+        GL.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
+        GL.bindBuffer(ARRAY_BUFFER, studNormalBuffers[c]);
+        GL.vertexAttribPointer(s.vertexNormal, 3, FLOAT, false, 0, 0);
+        
+        if (currentIndex >= 0) {
+          Index idx = indices[currentIndex];
+          GL.drawArrays(TRIANGLES, 0, idx.studStart[c] + idx.studCount[c]);
+        }
+      }
     }
     
     /* render edges */
@@ -147,6 +202,18 @@ class RenderableModel {
     if (currentIndex >= 0) {
       Index idx = indices[currentIndex];
       GL.drawArrays(LINES, 0, idx.edgeStart + idx.edgeCount);
+    }
+
+    if (studEdgeVertices != null) {
+      GL.bindBuffer(ARRAY_BUFFER, studEdgeVertices);
+      GL.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
+      GL.bindBuffer(ARRAY_BUFFER, studEdgeColors);
+      GL.vertexAttribPointer(s.vertexColor, 3, FLOAT, false, 0, 0);
+      
+      if (currentIndex >= 0) {
+        Index idx = indices[currentIndex];
+        GL.drawArrays(LINES, 0, idx.studEdgeStart + idx.studEdgeCount);
+      }
     }
   }
 

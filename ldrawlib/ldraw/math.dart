@@ -119,6 +119,15 @@ class Vec4 implements Comparable {
     return new Vec4.xyz(x*s, y*s, z*s);
   }
 
+  Vec4 negate([Vec4 out = null]) {
+    if (out == null)
+      out = new Vec4(-x, -y, -z);
+    else
+      out.set(-x, -y, -z);
+
+    return out;
+  }
+
   bool operator == (Vec4 other) {
     return equals(this, other);
   }
@@ -342,8 +351,22 @@ class Mat4 {
   }
 
   void clone(Mat4 v) {
-    for (int i = 0; i < 16; ++i)
-      val[i] = v.val[i];
+    val[0] = v.val[0];
+    val[1] = v.val[1];
+    val[2] = v.val[2];
+    val[3] = v.val[3];
+    val[4] = v.val[4];
+    val[5] = v.val[5];
+    val[6] = v.val[6];
+    val[7] = v.val[7];
+    val[8] = v.val[8];
+    val[9] = v.val[9];
+    val[10] = v.val[10];
+    val[11] = v.val[11];
+    val[12] = v.val[12];
+    val[13] = v.val[13];
+    val[14] = v.val[14];
+    val[15] = v.val[15];
   }
 
   Vec4 transform(Vec4 v, [Vec4 out = null]) {

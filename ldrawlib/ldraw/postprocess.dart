@@ -88,6 +88,10 @@ class QuadFace extends Face {
   }
 }
 
+class FinishedEntityError extends Error {
+  FinishedEntityError() : super();
+}
+
 class EdgeGroup {
   /* temporary */
   List<num> vertexBuffer_;
@@ -126,7 +130,7 @@ class EdgeGroup {
 
   void add(Vec4 pos, Color c) {
     if (built)
-      throw new Error('Cannot add to a finished edge group');
+      throw new FinishedEntityError();
 
     if (vertexBuffer_ == null)
       vertexBuffer_ = new List<num>();
@@ -150,6 +154,72 @@ class EdgeGroup {
       colorBuffer_.add(c.color.g);
       colorBuffer_.add(c.color.b);
     }
+  }
+
+  void applyFeatures(List queue) {
+    if (queue.length == 0) {
+      vertices = new Float32List(0);
+      colors = new Float32List(0);
+      built = true;
+      return;
+    }
+
+    clear();
+
+    int count = 0;
+    MeshCategory defaultCat = new MeshCategory(ColorMap.instance.query(16), true); // use this only
+
+    /* search for array size */
+    for (List item in queue) {
+      Part feature = item[0];
+      FeatureMap fm = item[1];
+      count += feature.edges.count * fm.matrices.length * 3;
+    }
+
+    /* allocate */
+    vertices = new Float32List(count);
+    colors = new Float32List(count);
+
+    /* fill */
+    int index = 0;
+    Vec4 v = new Vec4();
+    for (List item in queue) {
+      Part feature = item[0];
+      FeatureMap fm = item[1];
+      Color c = item[2];
+      Mat4 mat = item[3];
+      EdgeGroup other = feature.edges;
+
+      for (int i = 0; i < fm.matrices.length; ++i) {
+        Mat4 localMat = mat * fm.matrices[i];
+        
+        for (int j = 0; j < feature.edgeCount() * 3; j += 3) {
+          v.set(other.vertices[j], other.vertices[j + 1], other.vertices[j + 2]);
+          localMat.transform(v, v);
+          vertices[index]     = v.x;
+          vertices[index + 1] = v.y;
+          vertices[index + 2] = v.z;
+
+          if (other.colors[i] < -1.0) {
+            colors[index]     = c.edge.r;
+            colors[index + 1] = c.edge.g;
+            colors[index + 2] = c.edge.b;
+          } else if (other.colors[i] < 0.0) {
+            colors[index]     = c.color.r;
+            colors[index + 1] = c.color.g;
+            colors[index + 2] = c.color.b;
+          } else {
+            colors[index]     = other.colors[i];
+            colors[index + 1] = other.colors[i + 1];
+            colors[index + 2] = other.colors[i + 2];
+          }
+
+          index += 3;
+        }
+      }
+    }
+
+    built = true;
   }
 
   void commitMerge(List queue) {
@@ -252,7 +322,7 @@ class EdgeGroup {
 
   void finish() {
     if (built)
-      throw new Error('This edge group is already finished');
+      throw new FinishedEntityError();
 
     if (vertexBuffer_ == null && colorBuffer_ == null) {
       vertices = new Float32List(0);
@@ -296,12 +366,74 @@ class MeshGroup {
 
   void add(Face face) {
     if (built)
-      throw new Error('Cannot add to a finished mesh group');
+      throw new FinishedEntityError();
 
     if (faces_ == null)
       faces_ = new List<Face>();
 
     faces_.add(face);
+  }
+
+  void applyFeatures(List queue) {
+    if (queue.length == 0) {
+      vertices = new Float32List(0);
+      normals = new Float32List(0);
+      faces_ = null;
+      built = true;
+      return;
+    }
+
+    clear();
+
+    int count = 0;
+    MeshCategory defaultCat = new MeshCategory(ColorMap.instance.query(16), true); // use this only
+
+    /* search for array size */
+    for (List item in queue) {
+      Part feature = item[0];
+      FeatureMap featureMap = item[1];
+      count += feature.meshes[defaultCat].count * featureMap.matrices.length * 3;
+    }
+
+    /* allocate */
+    vertices = new Float32List(count);
+    normals = new Float32List(count);
+
+    /* fill */
+    int index = 0;
+    Vec4 v = new Vec4();
+    Vec4 n = new Vec4();
+    for (List item in queue) {
+      Part feature = item[0];
+      FeatureMap featureMap = item[1];
+      Mat4 matrix = item[2];
+      Mat4 rotmat = new Mat4();
+      MeshGroup targetMesh = feature.meshes[defaultCat];
+
+      for (int i = 0; i < featureMap.matrices.length; ++i) {
+        Mat4 localMat = matrix * featureMap.matrices[i];
+        rotmat.clone(localMat);
+        rotmat.setTranslation(0.0, 0.0, 0.0);
+
+        for (int j = 0; j < feature.triCount(defaultCat) * 3; j += 3) {
+          v.set(targetMesh.vertices[j], targetMesh.vertices[j+1], targetMesh.vertices[j+2]);
+          localMat.transform(v, v);
+          n.set(targetMesh.normals[j], targetMesh.normals[j+1], targetMesh.normals[j+2]);
+          rotmat.transform(n, n);
+          if (featureMap.flipNormal[i])
+            n.negate(n);
+            
+          vertices[index]   = v.x;
+          vertices[index+1] = v.y;
+          vertices[index+2] = v.z;
+          normals[index]   = n.x;
+          normals[index+1] = n.y;
+          normals[index+2] = n.z;
+
+          index += 3;
+        }
+      }
+    }
   }
 
   void commitMerge(List queue) {
@@ -671,6 +803,47 @@ class Part {
     parseLDrawModel(model, pool, excludeRefs);
   }
 
+  int triCount(MeshCategory category) {
+    if (!meshes.containsKey(category))
+      return 0;
+
+    return meshes[category].count;
+  }
+
+  int edgeCount() {
+    return edges.count;
+  }
+
+  int featureTriCount() {
+    MeshCategory category = new MeshCategory(ColorMap.instance.query(16), true);
+
+    int count = 0;
+
+    features.forEach((name, data) {
+      if (!data.containsKey(category))
+        return;
+      Part p = GlobalFeatureSet.instance.query(name);
+      if (p != null)
+        count += p.triCount(category) * data[category].matrices.length;
+    });
+
+    return count;
+  }
+
+  int featureEdgeCount() {
+    MeshCategory category = new MeshCategory(ColorMap.instance.query(16), true);
+
+    int count = 0;
+
+    features.forEach((name, data) {
+      Part p = GlobalFeatureSet.instance.query(name);
+      if (p != null)
+        count += p.edgeCount() * data[category].matrices.length;
+    });
+
+    return count;
+  }
+
   void parseLDrawModel(LDrawModel root, Resolver pool, bool excludeRefs) {
     /* build mesh data from a LDraw model */
 
@@ -939,23 +1112,33 @@ class BoundingBox {
 class Index {
   Map<MeshCategory, int> start;
   Map<MeshCategory, int> count;
+  Map<MeshCategory, int> studStart;
+  Map<MeshCategory, int> studCount;
   int edgeStart;
   int edgeCount;
+  int studEdgeStart;
+  int studEdgeCount;
   BoundingBox boundingBox;
 
   Index() {
     start = new HashMap<MeshCategory, int>();
     count = new HashMap<MeshCategory, int>();
+    studStart = new HashMap<MeshCategory, int>();
+    studCount = new HashMap<MeshCategory, int>();
   }
 
-  void add(MeshCategory category, int start, int count) {
+  void add(MeshCategory category, int start, int count, int studStart, int studCount) {
     this.start[category] = start;
     this.count[category] = count;
+    this.studStart[category] = studStart;
+    this.studCount[category] = studCount;
   }
 
-  void setEdgeIndex(int start, int count) {
+  void setEdgeIndex(int start, int count, int studStart, int studCount) {
     edgeStart = start;
     edgeCount = count;
+    studEdgeStart = studStart;
+    studEdgeCount = studCount;
   }
 
   void finish(Model parent) {
@@ -981,6 +1164,7 @@ class Model {
   Map<MeshCategory, MeshGroup> meshChunks;
   Map<MeshCategory, MeshGroup> featureChunks;
   EdgeGroup edges;
+  EdgeGroup featureEdges;
 
   // index
   List<String> subparts;
@@ -1024,17 +1208,26 @@ class Model {
     traverse(root);
   }
 
-  void compile() {
+  void compile([bool excludeFeatures = false]) {
     meshChunks = new HashMap<MeshCategory, MeshGroup>();
-    featureChunks = new HashMap<MeshCategory, MeshGroup>();
     edges = new EdgeGroup();
+    if (excludeFeatures) {
+      featureChunks = null;
+      featureEdges = null;
+    } else {
+      featureChunks = new HashMap<MeshCategory, MeshGroup>();
+      featureEdges = new EdgeGroup();
+    }
 
     Set<String> visitedSubparts = new HashSet<String>();
 
     Map meshMergeQueue = new Map();
-    List colorMergeQueue = new List();
+    Map featureMergeQueue = new Map();
+    List edgeMergeQueue = new List();
+    List featureEdgeMergeQueue = new List();
 
-    int colorOffset = 0;
+    int edgeOffset = 0;
+    int featureEdgeOffset = 0;
 
     void traverseMesh(LDrawModel model, Color color, Mat4 matrix, bool divideIndices) {
       if (model == null)
@@ -1079,8 +1272,30 @@ class Model {
             target.add([p.meshes[from], startCount, p.meshes[from].count, matrix * cmd.matrix]);
           }
           /* merge colors */
-          colorMergeQueue.add([p.edges, colorOffset, p.edges.count, c, matrix * cmd.matrix]);
-          colorOffset += p.edges.count;
+          edgeMergeQueue.add([p.edges, edgeOffset, p.edges.count, c, matrix * cmd.matrix]);
+          edgeOffset += p.edges.count;
+          /* gather features */
+          if (!excludeFeatures) {
+            p.features.forEach((String featureName, Map object) {
+              Part feature = GlobalFeatureSet.instance.query(featureName);
+              if (feature == null)
+                return;
+              
+              object.forEach((MeshCategory cat, FeatureMap featureMap) {
+                /* inherit color */
+                MeshCategory from = cat;
+                if (cat.color.isMainColor)
+                  cat = new MeshCategory(c, cat.bfc);
+                
+                if (!featureMergeQueue.containsKey(cat))
+                  featureMergeQueue[cat] = [];
+                featureMergeQueue[cat].add([feature, featureMap, matrix * cmd.matrix]);
+
+                featureEdgeMergeQueue.add([feature, featureMap, c, matrix * cmd.matrix]);
+                edgeOffset += feature.edges.count;
+              });
+            });
+          }
         }
       }
     }
@@ -1098,7 +1313,20 @@ class Model {
       }
       group.commitMerge(value);
     });
-    edges.commitMerge(colorMergeQueue);
+    edges.commitMerge(edgeMergeQueue);
+    if (!excludeFeatures) {
+      featureMergeQueue.forEach((key, value) {
+        MeshGroup group;
+        if (!featureChunks.containsKey(key)) {
+          group = new MeshGroup();
+          featureChunks[key] = group;
+        } else {
+          group = featureChunks[key];
+        }
+        group.applyFeatures(value);
+      });
+      featureEdges.applyFeatures(featureEdgeMergeQueue);
+    }
 
     Set<MeshCategory> categories = new Set.from(meshChunks.keys);
 
@@ -1114,7 +1342,9 @@ class Model {
     
     /* build subpart hierarchy */
     Map<MeshCategory, int> curTriIndex = new HashMap<MeshCategory, int>();
+    Map<MeshCategory, int> curStudIndex = new HashMap<MeshCategory, int>();
     int curEdgeIndex = 0;
+    int curStudEdgeIndex = 0;
     int stepIndex = -1;
     MeshCategory defaultColorBfc = new MeshCategory(ColorMap.instance.query(16), true);
     MeshCategory defaultColor = new MeshCategory(ColorMap.instance.query(16), false);
@@ -1150,27 +1380,37 @@ class Model {
             
             for (MeshCategory c in categories) {
               int count;
-              
+              int studCount;
 
-              if (part.meshes.containsKey(c))
-                count = part.meshes[c].count;
+              count = part.triCount(c);
+              studCount = 0;
+              if (excludeFeatures)
+                studCount = 0;
               else
-                count = 0;
-              
-              if (partColorBfc == c && part.meshes.containsKey(defaultColorBfc))
-                count += part.meshes[defaultColorBfc].count;
-              else if (partColor == c && part.meshes.containsKey(defaultColor))
-                count += part.meshes[defaultColor].count;
+                studCount = part.featureTriCount();
+
+              if (partColorBfc == c) {
+                count += part.triCount(defaultColorBfc);
+              } else if (partColor == c) {
+                count += part.triCount(defaultColor);
+              }
               
               if (!curTriIndex.containsKey(c))
                 curTriIndex[c] = 0;
+
+              if (!curStudIndex.containsKey(c))
+                curStudIndex[c] = 0;
               
-              idx.add(c, curTriIndex[c], count);
+              print ('$c ${curStudIndex[c]} / $studCount');
+              idx.add(c, curTriIndex[c], count, curStudIndex[c], studCount);
               curTriIndex[c] += count;
+              curStudIndex[c] += studCount;
             }
             
-            idx.setEdgeIndex(curEdgeIndex, part.edges.count);
-            curEdgeIndex += part.edges.count;
+            idx.setEdgeIndex(curEdgeIndex, part.edgeCount(), curStudEdgeIndex, part.featureEdgeCount());
+            curEdgeIndex += part.edgeCount();
+            if (!excludeFeatures)
+              curStudEdgeIndex += part.featureEdgeCount();
             
             idx.finish(this);
             indices.add(idx);
@@ -1182,7 +1422,7 @@ class Model {
     }
     traverseIndex(root);
 
-    /* add last step */
+    /* add the last step */
     if (steps.length == 0 || steps.last != stepIndex)
       steps.add(stepIndex);
 
@@ -1204,6 +1444,30 @@ class Model {
 
   int get edgeCount {
     return (edges.count / 2).floor();
+  }
+
+  int get studTriCount {
+    if (!hasFeatures)
+      return 0;
+
+    int cnt = 0;
+
+    for (MeshGroup g in featureChunks.values) {
+      cnt += g.count;
+    }
+
+    return (cnt / 3).floor();
+  }
+
+  int get studEdgeCount {
+    if (!hasFeatures)
+      return 0;
+
+    return (featureEdges.count / 2).floor();
+  }
+
+  bool get hasFeatures {
+    return featureChunks != null;
   }
 
   void recycle() {
