@@ -1137,6 +1137,8 @@ class Model {
             if (!submodels.containsKey(name) || submodels[name] == null)
               continue;
 
+            Part part = submodels[name];
+
             Index idx = new Index();
 
             ++stepIndex;
@@ -1148,17 +1150,17 @@ class Model {
             
             for (MeshCategory c in categories) {
               int count;
-              if (submodels[name].meshes.containsKey(c))
-                count = submodels[name].meshes[c].count;
+              
+
+              if (part.meshes.containsKey(c))
+                count = part.meshes[c].count;
               else
                 count = 0;
               
-              try {
-                if (partColorBfc == c)
-                  count += submodels[name].meshes[defaultColorBfc].count;
-                else if (partColor == c)
-                  count += submodels[name].meshes[defaultColor].count;
-              } catch (e) {}
+              if (partColorBfc == c && part.meshes.containsKey(defaultColorBfc))
+                count += part.meshes[defaultColorBfc].count;
+              else if (partColor == c && part.meshes.containsKey(defaultColor))
+                count += part.meshes[defaultColor].count;
               
               if (!curTriIndex.containsKey(c))
                 curTriIndex[c] = 0;
@@ -1167,8 +1169,8 @@ class Model {
               curTriIndex[c] += count;
             }
             
-            idx.setEdgeIndex(curEdgeIndex, submodels[name].edges.count);
-            curEdgeIndex += submodels[name].edges.count;
+            idx.setEdgeIndex(curEdgeIndex, part.edges.count);
+            curEdgeIndex += part.edges.count;
             
             idx.finish(this);
             indices.add(idx);

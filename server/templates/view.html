@@ -22,7 +22,7 @@
 <p>This page features a technical preview of a service I'm currently working on. You can track the development status in <a href='http://github.com/segfault87/LDrawWeb'>GitHub</a>.</p>
 <p>Your browser must support WebGL in order to see the content. <a href='http://doesmybrowsersupportwebgl.com/'>Check whether your browser supports WebGL</a>.</p>
 <p><form action='/view' method='GET'>
-URL to LDraw model file (*.ldr, *.dat, *.mpd): <input name='uri' size='60' value='{{ uri | escape }}' /> <input type='submit' style='float: right;' />
+URL to LDraw model file (*.ldr, *.dat, *.mpd): <input name='uri' size='50' value='{{ uri | escape }}' /> <input type='submit' style='float: right;' />
 </form></p>
 <p><form action='/view' method='POST' enctype='multipart/form-data'>
 Or, upload a file: <input type='file' name='file' /><input type='submit' style='float: right;' /></form></p>
