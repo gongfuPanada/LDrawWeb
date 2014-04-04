@@ -1383,11 +1383,10 @@ class Model {
               int studCount;
 
               count = part.triCount(c);
-              studCount = 0;
-              if (excludeFeatures)
-                studCount = 0;
-              else
+              if (c.color.id == refcmd.color)
                 studCount = part.featureTriCount();
+              else
+                studCount = 0;
 
               if (partColorBfc == c) {
                 count += part.triCount(defaultColorBfc);
@@ -1401,7 +1400,7 @@ class Model {
               if (!curStudIndex.containsKey(c))
                 curStudIndex[c] = 0;
               
-              print ('$c ${curStudIndex[c]} / $studCount');
+              print ('${curTriIndex[c]} / $count | ${curStudIndex[c]} / $studCount');
               idx.add(c, curTriIndex[c], count, curStudIndex[c], studCount);
               curTriIndex[c] += count;
               curStudIndex[c] += studCount;
