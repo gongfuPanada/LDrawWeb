@@ -112,8 +112,8 @@ class RenderableModel {
       GL.bufferDataTyped(ARRAY_BUFFER,
           model.featureEdges.vertices,
           STATIC_DRAW);
-      edgeColors = GL.createBuffer();
-      GL.bindBuffer(ARRAY_BUFFER, edgeColors);
+      studEdgeColors = GL.createBuffer();
+      GL.bindBuffer(ARRAY_BUFFER, studEdgeColors);
       GL.bufferDataTyped(ARRAY_BUFFER,
           model.featureEdges.colors,
           STATIC_DRAW);
