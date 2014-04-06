@@ -192,7 +192,7 @@ class EdgeGroup {
 
       for (int i = 0; i < fm.matrices.length; ++i) {
         Mat4 localMat = mat * fm.matrices[i];
-        
+
         for (int j = 0; j < feature.edgeCount() * 3; j += 3) {
           v.set(other.vertices[j], other.vertices[j + 1], other.vertices[j + 2]);
           localMat.transform(v, v);
@@ -200,18 +200,18 @@ class EdgeGroup {
           vertices[index + 1] = v.y;
           vertices[index + 2] = v.z;
 
-          if (other.colors[i] < -1.0) {
+          if (other.colors[j] < -1.0) {
             colors[index]     = c.edge.r;
             colors[index + 1] = c.edge.g;
             colors[index + 2] = c.edge.b;
-          } else if (other.colors[i] < 0.0) {
+          } else if (other.colors[j] < 0.0) {
             colors[index]     = c.color.r;
             colors[index + 1] = c.color.g;
             colors[index + 2] = c.color.b;
           } else {
-            colors[index]     = other.colors[i];
-            colors[index + 1] = other.colors[i + 1];
-            colors[index + 2] = other.colors[i + 2];
+            colors[index]     = other.colors[j];
+            colors[index + 1] = other.colors[j + 1];
+            colors[index + 2] = other.colors[j + 2];
           }
 
           index += 3;
@@ -942,6 +942,7 @@ class Part {
             col = ColorMap.instance.query(refcmd.color);
 
           String name = normalizePath(refcmd.name);
+          /* treat studs */
           if (GlobalFeatureSet.kFeatures.containsKey(name)) {
             String featureName = GlobalFeatureSet.kFeatures[name];
             if (featureName == null)
