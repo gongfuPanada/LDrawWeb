@@ -58,8 +58,8 @@ void postprocessModel(LDrawModel m, Resolver r) {
     model.compile();
     w.stop();
     query('#progress').appendHtml('compiling done in ${w.elapsedMilliseconds} ms.<br />');
-    query('#progress').appendHtml('# of total tris: ${model.triCount}<br />');
-    query('#progress').appendHtml('# of total edges: ${model.edgeCount}<br />');
+    query('#progress').appendHtml('# of total tris: ${model.triCount} (+ ${model.studTriCount} for studs)<br />');
+    query('#progress').appendHtml('# of total edges: ${model.edgeCount} (+ ${model.studEdgeCount} for studs)<br />');
 
     RenderableModel rm = new RenderableModel.fromModel(model);
     
@@ -139,8 +139,8 @@ void readFile(List<String> response) {
     model.compile();
     w.stop();
     query('#progress').appendHtml('compiling done in ${w.elapsedMilliseconds} ms.<br />');
-    query('#progress').appendHtml('# of total tris: ${model.triCount}<br />');
-    query('#progress').appendHtml('# of total edges: ${model.edgeCount}<br />');    
+    query('#progress').appendHtml('# of total tris: ${model.triCount} (+ ${model.studTriCount} for studs)<br />');
+    query('#progress').appendHtml('# of total edges: ${model.edgeCount} (+ ${model.studEdgeCount} for studs)<br />');    
 
     RenderableModel rm = new RenderableModel.fromModel(model);
     model.recycle();

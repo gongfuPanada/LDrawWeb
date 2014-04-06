@@ -75,7 +75,7 @@ class RenderableModel {
           STATIC_DRAW);
 
       /* build stud buffer */
-      if (model.hasFeatures) {
+      if (model.hasFeatures && model.featureChunks.containsKey(c)) {
         studVertexBuffers[c] = GL.createBuffer();
         GL.bindBuffer(ARRAY_BUFFER, studVertexBuffers[c]);
         GL.bufferDataTyped(ARRAY_BUFFER,
@@ -171,7 +171,7 @@ class RenderableModel {
         GL.drawArrays(TRIANGLES, 0, idx.start[c] + idx.count[c]);
       }
 
-      if (studVertexBuffers != null) {
+      if (studVertexBuffers != null && studVertexBuffers.containsKey(c)) {
         GL.bindBuffer(ARRAY_BUFFER, studVertexBuffers[c]);
         GL.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
         GL.bindBuffer(ARRAY_BUFFER, studNormalBuffers[c]);

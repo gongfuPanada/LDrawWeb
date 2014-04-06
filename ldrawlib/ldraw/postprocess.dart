@@ -1400,7 +1400,6 @@ class Model {
               if (!curStudIndex.containsKey(c))
                 curStudIndex[c] = 0;
               
-              print ('${curTriIndex[c]} / $count | ${curStudIndex[c]} / $studCount');
               idx.add(c, curTriIndex[c], count, curStudIndex[c], studCount);
               curTriIndex[c] += count;
               curStudIndex[c] += studCount;

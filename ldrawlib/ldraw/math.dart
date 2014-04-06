@@ -121,7 +121,7 @@ class Vec4 implements Comparable {
 
   Vec4 negate([Vec4 out = null]) {
     if (out == null)
-      out = new Vec4(-x, -y, -z);
+      out = new Vec4.xyz(-x, -y, -z);
     else
       out.set(-x, -y, -z);
 
