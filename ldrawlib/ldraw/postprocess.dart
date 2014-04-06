@@ -401,36 +401,77 @@ class MeshGroup {
 
     /* fill */
     int index = 0;
-    Vec4 v = new Vec4();
-    Vec4 n = new Vec4();
+    Vec4 v1 = new Vec4(), v2 = new Vec4(), v3 = new Vec4();
+    Vec4 n1 = new Vec4(), n2 = new Vec4(), n3 = new Vec4();
     for (List item in queue) {
       Part feature = item[0];
       FeatureMap featureMap = item[1];
       Mat4 matrix = item[2];
       Mat4 rotmat = new Mat4();
       MeshGroup targetMesh = feature.meshes[defaultCat];
+      bool flip;
 
       for (int i = 0; i < featureMap.matrices.length; ++i) {
         Mat4 localMat = matrix * featureMap.matrices[i];
         rotmat.clone(localMat);
         rotmat.setTranslation(0.0, 0.0, 0.0);
+        bool flip = (localMat.det() < 0.0) != featureMap.flipNormal[i];
 
-        for (int j = 0; j < feature.triCount(defaultCat) * 3; j += 3) {
-          v.set(targetMesh.vertices[j], targetMesh.vertices[j+1], targetMesh.vertices[j+2]);
-          localMat.transform(v, v);
-          n.set(targetMesh.normals[j], targetMesh.normals[j+1], targetMesh.normals[j+2]);
-          rotmat.transform(n, n);
-          if (featureMap.flipNormal[i])
-            n.negate(n);
-            
-          vertices[index]   = v.x;
-          vertices[index+1] = v.y;
-          vertices[index+2] = v.z;
-          normals[index]   = n.x;
-          normals[index+1] = n.y;
-          normals[index+2] = n.z;
+        for (int j = 0; j < feature.triCount(defaultCat) * 3; j += 9) {
+          v1.set(targetMesh.vertices[j  ], targetMesh.vertices[j+1], targetMesh.vertices[j+2]);
+          v2.set(targetMesh.vertices[j+3], targetMesh.vertices[j+4], targetMesh.vertices[j+5]);
+          v3.set(targetMesh.vertices[j+6], targetMesh.vertices[j+7], targetMesh.vertices[j+8]);
+          localMat.transform(v1, v1);
+          localMat.transform(v2, v2);
+          localMat.transform(v3, v3);
+          n1.set(targetMesh.normals[j  ], targetMesh.normals[j+1], targetMesh.normals[j+2]);
+          n2.set(targetMesh.normals[j+3], targetMesh.normals[j+4], targetMesh.normals[j+5]);
+          n3.set(targetMesh.normals[j+6], targetMesh.normals[j+7], targetMesh.normals[j+8]);
+          rotmat.transform(n1, n1);
+          rotmat.transform(n2, n2);
+          rotmat.transform(n3, n3);
 
-          index += 3;
+          if (flip) {
+            vertices[index]     = v3.x;
+            vertices[index + 1] = v3.y;
+            vertices[index + 2] = v3.z;
+            vertices[index + 3] = v2.x;
+            vertices[index + 4] = v2.y;
+            vertices[index + 5] = v2.z;
+            vertices[index + 6] = v1.x;
+            vertices[index + 7] = v1.y;
+            vertices[index + 8] = v1.z;
+            normals[index]      = n3.x;
+            normals[index + 1]  = n3.y;
+            normals[index + 2]  = n3.z;
+            normals[index + 3]  = n2.x;
+            normals[index + 4]  = n2.y;
+            normals[index + 5]  = n2.z;
+            normals[index + 6]  = n1.x;
+            normals[index + 7]  = n1.y;
+            normals[index + 8]  = n1.z;
+          } else {
+            vertices[index]     = v1.x;
+            vertices[index + 1] = v1.y;
+            vertices[index + 2] = v1.z;
+            vertices[index + 3] = v2.x;
+            vertices[index + 4] = v2.y;
+            vertices[index + 5] = v2.z;
+            vertices[index + 6] = v3.x;
+            vertices[index + 7] = v3.y;
+            vertices[index + 8] = v3.z;
+            normals[index]      = n1.x;
+            normals[index + 1]  = n1.y;
+            normals[index + 2]  = n1.z;
+            normals[index + 3]  = n2.x;
+            normals[index + 4]  = n2.y;
+            normals[index + 5]  = n2.z;
+            normals[index + 6]  = n3.x;
+            normals[index + 7]  = n3.y;
+            normals[index + 8]  = n3.z;
+          }
+
+          index += 9;
         }
       }
     }
