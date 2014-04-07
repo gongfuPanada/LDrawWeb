@@ -13,7 +13,10 @@ class BaseShader {
   Shader fs;
   UniformLocation projectionMatrix;
   UniformLocation modelViewMatrix;
+  UniformLocation viewMatrix;
+  UniformLocation modelMatrix;
   UniformLocation translationFactor;
+
 
   BaseShader(String vsText, String fsText) {
     vs = compileShader(VERTEX_SHADER, vsText);
@@ -23,9 +26,11 @@ class BaseShader {
 
     link();
 
-    projectionMatrix = GL.getUniformLocation(program, "projection");
-    modelViewMatrix = GL.getUniformLocation(program, "modelView");
-    translationFactor = GL.getUniformLocation(program, "translation");
+    projectionMatrix = GL.getUniformLocation(program, 'projection');
+    modelViewMatrix = GL.getUniformLocation(program, 'modelView');
+    viewMatrix = GL.getUniformLocation(program, 'viewMatrix');
+    modelMatrix = GL.getUniformLocation(program, 'modelMatrix');
+    translationFactor = GL.getUniformLocation(program, 'translation');
   }
 
   void use() {
@@ -76,8 +81,8 @@ class BaseShader {
         });
     }
 
-    sendRequest(vsUrl, "vs");
-    sendRequest(fsUrl, "fs");
+    sendRequest(vsUrl, 'vs');
+    sendRequest(fsUrl, 'fs');
   }
 }
 
@@ -120,11 +125,11 @@ class LDrawShader extends BaseShader {
     uniformParameters = new Map<String, UniformLocation>();
     for (String s in parameters)
       uniformParameters[s] = GL.getUniformLocation(program, s);
-    normalMatrix = GL.getUniformLocation(program, "normalMatrix");
-    isBfcCertified = GL.getUniformLocation(program, "isBfcCertified");
+    normalMatrix = GL.getUniformLocation(program, 'normalMatrix');
+    isBfcCertified = GL.getUniformLocation(program, 'isBfcCertified');
     
-    vertexPosition = GL.getAttribLocation(program, "position");
-    vertexNormal = GL.getAttribLocation(program, "normal");
+    vertexPosition = GL.getAttribLocation(program, 'position');
+    vertexNormal = GL.getAttribLocation(program, 'normal');
   }
 
   void bind(Color c) {

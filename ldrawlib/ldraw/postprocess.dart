@@ -1132,17 +1132,17 @@ class BoundingBox {
       max = new Vec4.copy(point);
     } else {
       if (point.x > max.x)
-        max.setX(point.x);
+        max.x = point.x;
       if (point.y > max.y)
-        max.setY(point.y);
+        max.y = point.y;
       if (point.z > max.z)
-        max.setZ(point.z);
+        max.z = point.z;
       if (point.x < min.x)
-        min.setX(point.x);
+        min.x = point.x;
       if (point.y < min.y)
-        min.setY(point.y);
+        min.y = point.y;
       if (point.z < min.z)
-        min.setZ(point.z);
+        min.z = point.z;
     }
   }
 

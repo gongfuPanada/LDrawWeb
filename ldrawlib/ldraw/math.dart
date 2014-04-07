@@ -8,6 +8,7 @@ const num RAD2DEG = 180.0 / PI;
 
 num radians(num deg) => deg * DEG2RAD;
 num degrees(num rad) => rad * RAD2DEG;
+num clamp(num v) => min(max(v, -1), 1);
 
 class Vec4 implements Comparable {
   Float32List val;
@@ -39,6 +40,10 @@ class Vec4 implements Comparable {
     val[0] = x; val[1] = y; val[2] = z; val[3] = w;
   }
 
+  Vec4.fromEuler(Euler euler) {
+    setFromEuler(euler);
+  }
+
   Vec4.copy(Vec4 other) {
     val = new Float32List(4);
     val[0] = other.val[0];
@@ -68,10 +73,10 @@ class Vec4 implements Comparable {
     val[0] = x; val[1] = y; val[2] = z; val[3] = w;
   }
 
-  setX(num v) => val[0] = v;
-  setY(num v) => val[1] = v;
-  setZ(num v) => val[2] = v;
-  setW(num v) => val[3] = v;
+  void set x(num v) => val[0] = v;
+  void set y(num v) => val[1] = v;
+  void set z(num v) => val[2] = v;
+  void set w(num v) => val[3] = v;
 
   int get hashCode => toString().hashCode;
 
@@ -126,6 +131,47 @@ class Vec4 implements Comparable {
       out.set(-x, -y, -z);
 
     return out;
+  }
+
+  void setFromEuler(Euler euler) {
+    num c1 = cos(euler.x / 2);
+    num c2 = cos(euler.y / 2);
+    num c3 = cos(euler.z / 2);
+    num s1 = sin(euler.x / 2);
+    num s2 = sin(euler.y / 2);
+    num s3 = sin(euler.z / 2);
+
+    if (euler.order == Euler.XYZ) {
+      x = s1 * c2 * c3 + c1 * s2 * s3;
+      y = c1 * s2 * c3 - s1 * c2 * s3;
+      z = c1 * c2 * s3 + s1 * s2 * c3;
+      w = c1 * c2 * c3 - s1 * s2 * s3;
+    } else if (euler.order == Euler.YXZ) {
+      x = s1 * c2 * c3 + c1 * s2 * s3;
+      y = c1 * s2 * c3 - s1 * c2 * s3;
+      z = c1 * c2 * s3 - s1 * s2 * c3;
+      w = c1 * c2 * c3 + s1 * s2 * s3;
+    } else if (euler.order == Euler.ZXY) {
+      x = s1 * c2 * c3 - c1 * s2 * s3;
+      y = c1 * s2 * c3 + s1 * c2 * s3;
+      z = c1 * c2 * s3 + s1 * s2 * c3;
+      w = c1 * c2 * c3 - s1 * s2 * s3;
+    } else if (euler.order == Euler.ZYX) {
+      x = s1 * c2 * c3 - c1 * s2 * s3;
+      y = c1 * s2 * c3 + s1 * c2 * s3;
+      z = c1 * c2 * s3 - s1 * s2 * c3;
+      w = c1 * c2 * c3 + s1 * s2 * s3;
+    } else if (euler.order == Euler.YZX) {
+      x = s1 * c2 * c3 + c1 * s2 * s3;
+      y = c1 * s2 * c3 + s1 * c2 * s3;
+      z = c1 * c2 * s3 - s1 * s2 * c3;
+      w = c1 * c2 * c3 - s1 * s2 * s3;
+    } else if (euler.order == Euler.XZY) {
+      x = s1 * c2 * c3 - c1 * s2 * s3;
+      y = c1 * s2 * c3 - s1 * c2 * s3;
+      z = c1 * c2 * s3 + s1 * s2 * c3;
+      w = c1 * c2 * c3 + s1 * s2 * s3;
+    }
   }
 
   bool operator == (Vec4 other) {
@@ -541,4 +587,159 @@ class Mat4 {
       '${val[4]} ${val[5]} ${val[6]} '
       '${val[8]} ${val[9]} ${val[10]}';
   }
+}
+
+class Euler {
+  static int XYZ = 0;
+  static int YZX = 1;
+  static int ZXY = 2;
+  static int XZY = 3;
+  static int YXZ = 4;
+  static int ZYX = 5;
+  static int DEFAULT_ORDER = 0;
+
+  num x;
+  num y;
+  num z;
+  int order;
+
+  Euler() {
+    set(0.0, 0.0, 0.0, DEFAULT_ORDER);
+  }
+
+  Euler.val(num x, num y, num z, [int order = DEFAULT_ORDER]) {
+    set(x, y, z, order);
+  }
+
+  Euler.copy(Euler other) {
+    set(other.x, other.y, other.z, other.order);
+  }
+
+  Euler.fromRotationMatrix(Mat4 matrix, [int order = DEFAULT_ORDER]) {
+    setFromRotationMatrix(matrix, order);
+  }
+
+  Euler.fromQuaternion(Vec4 quat, [int order = DEFAULT_ORDER]) {
+    setFromQuaterion(quat, order);
+  }
+
+  void set(num x, num y, num z, [int order = DEFAULT_ORDER]) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    this.order = order;
+  }
+
+  void setFromRotationMatrix(Mat4 matrix, [int order = DEFAULT_ORDER]) {
+    Float32List ot = matrix.val;
+
+    num m11 = ot[0], m12 = ot[4], m13 = ot[8];
+    num m21 = ot[1], m22 = ot[5], m23 = ot[9];
+    num m31 = ot[2], m32 = ot[6], m33 = ot[10];
+
+    this.order = order;
+
+    switch (order) {
+      case XYZ:
+        y = asin(clamp(m13));
+        if (m13.abs() < 0.99999) {
+          x = atan2(-m23, m33);
+          z = atan2(-m12, m11);
+        } else {
+          x = atan2(m32, m22);
+          z = 0.0;
+        }
+        break;
+      case YXZ:
+        x = asin(-clamp(m23));
+        if (m23.abs() < 0.99999) {
+          y = atan2(m13, m33);
+          z = atan2(m21, m22);
+        } else {
+          y = atan2(-m31, m11);
+          z = 0.0;
+        }
+        break;
+      case ZXY:
+        x = asin(clamp(m32));
+        if (m32.abs() < 0.99999) {
+          y = atan2(-m31, m33);
+          z = atan2(-m12, m22);
+        } else {
+          y = 0.0;
+          z = atan2(-m12, m22);
+        }
+        break;
+      case ZYX:
+        y = asin(-clamp(m31));
+        if (m31.abs() < 0.99999) {
+          x = atan2(m32, m33);
+          z = atan2(m21, m11);
+        } else {
+          x = 0.0;
+          z = atan2(-m12, m22);
+        }
+        break;
+      case YZX:
+        z = asin(clamp(m21));
+        if (m21.abs() < 0.99999) {
+          x = atan2(-m23, m22);
+          y = atan2(-m31, m11);
+        } else {
+          x = 0.0;
+          y = atan2(m13, m33);
+        }
+        break;
+      case XZY:
+        z = asin(-clamp(m12));
+        if (m12.abs() < 0.99999) {
+          x = atan2(m32, m22);
+          y = atan2(m13, m11);
+        } else {
+          x = atan2(-m23, m33);
+          y = 0.0;
+        }
+      default:
+        print('Euler.setFromRotationMatrix: unsupported order $order');
+    }
+  }
+
+  void setFromQuaterion(Vec4 q, [int order = DEFAULT_ORDER]) {
+    num sqx = q.x * q.x;
+    num sqy = q.y * q.y;
+    num sqz = q.z * q.z;
+    num sqw = q.w * q.w;
+
+    this.order = order;
+
+    if (order == XYZ) {
+      x = atan2(2 * (q.x * q.w - q.y * q.z), (sqw - sqx - sqy + sqz));
+      y = asin(clamp(2 * (q.x * q.z + q.y * q.w)));
+      z = atan2(2 * (q.z * q.w - q.x * q.y), (sqw + sqx - sqy - sqz));
+    } else if (order == YXZ) {
+      x = asin(clamp(2 * (q.x * q.w - q.y * q.z)));
+      y = atan2(2 * (q.x * q.z + q.y * q.w), (sqw - sqx - sqy + sqz));
+      z = atan2(2 * (q.x * q.y + q.z * q.w), (sqw - sqx + sqy - sqz));
+    } else if (order == ZXY) {
+      x = asin(clamp(2 * (q.x * q.w + q.y * q.z)));
+      y = atan2(2 * (q.y * q.w - q.z * q.x), (sqw - sqx - sqy + sqz));
+      z = atan2(2 * (q.z * q.w - q.x * q.y), (sqw - sqx + sqy - sqz));
+    } else if (order == ZYX) {
+      x = atan2(2 * (q.x * q.w + q.z * q.y), (sqw - sqx - sqy + sqz));
+      y = asin(clamp(2 * (q.y * q.w - q.x * q.z)));
+      z = atan2(2 * (q.x * q.y + q.z * q.w), (sqw + sqx - sqy - sqz));
+    } else if (order == YZX) {
+      x = atan2(2 * (q.x * q.w - q.z * q.y), (sqw - sqx + sqy - sqz));
+      y = atan2(2 * (q.y * q.w - q.x * q.z), (sqw + sqx - sqy - sqz));
+      z = asin(clamp(2 * (q.x * q.y + q.z * q.w)));
+    } else if (order == XZY) {
+      x = atan2(2 * (q.x * q.w + q.y * q.z ), (sqw - sqx + sqy - sqz));
+      y = atan2(2 * (q.x * q.z + q.y * q.w ), (sqw + sqx - sqy - sqz));
+      z = asin(clamp(2 * (q.z * q.w - q.x * q.y)));
+    } else {
+      print('Euler.setFromQuaternion: unsupported order $order');
+      return;
+    }
+  }
+
 }

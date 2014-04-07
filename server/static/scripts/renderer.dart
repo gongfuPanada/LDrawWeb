@@ -10,6 +10,7 @@ import 'dart:typed_data';
 
 import 'ldraw.dart';
 
+part 'renderer/camera.dart';
 part 'renderer/math.dart';
 part 'renderer/model.dart';
 part 'renderer/shaders.dart';

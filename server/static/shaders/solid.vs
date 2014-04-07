@@ -1,4 +1,34 @@
-#ifdef GL_ES
+precision highp float;
+
+uniform mat4 modelView;
+uniform mat4 projection;
+uniform mat3 normalMatrix;
+uniform float translation;
+
+attribute vec3 position;
+attribute vec3 normal;
+
+varying vec3 vViewPosition;
+varying vec3 vNormal;
+
+const mat4 modelMatrix = mat4(1.0);
+
+void main() {
+    vec3 objectNormal = normal;
+
+    vec3 transformedNormal = normalMatrix * normal;
+    vNormal = normalize( transformedNormal );
+
+    vec4 adjustedPosition = vec4(position, 1.0) + (vec4(0.0, -1.0, 0.0, 1.0) * 1000.0 * translation);
+    vec4 mvPosition = modelView * adjustedPosition;
+
+    gl_Position = projection * mvPosition;
+    vViewPosition = -mvPosition.xyz;
+
+    vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+}
+
+/*#ifdef GL_ES
 precision highp float;
 #endif
 
@@ -30,4 +60,4 @@ void main(void) {
 	directionalWeighting = 1.0;
 
      vLightWeighting = ambient + diffuse * directionalWeighting;
-}
+}*/
