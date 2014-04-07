@@ -13,6 +13,7 @@ import 'ldraw.dart';
 part 'renderer/camera.dart';
 part 'renderer/math.dart';
 part 'renderer/model.dart';
+part 'renderer/object.dart';
 part 'renderer/shaders.dart';
 part 'renderer/utils.dart';
 

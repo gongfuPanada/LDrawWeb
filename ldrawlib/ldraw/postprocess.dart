@@ -183,6 +183,7 @@ class EdgeGroup {
     /* fill */
     int index = 0;
     Vec4 v = new Vec4();
+    Mat4 localMat = new Mat4();
     for (List item in queue) {
       Part feature = item[0];
       FeatureMap fm = item[1];
@@ -191,7 +192,7 @@ class EdgeGroup {
       EdgeGroup other = feature.edges;
 
       for (int i = 0; i < fm.matrices.length; ++i) {
-        Mat4 localMat = mat * fm.matrices[i];
+        mat.multiply(fm.matrices[i], localMat);
 
         for (int j = 0; j < feature.edgeCount() * 3; j += 3) {
           v.set(other.vertices[j], other.vertices[j + 1], other.vertices[j + 2]);
@@ -403,6 +404,7 @@ class MeshGroup {
     int index = 0;
     Vec4 v1 = new Vec4(), v2 = new Vec4(), v3 = new Vec4();
     Vec4 n1 = new Vec4(), n2 = new Vec4(), n3 = new Vec4();
+    Mat4 localMat = new Mat4();
     for (List item in queue) {
       Part feature = item[0];
       FeatureMap featureMap = item[1];
@@ -412,7 +414,7 @@ class MeshGroup {
       bool flip;
 
       for (int i = 0; i < featureMap.matrices.length; ++i) {
-        Mat4 localMat = matrix * featureMap.matrices[i];
+        matrix.multiply(featureMap.matrices[i], localMat);
         rotmat.clone(localMat);
         rotmat.setTranslation(0.0, 0.0, 0.0);
         bool flip = (localMat.det() < 0.0) != featureMap.flipNormal[i];
