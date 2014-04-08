@@ -45,6 +45,13 @@ class Camera extends Object3D {
     lookAt_(m1_, position, vector, up);
     quaternion.setFromRotationMatrix(m1_);
   }
+
+  void updateWorldMatrix([bool force = false]) {
+    super.updateWorldMatrix(force);
+
+    matrixWorldInverse.clone(matrixWorld);
+    matrixWorldInverse.inverse();
+  }
 }
 
 class PerspectiveCamera extends Camera {
@@ -79,13 +86,16 @@ class PerspectiveCamera extends Camera {
     updateProjectionMatrix();
   }
 
-  PerspectiveCamera(num fov, num aspectRatio, num near, num far)
-    : Camera(), fov_(fov), aspectRatio_(aspectRatio), near_(near), far_(far) {
+  PerspectiveCamera(num fov, num aspectRatio, num near, num far) : super() {
+    fov_ = fov;
+    aspectRatio_ = aspectRatio;
+    near_ = near;
+    far_ = far;
     updateProjectionMatrix();
   }
 
   void updateProjectionMatrix() {
-    num top = near_ * tan(degToRad(fov_ * 0.5));
+    num top = near_ * tan(radians(fov_ * 0.5));
     num bottom = -top;
     num left = bottom * aspectRatio_;
     num right = top * aspectRatio_;
@@ -97,12 +107,12 @@ class PerspectiveCamera extends Camera {
     num a = (right + left) / (right - left);
     num b = (top + bottom) / (top - bottom);
     num c = - (far_ + near_) / (far_ - near_);
-    num d = - 2 * far_ * near_ / (far_ - near));
+    num d = - 2 * far_ * near_ / (far_ - near_);
     
-    te[0] = x;	te[4] = 0;  te[8] =   a;  te[12] = 0;
-    te[1] = 0;	te[5] = y;  te[9] =   b;  te[13] = 0;
-    te[2] = 0;	te[6] = 0;  te[10] =  c;  te[14] = d;
-    te[3] = 0;	te[7] = 0;  te[11] = -1;  te[15] = 0;
+    te[0] = x;	te[4] = 0.0;  te[8] =   a;   te[12] = 0.0;
+    te[1] = 0.0; te[5] = y;   te[9] =   b;   te[13] = 0.0;
+    te[2] = 0.0; te[6] = 0.0; te[10] =  c;   te[14] = d;
+    te[3] = 0.0; te[7] = 0.0; te[11] = -1.0; te[15] = 0.0;
   }
 
 }

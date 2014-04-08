@@ -41,7 +41,8 @@ class Vec4 implements Comparable {
     val[0] = x; val[1] = y; val[2] = z; val[3] = w;
   }
 
-  Vec4.fromEuler(Euler euler) : Vec4() {
+  Vec4.fromEuler(Euler euler) {
+    super();
     setFromEuler(euler);
   }
 
@@ -542,6 +543,10 @@ class Mat4 {
 
     Float32Array te = out.val;
 
+    num x = v.x;
+    num y = v.y;
+    num z = v.z;
+
     te[0] = val[0] * x; te[4] = val[4] * y; te[8] = val[8] * z;
     te[1] = val[1] * x; te[5] = val[5] * y; te[9] = val[9] * z;
     te[2] = val[2] * x; te[6] = val[6] * y; te[10] = val[10] * z;
@@ -569,19 +574,19 @@ class Mat4 {
     val[6] = yz + wx;
     val[10] = 1 - (xx + yy);
     
-    val[3] = 0;
-    val[7] = 0;
-    val[11] = 0;
+    val[3] = 0.0;
+    val[7] = 0.0;
+    val[11] = 0.0;
     
-    val[12] = 0;
-    val[13] = 0;
-    val[14] = 0;
-    val[15] = 1;
+    val[12] = 0.0;
+    val[13] = 0.0;
+    val[14] = 0.0;
+    val[15] = 1.0;
   }
 
-  void compose(Vec4 pos, Quaternion quat, Vec4 scale) {
+  void compose(Vec4 pos, Quaternion quat, Vec4 sc) {
     applyRotationFromQuat(quat);
-    scale(scale, this);
+    scale(sc, this);
     setTranslation(pos.x, pos.y, pos.z);
   }
 
@@ -640,7 +645,7 @@ class Mat4 {
   }
 
   // Scalar multiplication
-  Mat4 scale(num v, [Mat4 target = null]) {
+  Mat4 scalarMultiply(num v, [Mat4 target = null]) {
     if (target == null)
       target = new Mat4();
 
@@ -800,7 +805,7 @@ class Euler {
     set(0.0, 0.0, 0.0, DEFAULT_ORDER);
   }
 
-  Euler.val(num x, num y, num z, [int order = DEFAULT_ORDER]) {
+  Euler.val(num x, num y, num z, [int order = 0]) {
     set(x, y, z, order);
   }
 
@@ -808,11 +813,11 @@ class Euler {
     set(other.x, other.y, other.z, other.order);
   }
 
-  Euler.fromRotationMatrix(Mat4 matrix, [int order = DEFAULT_ORDER]) {
+  Euler.fromRotationMatrix(Mat4 matrix, [int order = 0]) {
     setFromRotationMatrix(matrix, order);
   }
 
-  Euler.fromQuaternion(Vec4 quat, [int order = DEFAULT_ORDER]) {
+  Euler.fromQuaternion(Vec4 quat, [int order = 0]) {
     setFromQuaterion(quat, order);
   }
 
@@ -846,7 +851,7 @@ class Euler {
     updateQuaternion();
   }
 
-  void set(num x, num y, num z, [int order = DEFAULT_ORDER]) {
+  void set(num x, num y, num z, [int order = 0]) {
     x_ = x;
     y_ = y;
     z_ = z;
@@ -855,7 +860,7 @@ class Euler {
     updateQuaternion();
   }
 
-  void setFromRotationMatrix(Mat4 matrix, [int order = DEFAULT_ORDER]) {
+  void setFromRotationMatrix(Mat4 matrix, [int order = 0]) {
     Float32List ot = matrix.val;
 
     num m11 = ot[0], m12 = ot[4], m13 = ot[8];
@@ -966,8 +971,8 @@ class Euler {
       print('Euler.setFromQuaternion: unsupported order $order');
       return;
     }
+
+    if (updateLinked)
+      updateQuaternion();
   }
-  
-  if (updateLinked)
-    updateQuaternion();
 }

@@ -17,14 +17,15 @@ float opacity;
 
 const vec3 ambient = vec3(1.0, 1.0, 1.0);
 const vec3 emissive = vec3(0.0, 0.0, 0.0);
+const vec3 specular = vec3(0.0, 0.0, 0.0);
 const float shininess = 100.0;
 
 const vec3 ambientLightColor = vec3(0.133, 0.133, 0.133);
 
 
 #if MAX_DIR_LIGHTS > 0
-    const vec3 directionalLightColor = vec3(1.0, 1.0, 1.0);
-    const vec3 directionalLightDirection = normalize(vec3(0.3, -1.0, -1.0));
+    vec3 directionalLightColor = vec3(1.0, 1.0, 1.0);
+    vec3 directionalLightDirection = normalize(vec3(0.3, -1.0, -1.0));
     //uniform vec3 directionalLightColor[ MAX_DIR_LIGHTS ];
     //uniform vec3 directionalLightDirection[ MAX_DIR_LIGHTS ];
 #endif
@@ -104,12 +105,12 @@ void main() {
         vec3 dirDiffuse  = vec3( 0.0 );
         vec3 dirSpecular = vec3( 0.0 );
         for( int i = 0; i < MAX_DIR_LIGHTS; i ++ ) {
-            vec4 lDirection = viewMatrix * vec4( directionalLightDirection[ i ], 0.0 );
+            vec4 lDirection = viewMatrix * vec4( directionalLightDirection, 0.0 );
             vec3 dirVector = normalize( lDirection.xyz );
             float dotProduct = dot( normal, dirVector );
             float dirDiffuseWeight = max( dotProduct, 0.0 );
 
-            dirDiffuse  += diffuse * directionalLightColor[ i ] * dirDiffuseWeight;
+            dirDiffuse  += diffuse * directionalLightColor * dirDiffuseWeight;
             vec3 dirHalfVector = normalize( dirVector + viewPosition );
             float dirDotNormalHalf = max( dot( normal, dirHalfVector ), 0.0 );
             float dirSpecularWeight = specularStrength * max( pow( dirDotNormalHalf, shininess ), 0.0 );

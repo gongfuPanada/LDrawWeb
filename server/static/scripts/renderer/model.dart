@@ -34,8 +34,6 @@ class RenderableModel {
     return currentStep != -1;
   }
 
-  Mat4 projectionMatrix;
-  Mat4 modelViewMatrix;
   Mat3 normalMatrix;
 
   RenderableModel.fromModel(Model model) {
@@ -124,15 +122,7 @@ class RenderableModel {
     steps = model.steps;
   }
 
-  void setProjectionMatrix(Mat4 mat) {
-    projectionMatrix = mat;
-  }
-
-  void setModelViewMatrix(Mat4 mat) {
-    modelViewMatrix = mat;
-  }
-
-  void render() {
+  void render(Camera camera, Mat4 modelViewMatrix) {
     if (currentStep == -1)
       return;
 
@@ -146,8 +136,10 @@ class RenderableModel {
       materials.bind(c.color);
       LDrawShader s = materials.activeShader;
 
-      GL.uniformMatrix4fv(s.projectionMatrix, false, projectionMatrix.val);
+      GL.uniformMatrix4fv(s.projectionMatrix, false, camera.projectionMatrix.val);
       GL.uniformMatrix4fv(s.modelViewMatrix, false, modelViewMatrix.val);
+      GL.uniformMatrix4fv(s.modelMatrix, false, camera.matrixWorld.val);
+      GL.uniformMatrix4fv(s.viewMatrix, false, camera.matrixWorldInverse.val);
       GL.uniformMatrix3fv(s.normalMatrix, false, normalMatrix.val);
       GL.uniform1i(s.isBfcCertified, c.bfc ? 1 : 0);
 
@@ -192,7 +184,7 @@ class RenderableModel {
     GL.disable(CULL_FACE);
     GL.disable(BLEND);
 
-    GL.uniformMatrix4fv(s.projectionMatrix, false, projectionMatrix.val);
+    GL.uniformMatrix4fv(s.projectionMatrix, false, camera.projectionMatrix.val);
     GL.uniformMatrix4fv(s.modelViewMatrix, false, modelViewMatrix.val);
     GL.bindBuffer(ARRAY_BUFFER, edgeVertices);
     GL.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);

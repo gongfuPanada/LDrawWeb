@@ -2,6 +2,8 @@ precision highp float;
 
 uniform mat4 modelView;
 uniform mat4 projection;
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
 uniform mat3 normalMatrix;
 uniform float translation;
 
@@ -10,8 +12,6 @@ attribute vec3 normal;
 
 varying vec3 vViewPosition;
 varying vec3 vNormal;
-
-const mat4 modelMatrix = mat4(1.0);
 
 void main() {
     vec3 objectNormal = normal;

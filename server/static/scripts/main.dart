@@ -68,19 +68,25 @@ void postprocessModel(LDrawModel m, Resolver r) {
 }
 
 void blah(RenderableModel model) {
-  Mat4 persp = perspectiveMatrix(radians(45.0), window.innerWidth / window.innerHeight, 1.0, 1000.0);
+  Camera camera = new PerspectiveCamera(45.0, window.innerWidth / window.innerHeight, 1.0, 1000.0);
+  camera.position.z -= 1000;
+  camera.updateWorldMatrix();
+
+  print(camera.projectionMatrix.val);
+
+  Mat4 viewMatrix = new Mat4.identity();
   Mat4 mv = new Mat4.identity();
   Vec4 worldPos = new Vec4();
   num pt = 0.0;
 
-  matrixTranslate(persp, 0.0, 0.0, -600.0);
   matrixRotate(mv, new Vec4.xyz(1.0, 0.0, 0.0), radians(220.0));
 
   query('#mainCanvas').onMouseWheel.listen((WheelEvent e) {
     if (e.deltaY == 0.0)
       return;
 
-    matrixTranslate(persp, 0.0, 0.0, -e.deltaY * 0.5);
+    camera.position.z -= e.deltaY * 0.5;
+    camera.updateWorldMatrix();
 
     e.preventDefault();
   });
@@ -108,9 +114,7 @@ void blah(RenderableModel model) {
     GL.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
 
     matrixRotate(mv, axis, (pt - time) / 1500.0);
-    model.setProjectionMatrix(persp);
-    model.setModelViewMatrix(mv);
-    model.render();
+    model.render(camera, mv);
 
     GL.finish();
 

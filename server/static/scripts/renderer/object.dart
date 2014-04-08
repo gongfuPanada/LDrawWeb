@@ -60,7 +60,7 @@ class Object3D {
     matrix.compose(position, quaternion_, scale);
     matrixWorldNeedsUpdate = true;
   }
-
+  
   void updateWorldMatrix([bool force = false]) {
     if (matrixAutoUpdate)
       updateMatrix();
