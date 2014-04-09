@@ -15,9 +15,9 @@ uniform bool isBfcCertified;
 vec3 diffuse;
 float opacity;
 
-const vec3 ambient = vec3(1.0, 1.0, 1.0);
+const vec3 ambient = vec3(0.9, 0.9, 0.9);
 const vec3 emissive = vec3(0.0, 0.0, 0.0);
-const vec3 specular = vec3(0.0, 0.0, 0.0);
+const vec3 specular = vec3(1.0, 1.0, 1.0);
 const float shininess = 100.0;
 
 const vec3 ambientLightColor = vec3(0.133, 0.133, 0.133);

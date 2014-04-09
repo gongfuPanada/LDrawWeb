@@ -7,13 +7,13 @@ import 'dart:web_gl';
 import 'dart:typed_data';
 
 import 'ldraw.dart';
-import 'renderer.dart';
+import 'renderer.dart' as renderer;
 
 ColorMap map;
 
 void main() {
   CanvasElement canvas = query('#mainCanvas');
-  RenderingContext gl = setupContext(canvas);
+  RenderingContext gl = renderer.setupContext(canvas);
   httpGetJson('/s/colors.json', (response) {
     map = new ColorMap.fromJson(response);
     GlobalFeatureSet.instance.loadAll(() {
@@ -23,9 +23,9 @@ void main() {
 }
 
 void setup(CanvasElement elem, RenderingContext gl) {
-  setGlobalRenderingContext(gl);
-  resizeView(elem, window.innerWidth, window.innerHeight);
-  new MaterialManager();
+  renderer.setGlobalRenderingContext(gl);
+  renderer.resizeView(elem, window.innerWidth, window.innerHeight);
+  new renderer.MaterialManager();
   Map<String, String> attrs = query('#data').attributes;
   if (attrs.containsKey('data-model')) {
     readFile(attrs['data-model'].split('\n'));
@@ -45,7 +45,7 @@ void postprocessModel(LDrawModel m, Resolver r) {
 
   model.compile();
 
-  RenderableModel rm = new RenderableModel.fromModel(model);
+  renderer.Model rm = new renderer.Model.fromModel(model);
   blah(rm);
   
   /*model.buildPartAsynchronously(r, (int id, String partName, Part partData, int total, int remaining, int elapsed) {
@@ -61,32 +61,30 @@ void postprocessModel(LDrawModel m, Resolver r) {
     query('#progress').appendHtml('# of total tris: ${model.triCount} (+ ${model.studTriCount} for studs)<br />');
     query('#progress').appendHtml('# of total edges: ${model.edgeCount} (+ ${model.studEdgeCount} for studs)<br />');
 
-    RenderableModel rm = new RenderableModel.fromModel(model);
+    renderer.Model rm = new renderer.Model.fromModel(model);
     
     blah(rm);
     });*/
 }
 
-void blah(RenderableModel model) {
-  Camera camera = new PerspectiveCamera(45.0, window.innerWidth / window.innerHeight, 1.0, 1000.0);
-  camera.position.z -= 1000;
-  camera.updateWorldMatrix();
-
-  print(camera.projectionMatrix.val);
+void blah(renderer.Model model) {
+  Camera camera = new renderer.PerspectiveCamera(45.0, window.innerWidth / window.innerHeight, 1.0, 1000.0);
+  camera.position.z = -600.0;
+  camera.position.y = -600.0;
+  camera.rotation.x = -0.52359;
+  RenderingContext GL = renderer.GL;
 
   Mat4 viewMatrix = new Mat4.identity();
   Mat4 mv = new Mat4.identity();
   Vec4 worldPos = new Vec4();
   num pt = 0.0;
 
-  matrixRotate(mv, new Vec4.xyz(1.0, 0.0, 0.0), radians(220.0));
-
   query('#mainCanvas').onMouseWheel.listen((WheelEvent e) {
     if (e.deltaY == 0.0)
       return;
 
     camera.position.z -= e.deltaY * 0.5;
-    camera.updateWorldMatrix();
+    camera.position.y -= e.deltaY * 0.5;
 
     e.preventDefault();
   });
@@ -113,7 +111,7 @@ void blah(RenderableModel model) {
 
     GL.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
 
-    matrixRotate(mv, axis, (pt - time) / 1500.0);
+    renderer.matrixRotate(mv, axis, (pt - time) / 1500.0);
     model.render(camera, mv);
 
     GL.finish();
@@ -146,7 +144,7 @@ void readFile(List<String> response) {
     query('#progress').appendHtml('# of total tris: ${model.triCount} (+ ${model.studTriCount} for studs)<br />');
     query('#progress').appendHtml('# of total edges: ${model.edgeCount} (+ ${model.studEdgeCount} for studs)<br />');    
 
-    RenderableModel rm = new RenderableModel.fromModel(model);
+    renderer.Model rm = new renderer.Model.fromModel(model);
     model.recycle();
     blah(rm);
   }

@@ -830,6 +830,7 @@ class Euler {
   num get y => y_;
   num get z => z_;
   num get w => w_;
+  int get order => order_;
 
   void set x(num x) {
     x_ = x;
@@ -934,7 +935,7 @@ class Euler {
     }
   }
 
-  void setFromQuaterion(Vec4 q, [int order = DEFAULT_ORDER, bool updateLinked = true]) {
+  void setFromQuaternion(Vec4 q, [int order = 0, bool updateLinked = true]) {
     num sqx = q.x * q.x;
     num sqy = q.y * q.y;
     num sqz = q.z * q.z;

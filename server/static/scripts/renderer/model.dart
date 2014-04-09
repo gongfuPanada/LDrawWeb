@@ -2,7 +2,7 @@
 
 part of renderer;
 
-class RenderableModel {
+class Model {
   num DEFAULT_PART_FALL_DURATION = 500.0;
   num DEFAULT_PART_DELAY_DURATION = 75.0;
 
@@ -36,7 +36,7 @@ class RenderableModel {
 
   Mat3 normalMatrix;
 
-  RenderableModel.fromModel(Model model) {
+  Model.fromModel(Model model) {
     /* default params */
     partFallDuration = DEFAULT_PART_FALL_DURATION;
     partDelayDuration = DEFAULT_PART_DELAY_DURATION;
