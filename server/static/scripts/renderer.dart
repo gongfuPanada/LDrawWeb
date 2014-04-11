@@ -11,14 +11,10 @@ import 'dart:typed_data';
 import 'ldraw.dart';
 
 part 'renderer/camera.dart';
+part 'renderer/context.dart';
+part 'renderer/lights.dart';
 part 'renderer/math.dart';
 part 'renderer/model.dart';
 part 'renderer/object.dart';
 part 'renderer/shaders.dart';
 part 'renderer/utils.dart';
-
-RenderingContext GL;
-
-void setGlobalRenderingContext(RenderingContext ctx) {
-  GL = ctx;
-}

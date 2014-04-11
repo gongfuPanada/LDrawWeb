@@ -36,7 +36,7 @@ class Model {
 
   Mat3 normalMatrix;
 
-  Model.fromModel(Model model) {
+  Model.fromModel(Renderer context, Model model) {
     /* default params */
     partFallDuration = DEFAULT_PART_FALL_DURATION;
     partDelayDuration = DEFAULT_PART_DELAY_DURATION;

@@ -7,31 +7,37 @@ import 'dart:web_gl';
 import 'dart:typed_data';
 
 import 'ldraw.dart';
-import 'renderer.dart' as renderer;
+import 'renderer.dart' as r;
 
 ColorMap map;
+r.Renderer rc;
 
 void main() {
-  CanvasElement canvas = query('#mainCanvas');
-  RenderingContext gl = renderer.setupContext(canvas);
+  rc = new r.Renderer(query('#mainCanvas'));
+  window.onResize.listen((Event e) {
+    rc.resizeView(window.innerWidth, window.innerHeight);
+  });
+  rc.resizeView(window.innerWidth, window.innerHeight);
+
+  setup();
+}
+
+void setup() {
   httpGetJson('/s/colors.json', (response) {
     map = new ColorMap.fromJson(response);
     GlobalFeatureSet.instance.loadAll(() {
-      setup(canvas, gl);
+      print('loaded colors');
+
+      rc.setupMaterials();
+      
+      Map<String, String> attrs = query('#data').attributes;
+      if (attrs.containsKey('data-model')) {
+        readFile(attrs['data-model'].split('\n'));
+      } else if (attrs.containsKey('data-uri')) {
+        httpGetPlainText(attrs['data-uri'], readFile);
+      }
     });
   });
-}
-
-void setup(CanvasElement elem, RenderingContext gl) {
-  renderer.setGlobalRenderingContext(gl);
-  renderer.resizeView(elem, window.innerWidth, window.innerHeight);
-  new renderer.MaterialManager();
-  Map<String, String> attrs = query('#data').attributes;
-  if (attrs.containsKey('data-model')) {
-    readFile(attrs['data-model'].split('\n'));
-  } else if (attrs.containsKey('data-uri')) {
-    httpGetPlainText(attrs['data-uri'], readFile);
-  }
 }
 
 void postprocessModel(LDrawModel m, Resolver r) {
@@ -45,7 +51,7 @@ void postprocessModel(LDrawModel m, Resolver r) {
 
   model.compile();
 
-  renderer.Model rm = new renderer.Model.fromModel(model);
+  r.Model rm = new r.Model.fromModel(model);
   blah(rm);
   
   /*model.buildPartAsynchronously(r, (int id, String partName, Part partData, int total, int remaining, int elapsed) {
@@ -67,12 +73,11 @@ void postprocessModel(LDrawModel m, Resolver r) {
     });*/
 }
 
-void blah(renderer.Model model) {
-  Camera camera = new renderer.PerspectiveCamera(45.0, window.innerWidth / window.innerHeight, 1.0, 1000.0);
+void blah(Model model) {
+  r.Camera camera = new PerspectiveCamera(45.0, window.innerWidth / window.innerHeight, 1.0, 1000.0);
   camera.position.z = -600.0;
   camera.position.y = -600.0;
   camera.rotation.x = -0.52359;
-  RenderingContext GL = renderer.GL;
 
   Mat4 viewMatrix = new Mat4.identity();
   Mat4 mv = new Mat4.identity();
@@ -95,26 +100,18 @@ void blah(renderer.Model model) {
 
   Vec4 axis = new Vec4.xyz(0.0, 0.5, 0.0);
 
-  GL.clearColor(0.0, 0.0, 0.0, 0.0);
-  GL.cullFace(BACK);
-  GL.enable(CULL_FACE);
-  GL.enable(DEPTH_TEST);
-  GL.enable(BLEND);
-  GL.depthFunc(LEQUAL);
-  GL.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA);
-  GL.lineWidth(2.0);
+  rc.setupState();
 
   void draw(num time) {
     if (!model.initiated)
       model.startAnimation(time);
     model.animate(time);
 
-    GL.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
-
-    renderer.matrixRotate(mv, axis, (pt - time) / 1500.0);
-    model.render(camera, mv);
-
-    GL.finish();
+    r.matrixRotate(mv, axis, (pt - time) / 1500.0);
+    
+    rc.render(camera, null, () {
+      model.render(camera, mv);
+    });
 
     window.requestAnimationFrame(draw);
 
@@ -144,7 +141,7 @@ void readFile(List<String> response) {
     query('#progress').appendHtml('# of total tris: ${model.triCount} (+ ${model.studTriCount} for studs)<br />');
     query('#progress').appendHtml('# of total edges: ${model.edgeCount} (+ ${model.studEdgeCount} for studs)<br />');    
 
-    renderer.Model rm = new renderer.Model.fromModel(model);
+    r.Model rm = new r.Model.fromModel(rc, model);
     model.recycle();
     blah(rm);
   }

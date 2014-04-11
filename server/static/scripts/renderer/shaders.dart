@@ -16,9 +16,11 @@ class BaseShader {
   UniformLocation viewMatrix;
   UniformLocation modelMatrix;
   UniformLocation translationFactor;
+  RenderingContext gl;
 
 
-  BaseShader(String vsText, String fsText) {
+  BaseShader(Renderer context, String vsText, String fsText) {
+    gl = context.gl;
     vs = compileShader(VERTEX_SHADER, vsText);
     fs = compileShader(FRAGMENT_SHADER, fsText);
 
@@ -26,48 +28,48 @@ class BaseShader {
 
     link();
 
-    projectionMatrix = GL.getUniformLocation(program, 'projection');
-    modelViewMatrix = GL.getUniformLocation(program, 'modelView');
-    viewMatrix = GL.getUniformLocation(program, 'viewMatrix');
-    modelMatrix = GL.getUniformLocation(program, 'modelMatrix');
-    translationFactor = GL.getUniformLocation(program, 'translation');
+    projectionMatrix = gl.getUniformLocation(program, 'projection');
+    modelViewMatrix = gl.getUniformLocation(program, 'modelView');
+    viewMatrix = gl.getUniformLocation(program, 'viewMatrix');
+    modelMatrix = gl.getUniformLocation(program, 'modelMatrix');
+    translationFactor = gl.getUniformLocation(program, 'translation');
   }
 
   void use() {
-    GL.useProgram(program);
+    gl.useProgram(program);
   }
 
   void link() {
-    program = GL.createProgram();
-    GL.attachShader(program, vs);
-    GL.attachShader(program, fs);
-    GL.linkProgram(program);
+    program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
   }
 
   Shader compileShader(int type, String shaderText)  {
-    Shader shader = GL.createShader(type);
+    Shader shader = gl.createShader(type);
     
-    GL.shaderSource(shader, shaderText);
-    GL.compileShader(shader);
+    gl.shaderSource(shader, shaderText);
+    gl.compileShader(shader);
 
-    if (!GL.getShaderParameter(shader, COMPILE_STATUS)) {
-      print('Failed to compile source: ' + GL.getShaderInfoLog(shader));
+    if (!gl.getShaderParameter(shader, COMPILE_STATUS)) {
+      print('Failed to compile source: ' + gl.getShaderInfoLog(shader));
       return null;
     }
 
     return shader;
   }
 
-  void unbind();
+  void unbind() {}
 
-  static void fromUrl(String vsUrl, String fsUrl,
-      void onLoaded(String vsText, String fsText)) {
+  static void fromUrl(RenderingContext gl, String vsUrl, String fsUrl,
+      void onLoaded(RenderingContext gl, String vsText, String fsText)) {
     Map shaders = {};
 
     void sendRequest(String url, String output) {
       void check() {
 	if (shaders.containsKey('vs') && shaders.containsKey('fs'))
-	  onLoaded(shaders['vs'], shaders['fs']);
+	  onLoaded(gl, shaders['vs'], shaders['fs']);
       }
 
       HttpRequest.request(url)
@@ -90,25 +92,25 @@ class EdgeShader extends BaseShader {
   int vertexPosition;
   int vertexColor;
 
-  EdgeShader(String vsText, String fsText)
-    : super(vsText, fsText) {
-    vertexPosition = GL.getAttribLocation(program, 'position');
-    vertexColor = GL.getAttribLocation(program, 'color');
+  EdgeShader(Renderer context, String vsText, String fsText)
+    : super(context, vsText, fsText) {
+    vertexPosition = gl.getAttribLocation(program, 'position');
+    vertexColor = gl.getAttribLocation(program, 'color');
   }
 
   void bind() {
-    GL.enableVertexAttribArray(vertexPosition);
-    GL.enableVertexAttribArray(vertexColor);
+    gl.enableVertexAttribArray(vertexPosition);
+    gl.enableVertexAttribArray(vertexColor);
   }
 
   void unbind() {
-    GL.disableVertexAttribArray(vertexPosition);
-    GL.disableVertexAttribArray(vertexColor);
+    gl.disableVertexAttribArray(vertexPosition);
+    gl.disableVertexAttribArray(vertexColor);
   }
 
-  static void fromUrl(String vsUrl, String fsUrl, void onLoaded(EdgeShader s)) {
-    BaseShader.fromUrl(vsUrl, fsUrl, (String vsText, String fsText) {
-      onLoaded(new EdgeShader(vsText, fsText));
+  static void fromUrl(Renderer context, String vsUrl, String fsUrl, void onLoaded(EdgeShader s)) {
+    BaseShader.fromUrl(context, vsUrl, fsUrl, (Renderer context, String vsText, String fsText) {
+      onLoaded(new EdgeShader(context, vsText, fsText));
     });
   }
 }
@@ -120,16 +122,16 @@ class LDrawShader extends BaseShader {
   int vertexNormal;
   Map<String, UniformLocation> uniformParameters;
 
-  LDrawShader(String vsText, String fsText, List<String> parameters)
-    : super(vsText, fsText) {
+  LDrawShader(Renderer context, String vsText, String fsText, List<String> parameters)
+    : super(context, vsText, fsText) {
     uniformParameters = new Map<String, UniformLocation>();
     for (String s in parameters)
-      uniformParameters[s] = GL.getUniformLocation(program, s);
-    normalMatrix = GL.getUniformLocation(program, 'normalMatrix');
-    isBfcCertified = GL.getUniformLocation(program, 'isBfcCertified');
+      uniformParameters[s] = gl.getUniformLocation(program, s);
+    normalMatrix = gl.getUniformLocation(program, 'normalMatrix');
+    isBfcCertified = gl.getUniformLocation(program, 'isBfcCertified');
     
-    vertexPosition = GL.getAttribLocation(program, 'position');
-    vertexNormal = GL.getAttribLocation(program, 'normal');
+    vertexPosition = gl.getAttribLocation(program, 'position');
+    vertexNormal = gl.getAttribLocation(program, 'normal');
   }
 
   void bind(Color c) {
@@ -140,23 +142,23 @@ class LDrawShader extends BaseShader {
 	continue;
       var attr = attrs[s];
       if (attr is Vec4)
-	GL.uniform4fv(uniformParameters[s], attr.val);
+	gl.uniform4fv(uniformParameters[s], attr.val);
       else if (attr is num)
-	GL.uniform1f(uniformParameters[s], attr);
+	gl.uniform1f(uniformParameters[s], attr);
     }
-    GL.enableVertexAttribArray(vertexPosition);
-    GL.enableVertexAttribArray(vertexNormal);
+    gl.enableVertexAttribArray(vertexPosition);
+    gl.enableVertexAttribArray(vertexNormal);
   }
 
   void unbind() {
-    GL.disableVertexAttribArray(vertexPosition);
-    GL.disableVertexAttribArray(vertexNormal);
+    gl.disableVertexAttribArray(vertexPosition);
+    gl.disableVertexAttribArray(vertexNormal);
   }
 
-  static void fromUrl(String vsUrl, String fsUrl, List<String> parameters,
+  static void fromUrl(Renderer context, String vsUrl, String fsUrl, List<String> parameters,
       void onLoaded(LDrawShader s)) {
-    BaseShader.fromUrl(vsUrl, fsUrl, (String vsText, String fsText) {
-      onLoaded(new LDrawShader(vsText, fsText, parameters));
+    BaseShader.fromUrl(context, vsUrl, fsUrl, (Renderer context, String vsText, String fsText) {
+      onLoaded(new LDrawShader(context, vsText, fsText, parameters));
     });
   }
 }
@@ -169,24 +171,26 @@ class MaterialManager {
     return _instance;
   }
 
+  Renderer context;
   BaseShader activeShader;
   Map<String, LDrawShader> shaders;
   EdgeShader edgeShader;
 
-  MaterialManager() {
+  MaterialManager(Renderer renderer) {
     _instance = this;
 
+    context = renderer;
     shaders = new Map<String, LDrawShader>();
 
     for (String shader in SHADER_MAP.keys) {
-      LDrawShader.fromUrl('/s/shaders/$shader.vs', '/s/shaders/$shader.fs',
+      LDrawShader.fromUrl(context, '/s/shaders/$shader.vs', '/s/shaders/$shader.fs',
           SHADER_MAP[shader], (LDrawShader s) {
         shaders[shader] = s;
         print('shader $shader loaded');
       });
     }
 
-    EdgeShader.fromUrl('/s/shaders/edge.vs', '/s/shaders/edge.fs',
+    EdgeShader.fromUrl(context, '/s/shaders/edge.vs', '/s/shaders/edge.fs',
         (EdgeShader s) {
       edgeShader = s;
       print('edge shader loaded');
