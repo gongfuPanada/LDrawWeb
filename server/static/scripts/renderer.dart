@@ -16,5 +16,6 @@ part 'renderer/lights.dart';
 part 'renderer/math.dart';
 part 'renderer/model.dart';
 part 'renderer/object.dart';
+part 'renderer/scene.dart';
 part 'renderer/shaders.dart';
 part 'renderer/utils.dart';

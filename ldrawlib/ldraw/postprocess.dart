@@ -626,7 +626,7 @@ class MeshGroup {
         List<Face> adjacentFaces = adj.query(v, f);
         /* look for adjacent faces and blend their normals to smooth the faces */
         if (adjacentFaces.length > 0) {
-          Vec4 blendedNormal = new Vec4.copy(faceNormal);
+          Vec4 blendedNormal = new Vec4.from(faceNormal);
           for (Face otherFace in adjacentFaces) {
             Vec4 otherNormal = otherFace.getNormal();
             num angle = Vec4.angle(otherNormal, blendedNormal);
@@ -1130,8 +1130,8 @@ class BoundingBox {
 
   void update(Vec4 point) {
     if (min == null || max == null) {
-      min = new Vec4.copy(point);
-      max = new Vec4.copy(point);
+      min = new Vec4.from(point);
+      max = new Vec4.from(point);
     } else {
       if (point.x > max.x)
         max.x = point.x;

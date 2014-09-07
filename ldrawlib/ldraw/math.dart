@@ -46,7 +46,7 @@ class Vec4 implements Comparable {
     setFromEuler(euler);
   }
 
-  Vec4.copy(Vec4 other) {
+  Vec4.from(Vec4 other) {
     val = new Float32List(4);
     val[0] = other.val[0];
     val[1] = other.val[1];
@@ -73,6 +73,15 @@ class Vec4 implements Comparable {
 
   Vec4 set(num x, num y, num z, [num w = 1.0]) {
     val[0] = x; val[1] = y; val[2] = z; val[3] = w;
+
+    return this;
+  }
+
+  Vec4 copy(Vec4 other) {
+    val[0] = other.x;
+    val[1] = other.y;
+    val[2] = other.z;
+    val[3] = other.w;
 
     return this;
   }
@@ -429,10 +438,8 @@ class Mat4 {
 
   Mat4.inversed(Mat4 other) {
     val = new Float32List(16);
-    for (int i = 0; i < 16; ++i)
-      val[i] = other.val[i];
 
-    inverse();
+    other.inverse(this);
   }
 
   Mat4 operator +(Mat4 other) {
@@ -484,21 +491,25 @@ class Mat4 {
     return output;
   }
 
-  void setIdentity() {
+  Mat4 setIdentity() {
     val[0]  = 1.0; val[1]  = 0.0; val[2]  = 0.0; val[3]  = 0.0;
     val[4]  = 0.0; val[5]  = 1.0; val[6]  = 0.0; val[7]  = 0.0;
     val[8]  = 0.0; val[9]  = 0.0; val[10] = 1.0; val[11] = 0.0;
     val[12] = 0.0; val[13] = 0.0; val[14] = 0.0; val[15] = 1.0;
+
+    return this;
   }
 
-  void zero() {
+  Mat4 zero() {
     val[0]  = 0.0; val[1]  = 0.0; val[2]  = 0.0; val[3]  = 0.0;
     val[4]  = 0.0; val[5]  = 0.0; val[6]  = 0.0; val[7]  = 0.0;
     val[8]  = 0.0; val[9]  = 0.0; val[10] = 0.0; val[11] = 0.0;
     val[12] = 0.0; val[13] = 0.0; val[14] = 0.0; val[15] = 0.0;
+
+    return this;
   }
 
-  void clone(Mat4 v) {
+  Mat4 clone(Mat4 v) {
     val[0] = v.val[0];
     val[1] = v.val[1];
     val[2] = v.val[2];
@@ -515,6 +526,8 @@ class Mat4 {
     val[13] = v.val[13];
     val[14] = v.val[14];
     val[15] = v.val[15];
+
+    return this;
   }
 
   Vec4 transform(Vec4 v, [Vec4 out = null]) {
@@ -531,10 +544,12 @@ class Mat4 {
     return out;
   }
 
-  void setTranslation(num x, num y, num z) {
+  Mat4 setTranslation(num x, num y, num z) {
     val[3] = x;
     val[7] = y;
     val[11] = z;
+
+    return this;
   }
 
   Mat4 scale(Vec4 v, [Mat4 out = null]) {
@@ -555,7 +570,7 @@ class Mat4 {
     return out;
   }
 
-  void applyRotationFromQuat(Vec4 q) {
+  Mat4 applyRotationFromQuat(Vec4 q) {
     num x = q.x, y = q.y, z = q.z, w = q.w;
     num x2 = x + x, y2 = y + y, z2 = z + z;
     num xx = x * x2, xy = x * y2, xz = x * z2;
@@ -582,12 +597,16 @@ class Mat4 {
     val[13] = 0.0;
     val[14] = 0.0;
     val[15] = 1.0;
+
+    return this;
   }
 
-  void compose(Vec4 pos, Quaternion quat, Vec4 sc) {
+  Mat4 compose(Vec4 pos, Quaternion quat, Vec4 sc) {
     applyRotationFromQuat(quat);
     scale(sc, this);
     setTranslation(pos.x, pos.y, pos.z);
+
+    return this;
   }
 
   /* for avoiding unnecessary allocs */
@@ -679,7 +698,10 @@ class Mat4 {
     return target;
   }
 
-  num inverse() {
+  num inverse([Mat4 out = null]) {
+    if (out == null)
+      out = new Mat4();
+
     num a00 = val[0];
     num a01 = val[1];
     num a02 = val[2];
@@ -712,23 +734,25 @@ class Mat4 {
     if (det == 0.0) 
       return det;
     num invDet = 1.0 / det;
-    val[0] = (a11 * b11 - a12 * b10 + a13 * b09) * invDet;
-    val[1] = (-a01 * b11 + a02 * b10 - a03 * b09) * invDet;
-    val[2] = (a31 * b05 - a32 * b04 + a33 * b03) * invDet;
-    val[3] = (-a21 * b05 + a22 * b04 - a23 * b03) * invDet;
-    val[4] = (-a10 * b11 + a12 * b08 - a13 * b07) * invDet;
-    val[5] = (a00 * b11 - a02 * b08 + a03 * b07) * invDet;
-    val[6] = (-a30 * b05 + a32 * b02 - a33 * b01) * invDet;
-    val[7] = (a20 * b05 - a22 * b02 + a23 * b01) * invDet;
-    val[8] = (a10 * b10 - a11 * b08 + a13 * b06) * invDet;
-    val[9] = (-a00 * b10 + a01 * b08 - a03 * b06) * invDet;
-    val[10] = (a30 * b04 - a31 * b02 + a33 * b00) * invDet;
-    val[11] = (-a20 * b04 + a21 * b02 - a23 * b00) * invDet;
-    val[12] = (-a10 * b09 + a11 * b07 - a12 * b06) * invDet;
-    val[13] = (a00 * b09 - a01 * b07 + a02 * b06) * invDet;
-    val[14] = (-a30 * b03 + a31 * b01 - a32 * b00) * invDet;
-    val[15] = (a20 * b03 - a21 * b01 + a22 * b00) * invDet;
-    return det;
+
+    out.val[0] = (a11 * b11 - a12 * b10 + a13 * b09) * invDet;
+    out.val[1] = (-a01 * b11 + a02 * b10 - a03 * b09) * invDet;
+    out.val[2] = (a31 * b05 - a32 * b04 + a33 * b03) * invDet;
+    out.val[3] = (-a21 * b05 + a22 * b04 - a23 * b03) * invDet;
+    out.val[4] = (-a10 * b11 + a12 * b08 - a13 * b07) * invDet;
+    out.val[5] = (a00 * b11 - a02 * b08 + a03 * b07) * invDet;
+    out.val[6] = (-a30 * b05 + a32 * b02 - a33 * b01) * invDet;
+    out.val[7] = (a20 * b05 - a22 * b02 + a23 * b01) * invDet;
+    out.val[8] = (a10 * b10 - a11 * b08 + a13 * b06) * invDet;
+    out.val[9] = (-a00 * b10 + a01 * b08 - a03 * b06) * invDet;
+    out.val[10] = (a30 * b04 - a31 * b02 + a33 * b00) * invDet;
+    out.val[11] = (-a20 * b04 + a21 * b02 - a23 * b00) * invDet;
+    out.val[12] = (-a10 * b09 + a11 * b07 - a12 * b06) * invDet;
+    out.val[13] = (a00 * b09 - a01 * b07 + a02 * b06) * invDet;
+    out.val[14] = (-a30 * b03 + a31 * b01 - a32 * b00) * invDet;
+    out.val[15] = (a20 * b03 - a21 * b01 + a22 * b00) * invDet;
+
+    return out;
   }
 
   Mat3 toInverseMat3([Mat3 dest = null]) {
@@ -821,9 +845,11 @@ class Euler {
     setFromQuaterion(quat, order);
   }
 
-  void updateQuaternion() {
+  Euler updateQuaternion() {
     if (quaternion != null)
       quaternion.setFromEuler(this, false);
+
+    return this;
   }
 
   num get x => x_;
@@ -852,16 +878,18 @@ class Euler {
     updateQuaternion();
   }
 
-  void set(num x, num y, num z, [int order = 0]) {
+  Euler set(num x, num y, num z, [int order = 0]) {
     x_ = x;
     y_ = y;
     z_ = z;
     order_ = order;
 
     updateQuaternion();
+
+    return this;
   }
 
-  void setFromRotationMatrix(Mat4 matrix, [int order = 0]) {
+  Euler setFromRotationMatrix(Mat4 matrix, [int order = 0]) {
     Float32List ot = matrix.val;
 
     num m11 = ot[0], m12 = ot[4], m13 = ot[8];
@@ -933,9 +961,11 @@ class Euler {
       default:
         print('Euler.setFromRotationMatrix: unsupported order $order');
     }
+
+    return this;
   }
 
-  void setFromQuaternion(Vec4 q, [int order = 0, bool updateLinked = true]) {
+  Euler setFromQuaternion(Vec4 q, [int order = 0, bool updateLinked = true]) {
     num sqx = q.x * q.x;
     num sqy = q.y * q.y;
     num sqz = q.z * q.z;
@@ -944,36 +974,102 @@ class Euler {
     if (order != null)
       this.order = order;
 
-    if (order == XYZ) {
+    if (this.order == XYZ) {
       x_ = atan2(2 * (q.x * q.w - q.y * q.z), (sqw - sqx - sqy + sqz));
       y_ = asin(clamp(2 * (q.x * q.z + q.y * q.w)));
       z_ = atan2(2 * (q.z * q.w - q.x * q.y), (sqw + sqx - sqy - sqz));
-    } else if (order == YXZ) {
+    } else if (this.order == YXZ) {
       x_ = asin(clamp(2 * (q.x * q.w - q.y * q.z)));
       y_ = atan2(2 * (q.x * q.z + q.y * q.w), (sqw - sqx - sqy + sqz));
       z_ = atan2(2 * (q.x * q.y + q.z * q.w), (sqw - sqx + sqy - sqz));
-    } else if (order == ZXY) {
+    } else if (this.order == ZXY) {
       x_ = asin(clamp(2 * (q.x * q.w + q.y * q.z)));
       y_ = atan2(2 * (q.y * q.w - q.z * q.x), (sqw - sqx - sqy + sqz));
       z_ = atan2(2 * (q.z * q.w - q.x * q.y), (sqw - sqx + sqy - sqz));
-    } else if (order == ZYX) {
+    } else if (this.order == ZYX) {
       x_ = atan2(2 * (q.x * q.w + q.z * q.y), (sqw - sqx - sqy + sqz));
       y_ = asin(clamp(2 * (q.y * q.w - q.x * q.z)));
       z_ = atan2(2 * (q.x * q.y + q.z * q.w), (sqw + sqx - sqy - sqz));
-    } else if (order == YZX) {
+    } else if (this.order == YZX) {
       x_ = atan2(2 * (q.x * q.w - q.z * q.y), (sqw - sqx + sqy - sqz));
       y_ = atan2(2 * (q.y * q.w - q.x * q.z), (sqw + sqx - sqy - sqz));
       z_ = asin(clamp(2 * (q.x * q.y + q.z * q.w)));
-    } else if (order == XZY) {
+    } else if (this.order == XZY) {
       x_ = atan2(2 * (q.x * q.w + q.y * q.z ), (sqw - sqx + sqy - sqz));
       y_ = atan2(2 * (q.x * q.z + q.y * q.w ), (sqw + sqx - sqy - sqz));
       z_ = asin(clamp(2 * (q.z * q.w - q.x * q.y)));
     } else {
       print('Euler.setFromQuaternion: unsupported order $order');
-      return;
+      return this;
     }
 
     if (updateLinked)
       updateQuaternion();
+
+    return this;
   }
+}
+
+class Plane {
+
+  Vec4 normal;
+  num constant;
+
+  Plane() {
+    normal = new Vec4();
+    constant = 0.0;
+  }
+
+  Plane.val(this.normal, this.constant);
+
+  Plane setComponents(num x, num y, num z, num w) {
+    normal.set(x, y, z);
+    constant = w;
+
+    return this;
+  }
+  
+  Plane setFromNormalAndCoplanarPoint(Vec4 normal, Vec4 point) {
+    this.normal.copy(normal);
+    this.constant = -point.dot(this.normal);
+
+    return this;
+  }
+
+  Plane normalize() {
+    num inverseNormalLength = 1.0 / normal.length;
+    normal.scalarMultiply(inverseNormalLength, normal);
+    constant *= inverseNormalLength;
+
+    return this;
+  }
+
+}
+
+class Frustum {
+
+  Plane p0, p1, p2, p3, p4, p5;
+
+  Frustum() {
+    p0 = new Plane();
+    p1 = new Plane();
+    p2 = new Plane();
+    p3 = new Plane();
+    p4 = new Plane();
+    p5 = new Plane();
+  }
+
+  Frustum.val(this.p0, this.p1, this.p2, this.p3, this.p4, this.p5);
+
+  void setFromMatrix(Mat4 m) {
+    var me = m.val;
+
+    p0.setComponents(me[3] - me[0], me[7] - me[4], me[11] - me[8], me[15] - me[12]).normalize();
+    p1.setComponents(me[3] + me[0], me[7] + me[4], me[11] + me[8], me[15] + me[12]).normalize();
+    p2.setComponents(me[3] + me[1], me[7] + me[5], me[11] + me[9], me[15] + me[13]).normalize();
+    p3.setComponents(me[3] - me[1], me[7] - me[5], me[11] - me[9], me[15] - me[13]).normalize();
+    p4.setComponents(me[3] - me[2], me[7] - me[6], me[11] - me[10], me[15] - me[14]).normalize();
+    p5.setComponents(me[3] + me[2], me[7] + me[6], me[11] + me[10], me[15] + me[14]).normalize();
+  }
+
 }

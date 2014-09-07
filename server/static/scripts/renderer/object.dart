@@ -80,3 +80,8 @@ class Object3D {
       child.updateWorldMatrix(force);
   }
 }
+
+class Geometry extends Object3D {
+
+}
+
