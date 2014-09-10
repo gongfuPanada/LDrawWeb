@@ -3,7 +3,7 @@
 part of ldraw;
 
 const int BASE_MODEL_COLOR = 7;
-const num NORMAL_BLEND_THRESHOLD = 0.523598776;
+const num NORMAL_BLEND_THRESHOLD = 0.785398163;
 
 class Edge {
   Vec4 v1, v2;

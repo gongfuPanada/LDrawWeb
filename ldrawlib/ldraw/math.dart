@@ -71,7 +71,7 @@ class Vec4 implements Comparable {
   void operator []= (int index, num v) {
     val[index] = v;
 
-    onChnageCallback();
+    onChangeCallback();
   }
 
   Vec4 set(num x, num y, num z, [num w = 1.0]) {

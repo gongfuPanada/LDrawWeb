@@ -1,4 +1,4 @@
-config.yml
+server/config.yml
 server/contents/*
 *.pyc
 *.dart.js.deps

@@ -7,7 +7,6 @@
     <style type='text/css'>
       body { font-family: sans-serif; background-color: #eee; margin: 0; overflow: hidden; }
     </style>
-    <!--<script type="text/javascript" src="{{ url_for('static', filename='scripts/packages/browser/dart.js') }}"></script>-->
     <script src="packages/web_components/platform.js"></script>
     <script src="packages/web_components/dart_support.js"></script>
     <link rel="import" href="packages/paper_elements/paper_checkbox.html">
@@ -15,6 +14,8 @@
     <link href="//fonts.googleapis.com/css?family=RobotoDraft:300,400,500|Source+Code+Pro:400,500,700" rel="stylesheet">
   </head>
   <body unresolved>
+    <script type="application/dart" src='{{ url_for('static', filename='scripts/main.dart') }}'> </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts/packages/browser/dart.js') }}"></script>
     <main id="content-container">
     <div id="data" style="display: none"
 	 {% if model %}data-model="{{ model|escape }}"{% endif %}
@@ -39,10 +40,6 @@ URL to LDraw model file (*.ldr, *.dat, *.mpd): <input name='uri' size='50' value
 <p><form action='/view' method='POST' enctype='multipart/form-data'>
 Or, upload a file: <input type='file' name='file' /><input type='submit' style='float: right;' /></form></p>
 </div>
-    <script type="application/dart">
-      //export 'package:polymer/init.dart';
-      export '{{ url_for('static', filename='scripts/main.dart') }}';
-    </script>
     </main>
   </body>
 </html>
