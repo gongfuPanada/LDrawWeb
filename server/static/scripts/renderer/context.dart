@@ -2,11 +2,20 @@
 
 part of renderer;
 
+class GlobalUniformValues {
+  Mat4 projectionMatrix;
+  Mat4 modelViewMatrix;
+  Mat4 viewMatrix;
+  Mat4 modelMatrix;
+  Mat3 normalMatrix;
+}
+
 class Renderer {
 
   RenderingContext gl;
   CanvasElement canvas;
   MaterialManager materialManager;
+  GlobalUniformValues uniformValues;
 
   Mat4 _projScreenMatrix;
   Mat4 _projScreenMatrixPS;
@@ -19,6 +28,8 @@ class Renderer {
   Renderer(CanvasElement canvas,
       {bool alpha: true, bool antialias: true, bool stencil: false}) {
     this.canvas = canvas;
+
+    uniformValues = new GlobalUniformValues();
 
     try {
       gl =
@@ -61,17 +72,33 @@ class Renderer {
       scene.updateWorldMatrix();
 
     camera.updateWorldMatrix();
-    camera.matrixWorldInverse.inverse(camera.matrixWorld);
     camera.projectionMatrix.multiply(camera.matrixWorldInverse, _projScreenMatrix);
     _frustum.setFromMatrix(_projScreenMatrix);
 
-    projectObject(scene, scene, camera);
+    uniformValues.viewMatrix = camera.matrixWorldInverse;
+    uniformValues.projectionMatrix = camera.projectionMatrix;
+
+    for (Object3D object in scene.objects) {
+      object.renderChildren(this, camera);
+    }
 
     gl.finish();
   }
 
   void projectObject(Scene scene, Object3D object, Camera camera) {
-    
+    if (!object.visible)
+      return;
+
+    if (!object.frustumCulled || _frustum.intersects(object)) {
+      updateObject(scene, object);
+    }
+
+    for (Object3D child in object.children) {
+      projectObject(scene, child, camera);
+    }
+  }
+
+  void updateObject(Scene scene, Object3D object) {
     
   }
 

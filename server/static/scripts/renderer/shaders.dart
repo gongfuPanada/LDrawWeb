@@ -8,31 +8,32 @@ Map SHADER_MAP = {
 };
 
 class BaseShader {
+  GlobalUniformValues uniformValues;
   Program program;
   Shader vs;
   Shader fs;
-  UniformLocation projectionMatrix;
-  UniformLocation modelViewMatrix;
-  UniformLocation viewMatrix;
-  UniformLocation modelMatrix;
-  UniformLocation translationFactor;
+  UniformLocation uProjectionMatrix;
+  UniformLocation uModelViewMatrix;
+  UniformLocation uViewMatrix;
+  UniformLocation uModelMatrix;
+  UniformLocation uTranslationFactor;
   RenderingContext gl;
-
 
   BaseShader(Renderer context, String vsText, String fsText) {
     gl = context.gl;
     vs = compileShader(VERTEX_SHADER, vsText);
     fs = compileShader(FRAGMENT_SHADER, fsText);
+    uniformValues = context.uniformValues;
 
     assert(vs != null && fs != null);
 
     link();
 
-    projectionMatrix = gl.getUniformLocation(program, 'projection');
-    modelViewMatrix = gl.getUniformLocation(program, 'modelView');
-    viewMatrix = gl.getUniformLocation(program, 'viewMatrix');
-    modelMatrix = gl.getUniformLocation(program, 'modelMatrix');
-    translationFactor = gl.getUniformLocation(program, 'translation');
+    uProjectionMatrix = gl.getUniformLocation(program, 'projection');
+    uModelViewMatrix = gl.getUniformLocation(program, 'modelView');
+    uViewMatrix = gl.getUniformLocation(program, 'viewMatrix');
+    uModelMatrix = gl.getUniformLocation(program, 'modelMatrix');
+    uTranslationFactor = gl.getUniformLocation(program, 'translation');
   }
 
   void use() {
@@ -58,6 +59,15 @@ class BaseShader {
     }
 
     return shader;
+  }
+
+  void bindCommonUniforms() {
+    GlobalUniformValues g = uniformValues;
+
+    gl.uniformMatrix4fv(uProjectionMatrix, false, g.projectionMatrix.val);
+    gl.uniformMatrix4fv(uModelViewMatrix, false, g.modelViewMatrix.val);
+    gl.uniformMatrix4fv(uModelMatrix, false, g.modelMatrix.val);
+    gl.uniformMatrix4fv(uViewMatrix, false, g.viewMatrix.val);
   }
 
   void unbind() {}

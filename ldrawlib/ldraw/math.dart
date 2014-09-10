@@ -9,10 +9,11 @@ const num RAD2DEG = 180.0 / PI;
 num radians(num deg) => deg * DEG2RAD;
 num degrees(num rad) => rad * RAD2DEG;
 num clamp(num v) => min(max(v, -1), 1);
+num iszero(num v) => v.abs() < EPSILON;
 
 class Vec4 implements Comparable {
-
   Float32List val;
+  Function onChange;
 
   Vec4() {
     val = new Float32List(4);
@@ -69,10 +70,14 @@ class Vec4 implements Comparable {
   num operator [] (int index) => val[index];
   void operator []= (int index, num v) {
     val[index] = v;
+
+    onChnageCallback();
   }
 
   Vec4 set(num x, num y, num z, [num w = 1.0]) {
     val[0] = x; val[1] = y; val[2] = z; val[3] = w;
+
+    onChangeCallback();
 
     return this;
   }
@@ -83,13 +88,30 @@ class Vec4 implements Comparable {
     val[2] = other.z;
     val[3] = other.w;
 
+    onChangeCallback();
+
     return this;
   }
 
-  void set x(num v) => val[0] = v;
-  void set y(num v) => val[1] = v;
-  void set z(num v) => val[2] = v;
-  void set w(num v) => val[3] = v;
+  void set x(num v) {
+    val[0] = v;
+    onChangeCallback();
+  }
+
+  void set y(num v) {
+    val[1] = v;
+    onChangeCallback();
+  }
+
+  void set z(num v) {
+    val[2] = v;
+    onChangeCallback();
+  }
+
+  void set w(num v) {
+    val[3] = v;
+    onChangeCallback();
+  }
 
   int get hashCode => toString().hashCode;
 
@@ -109,6 +131,8 @@ class Vec4 implements Comparable {
       out.set(x / r, y / r, z / r);
     else
       out.set(0.0, 0.0, 0.0);
+
+    out.onChangeCallback();
 
     return out;
   }
@@ -145,6 +169,8 @@ class Vec4 implements Comparable {
     out.y = y + other.y;
     out.z = z + other.z;
 
+    out.onChangeCallback();
+
     return out;
   }
 
@@ -155,6 +181,8 @@ class Vec4 implements Comparable {
     out.x = x - other.x;
     out.y = y - other.y;
     out.z = z - other.z;
+
+    out.onChangeCallback();
 
     return out;
   }
@@ -167,6 +195,8 @@ class Vec4 implements Comparable {
     out.y = y * v;
     out.z = z * v;
 
+    out.onChangeCallback();
+
     return out;
   }
   
@@ -175,6 +205,8 @@ class Vec4 implements Comparable {
       out = new Vec4.xyz(-x, -y, -z);
     else
       out.set(-x, -y, -z);
+
+    out.onChangeCallback();
 
     return out;
   }
@@ -206,6 +238,8 @@ class Vec4 implements Comparable {
 
     out.set(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
 
+    out.onChangeCallback();
+
     return out;
   }
 
@@ -214,6 +248,8 @@ class Vec4 implements Comparable {
       out = new Vec4();
 
     out.set((a.x + b.x) * 0.5, (a.y + b.y) * 0.5, (a.z + b.z) * 0.5, (a.w + b.w) * 0.5);
+
+    out.onChangeCallback();
 
     return out;
   }
@@ -233,45 +269,14 @@ class Vec4 implements Comparable {
   List toJson() {
     return [x, y, z, w];
   }
+
+  void onChangeCallback() {
+    if (onChange != null)
+      onChange();
+  }
 }
 
 class Quaternion extends Vec4 {
-
-  Euler euler;
-
-  void updateEuler() {
-    if (euler != null)
-      euler.setFromQuaternion(this, null, false);
-  }
-
-  void set x(num v) {
-    val[0] = v;
-    updateEuler();
-  }
-
-  void set y(num v) {
-    val[1] = v;
-    updateEuler();
-  }
-
-  void set z(num v) {
-    val[2] = v;
-    updateEuler();
-  }
-
-  void set w(num v) {
-    val[3] = v;
-    updateEuler();
-  }
-
-  void set(num x, num y, num z, [num w = 1.0]) {
-    val[0] = x;
-    val[1] = y;
-    val[2] = z;
-    val[3] = w;
-    updateEuler();
-  }
-
   void setFromEuler(Euler euler, [bool updateLinked = true]) {
     num c1 = cos(euler.x / 2);
     num c2 = cos(euler.y / 2);
@@ -281,39 +286,39 @@ class Quaternion extends Vec4 {
     num s3 = sin(euler.z / 2);
 
     if (euler.order == Euler.XYZ) {
-      x = s1 * c2 * c3 + c1 * s2 * s3;
-      y = c1 * s2 * c3 - s1 * c2 * s3;
-      z = c1 * c2 * s3 + s1 * s2 * c3;
-      w = c1 * c2 * c3 - s1 * s2 * s3;
+      val[0] = s1 * c2 * c3 + c1 * s2 * s3;
+      val[1] = c1 * s2 * c3 - s1 * c2 * s3;
+      val[2] = c1 * c2 * s3 + s1 * s2 * c3;
+      val[3] = c1 * c2 * c3 - s1 * s2 * s3;
     } else if (euler.order == Euler.YXZ) {
-      x = s1 * c2 * c3 + c1 * s2 * s3;
-      y = c1 * s2 * c3 - s1 * c2 * s3;
-      z = c1 * c2 * s3 - s1 * s2 * c3;
-      w = c1 * c2 * c3 + s1 * s2 * s3;
+      val[0] = s1 * c2 * c3 + c1 * s2 * s3;
+      val[1] = c1 * s2 * c3 - s1 * c2 * s3;
+      val[2] = c1 * c2 * s3 - s1 * s2 * c3;
+      val[3] = c1 * c2 * c3 + s1 * s2 * s3;
     } else if (euler.order == Euler.ZXY) {
-      x = s1 * c2 * c3 - c1 * s2 * s3;
-      y = c1 * s2 * c3 + s1 * c2 * s3;
-      z = c1 * c2 * s3 + s1 * s2 * c3;
-      w = c1 * c2 * c3 - s1 * s2 * s3;
+      val[0] = s1 * c2 * c3 - c1 * s2 * s3;
+      val[1] = c1 * s2 * c3 + s1 * c2 * s3;
+      val[2] = c1 * c2 * s3 + s1 * s2 * c3;
+      val[3] = c1 * c2 * c3 - s1 * s2 * s3;
     } else if (euler.order == Euler.ZYX) {
-      x = s1 * c2 * c3 - c1 * s2 * s3;
-      y = c1 * s2 * c3 + s1 * c2 * s3;
-      z = c1 * c2 * s3 - s1 * s2 * c3;
-      w = c1 * c2 * c3 + s1 * s2 * s3;
+      val[0] = s1 * c2 * c3 - c1 * s2 * s3;
+      val[1] = c1 * s2 * c3 + s1 * c2 * s3;
+      val[2] = c1 * c2 * s3 - s1 * s2 * c3;
+      val[3] = c1 * c2 * c3 + s1 * s2 * s3;
     } else if (euler.order == Euler.YZX) {
-      x = s1 * c2 * c3 + c1 * s2 * s3;
-      y = c1 * s2 * c3 + s1 * c2 * s3;
-      z = c1 * c2 * s3 - s1 * s2 * c3;
-      w = c1 * c2 * c3 - s1 * s2 * s3;
+      val[0] = s1 * c2 * c3 + c1 * s2 * s3;
+      val[1] = c1 * s2 * c3 + s1 * c2 * s3;
+      val[2] = c1 * c2 * s3 - s1 * s2 * c3;
+      val[3] = c1 * c2 * c3 - s1 * s2 * s3;
     } else if (euler.order == Euler.XZY) {
-      x = s1 * c2 * c3 - c1 * s2 * s3;
-      y = c1 * s2 * c3 - s1 * c2 * s3;
-      z = c1 * c2 * s3 + s1 * s2 * c3;
-      w = c1 * c2 * c3 + s1 * s2 * s3;
+      val[0] = s1 * c2 * c3 - c1 * s2 * s3;
+      val[1] = c1 * s2 * c3 - s1 * c2 * s3;
+      val[2] = c1 * c2 * s3 + s1 * s2 * c3;
+      val[3] = c1 * c2 * c3 + s1 * s2 * s3;
     }
 
     if (updateLinked)
-      updateEuler();
+      onChangeCallback();
   }
 }
 
@@ -376,9 +381,63 @@ class Mat3 {
     return n;
   }
 
+  Mat3 multiplyScalar(num f, [Mat3 out = null]) {
+    if (out == null)
+      out = new Mat3();
+
+    Float32Array me = out.val;
+    Float32Array te = val;
+
+    me[0] = te[0] * f;
+    me[1] = te[1] * f;
+    me[2] = te[2] * f;
+    me[3] = te[3] * f;
+    me[4] = te[4] * f;
+    me[5] = te[5] * f;
+    me[6] = te[6] * f;
+    me[7] = te[7] * f;
+    me[8] = te[8] * f;
+
+    return this;
+  }
+
   void clone(Mat3 v) {
     for (int i = 0; i < 9; ++i)
       val[i] = v.val[i];
+  }
+
+  void getInverse(Mat4 other) {
+    Float32Array me = other.val;
+    Float32Array te = val;
+
+    te[ 0 ] =   me[ 10 ] * me[ 5 ] - me[ 6 ] * me[ 9 ];
+    te[ 1 ] = - me[ 10 ] * me[ 1 ] + me[ 2 ] * me[ 9 ];
+    te[ 2 ] =   me[ 6 ] * me[ 1 ] - me[ 2 ] * me[ 5 ];
+    te[ 3 ] = - me[ 10 ] * me[ 4 ] + me[ 6 ] * me[ 8 ];
+    te[ 4 ] =   me[ 10 ] * me[ 0 ] - me[ 2 ] * me[ 8 ];
+    te[ 5 ] = - me[ 6 ] * me[ 0 ] + me[ 2 ] * me[ 4 ];
+    te[ 6 ] =   me[ 9 ] * me[ 4 ] - me[ 5 ] * me[ 8 ];
+    te[ 7 ] = - me[ 9 ] * me[ 0 ] + me[ 1 ] * me[ 8 ];
+    te[ 8 ] =   me[ 5 ] * me[ 0 ] - me[ 1 ] * me[ 4 ];
+
+    num det = me[ 0 ] * te[ 0 ] + me[ 1 ] * te[ 3 ] + me[ 2 ] * te[ 6 ];
+    
+    if (det == 0.0) {
+      print('Mat3.getInverse(): not inversible!');
+      for (int i = 0; i < 9; ++i)
+        te[i] = 0.0;
+      return;
+    }
+
+    multiplyScalar(1.0 / det, this);
+  }
+
+  void transpose() {
+    num tmp;
+
+    tmp = val[ 1 ]; val[ 1 ] = val[ 3 ]; val[ 3 ] = tmp;
+    tmp = val[ 2 ]; val[ 2 ] = val[ 6 ]; val[ 6 ] = tmp;
+    tmp = val[ 5 ]; val[ 5 ] = val[ 7 ]; val[ 7 ] = tmp;
   }
 
   String toString() {
@@ -545,9 +604,9 @@ class Mat4 {
   }
 
   Mat4 setTranslation(num x, num y, num z) {
-    val[3] = x;
-    val[7] = y;
-    val[11] = z;
+    val[12] = x;
+    val[13] = y;
+    val[14] = z;
 
     return this;
   }
@@ -823,7 +882,7 @@ class Euler {
   num z_;
   int order_;
 
-  Quaternion quaternion;
+  Function onChange;
 
   Euler() {
     set(0.0, 0.0, 0.0, DEFAULT_ORDER);
@@ -845,13 +904,6 @@ class Euler {
     setFromQuaterion(quat, order);
   }
 
-  Euler updateQuaternion() {
-    if (quaternion != null)
-      quaternion.setFromEuler(this, false);
-
-    return this;
-  }
-
   num get x => x_;
   num get y => y_;
   num get z => z_;
@@ -860,22 +912,27 @@ class Euler {
 
   void set x(num x) {
     x_ = x;
-    updateQuaternion();
+    onChangeCallback();
   }
 
   void set y(num y) {
     y_ = y;
-    updateQuaternion();
+    onChangeCallback();
   }
 
   void set z(num z) {
     z_ = z;
-    updateQuaternion();
+    onChangeCallback();
   }
 
   void set w(num w) {
     w_ = w;
-    updateQuaternion();
+    onChangeCallback();
+  }
+
+  void set order(int order) {
+    order_ = oreder;
+    onChangeCallback();
   }
 
   Euler set(num x, num y, num z, [int order = 0]) {
@@ -884,7 +941,7 @@ class Euler {
     z_ = z;
     order_ = order;
 
-    updateQuaternion();
+    onChangeCallback();
 
     return this;
   }
@@ -962,6 +1019,8 @@ class Euler {
         print('Euler.setFromRotationMatrix: unsupported order $order');
     }
 
+    onChangeCallback();
+
     return this;
   }
 
@@ -1004,14 +1063,19 @@ class Euler {
     }
 
     if (updateLinked)
-      updateQuaternion();
+      onChangeCallback();
 
     return this;
+  }
+
+  void onChangeCallback() {
+    if (onChange != null) {
+      onChange();
+    }
   }
 }
 
 class Plane {
-
   Vec4 normal;
   num constant;
 
@@ -1044,10 +1108,13 @@ class Plane {
     return this;
   }
 
+  num distanceToPoint(Vec4 point) {
+    return Vec4.dot(normal, point) + constant;
+  }
+
 }
 
 class Frustum {
-
   Plane p0, p1, p2, p3, p4, p5;
 
   Frustum() {
@@ -1070,6 +1137,10 @@ class Frustum {
     p3.setComponents(me[3] - me[1], me[7] - me[5], me[11] - me[9], me[15] - me[13]).normalize();
     p4.setComponents(me[3] - me[2], me[7] - me[6], me[11] - me[10], me[15] - me[14]).normalize();
     p5.setComponents(me[3] + me[2], me[7] + me[6], me[11] + me[10], me[15] + me[14]).normalize();
+  }
+
+  bool intersects(Object3D object) {
+    return true; // FIXME
   }
 
 }

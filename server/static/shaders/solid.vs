@@ -16,7 +16,7 @@ varying vec3 vNormal;
 void main() {
     vec3 objectNormal = normal;
 
-    vec3 transformedNormal = normalMatrix * normal;
+    vec3 transformedNormal = normalMatrix * objectNormal;
     vNormal = normalize( transformedNormal );
 
     vec4 adjustedPosition = vec4(position, 1.0) + (vec4(0.0, -1.0, 0.0, 1.0) * 1000.0 * translation);
@@ -24,8 +24,6 @@ void main() {
 
     gl_Position = projection * mvPosition;
     vViewPosition = -mvPosition.xyz;
-
-    vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
 }
 
 /*#ifdef GL_ES

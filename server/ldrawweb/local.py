@@ -16,6 +16,7 @@ def query_local(path, basepath):
     path = normalize_path(path)
     if path.startswith('p/') or path.startswith('parts/'):
         realpath = os.path.join(basepath, path)
+        print realpath
         if os.path.exists(realpath):
             return realpath
         else:

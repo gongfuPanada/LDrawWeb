@@ -1,0 +1,6 @@
+debug: true
+
+storage: local
+
+dat_path: /home/segfault/Projects/LDrawWeb/server/contents/dat
+mesh_path: /home/segfault/Projects/LDrawWeb/server/contents/postprocessed

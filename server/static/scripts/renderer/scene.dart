@@ -19,14 +19,14 @@ class Scene extends Object3D {
 
   }
   
-  void add(Object3D obj) {
+  void _add(Object3D obj) {
     if (obj is Light)
       lights.add(obj);
     else
       objects.add(obj);
   }
 
-  void remove(Object3D obj) {
+  void _remove(Object3D obj) {
     if (obj is Light)
       lights.remove(obj);
     else

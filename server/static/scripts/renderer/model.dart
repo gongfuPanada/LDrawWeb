@@ -2,6 +2,105 @@
 
 part of renderer;
 
+class NormalVisualizer extends Geometry {
+  Buffer edgeVertices;
+  Buffer edgeColors;
+  int lineCount;
+
+  NormalVisualizer.fromModel(Renderer context, Model model, {num distance: 4.0}) : super() {
+    RenderingContext gl = context.gl;
+
+    lineCount = 0;
+
+    /* count all of vertices */
+    for (MeshGroup m in model.meshChunks.values) {
+      lineCount += m.vertices.length;
+    }
+    for (MeshGroup m in model.featureChunks.values) {
+      lineCount += m.vertices.length;
+    }
+
+    lineCount *= 2; /* 2 vertices */
+    lineCount = lineCount ~/ 3; /* 3 elements (x, y, z) */
+
+    Float32List edges = new Float32List(lineCount * 3);
+    Float32List colors = new Float32List(lineCount * 3);
+
+    int i = 0;
+    for (MeshGroup m in model.meshChunks.values) {
+      Float32List tv = m.vertices;
+      Float32List tm = m.normals;
+      for (int j = 0; j < tv.length; j += 3) {
+        edges[i  ] = tv[j  ];
+        edges[i+1] = tv[j+1];
+        edges[i+2] = tv[j+2];
+        edges[i+3] = tv[j  ] + (tm[j  ] * distance);
+        edges[i+4] = tv[j+1] + (tm[j+1] * distance);
+        edges[i+5] = tv[j+2] + (tm[j+2] * distance);
+        colors[i  ] = 0.2;
+        colors[i+1] = 0.2;
+        colors[i+2] = 0.2;
+        colors[i+3] = 0.8;
+        colors[i+4] = 0.8;
+        colors[i+5] = 0.8;
+        i += 6;
+      }
+    }
+    for (MeshGroup m in model.featureChunks.values) {
+      Float32List tv = m.vertices;
+      Float32List tm = m.normals;
+      for (int j = 0; j < tv.length; j += 3) {
+        edges[i  ] = tv[j  ];
+        edges[i+1] = tv[j+1];
+        edges[i+2] = tv[j+2];
+        edges[i+3] = tv[j  ] + (tm[j  ] * distance);
+        edges[i+4] = tv[j+1] + (tm[j+1] * distance);
+        edges[i+5] = tv[j+2] + (tm[j+2] * distance);
+        colors[i  ] = 0.2;
+        colors[i+1] = 0.2;
+        colors[i+2] = 0.2;
+        colors[i+3] = 0.8;
+        colors[i+4] = 0.8;
+        colors[i+5] = 0.8;
+        i += 6;
+      }
+    }
+
+    edgeVertices = gl.createBuffer();
+    gl.bindBuffer(ARRAY_BUFFER, edgeVertices);
+    gl.bufferDataTyped(ARRAY_BUFFER,
+        edges,
+        STATIC_DRAW);
+    edgeColors = gl.createBuffer();
+    gl.bindBuffer(ARRAY_BUFFER, edgeColors);
+    gl.bufferDataTyped(ARRAY_BUFFER,
+        colors,
+        STATIC_DRAW);
+  }
+
+  void render(Renderer context) {
+    MaterialManager materials = MaterialManager.instance;
+    RenderingContext gl = context.gl;
+
+    materials.bindEdgeShader();
+    EdgeShader s = materials.activeShader;
+
+    gl.disable(CULL_FACE);
+    gl.disable(BLEND);
+    gl.disable(DEPTH_TEST);
+
+    s.bindCommonUniforms();
+    gl.bindBuffer(ARRAY_BUFFER, edgeVertices);
+    gl.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
+    gl.bindBuffer(ARRAY_BUFFER, edgeColors);
+    gl.vertexAttribPointer(s.vertexColor, 3, FLOAT, false, 0, 0);
+
+    gl.drawArrays(LINES, 0, lineCount);
+
+    gl.enable(DEPTH_TEST);
+  }
+}
+
 class Model extends Geometry {
   num DEFAULT_PART_FALL_DURATION = 500.0;
   num DEFAULT_PART_DELAY_DURATION = 75.0;
@@ -29,12 +128,11 @@ class Model extends Geometry {
   int currentIndex;
   int startIndex;
   num timeBase;
+  bool renderStuds = true;
   bool animating;
   bool get initiated {
     return currentStep != -1;
   }
-
-  Mat3 normalMatrix;
 
   Model.fromModel(Renderer context, Model model) : super() {
     RenderingContext gl = context.gl;
@@ -43,7 +141,6 @@ class Model extends Geometry {
     partFallDuration = DEFAULT_PART_FALL_DURATION;
     partDelayDuration = DEFAULT_PART_DELAY_DURATION;
 
-    normalMatrix = new Mat3();
     currentStep = -1;
     currentIndex = -1;
 
@@ -124,26 +221,21 @@ class Model extends Geometry {
     steps = model.steps;
   }
 
-  void render(RenderingContext context, Camera camera, Mat4 modelViewMatrix) {
+  void render(Renderer context) {
     if (currentStep == -1)
       return;
 
     MaterialManager materials = MaterialManager.instance;
     RenderingContext gl = context.gl;
 
-    modelViewMatrix.toInverseMat3(normalMatrix);
-
     /* render triangles */
 
     for (MeshCategory c in renderingOrder) {
       materials.bind(c.color);
       LDrawShader s = materials.activeShader;
-
-      gl.uniformMatrix4fv(s.projectionMatrix, false, camera.projectionMatrix.val);
-      gl.uniformMatrix4fv(s.modelViewMatrix, false, modelViewMatrix.val);
-      gl.uniformMatrix4fv(s.modelMatrix, false, camera.matrixWorld.val);
-      gl.uniformMatrix4fv(s.viewMatrix, false, camera.matrixWorldInverse.val);
-      gl.uniformMatrix3fv(s.normalMatrix, false, normalMatrix.val);
+      
+      s.bindCommonUniforms();
+      gl.uniformMatrix3fv(s.normalMatrix, false, context.uniformValues.normalMatrix.val);
       gl.uniform1i(s.isBfcCertified, c.bfc ? 1 : 0);
 
       if (c.bfc)
@@ -166,15 +258,17 @@ class Model extends Geometry {
         gl.drawArrays(TRIANGLES, 0, idx.start[c] + idx.count[c]);
       }
 
-      if (studVertexBuffers != null && studVertexBuffers.containsKey(c)) {
-        gl.bindBuffer(ARRAY_BUFFER, studVertexBuffers[c]);
-        gl.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
-        gl.bindBuffer(ARRAY_BUFFER, studNormalBuffers[c]);
-        gl.vertexAttribPointer(s.vertexNormal, 3, FLOAT, false, 0, 0);
-        
-        if (currentIndex >= 0) {
-          Index idx = indices[currentIndex];
-          gl.drawArrays(TRIANGLES, 0, idx.studStart[c] + idx.studCount[c]);
+      if (renderStuds) {
+        if (studVertexBuffers != null && studVertexBuffers.containsKey(c)) {
+          gl.bindBuffer(ARRAY_BUFFER, studVertexBuffers[c]);
+          gl.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
+          gl.bindBuffer(ARRAY_BUFFER, studNormalBuffers[c]);
+          gl.vertexAttribPointer(s.vertexNormal, 3, FLOAT, false, 0, 0);
+          
+          if (currentIndex >= 0) {
+            Index idx = indices[currentIndex];
+            gl.drawArrays(TRIANGLES, 0, idx.studStart[c] + idx.studCount[c]);
+          }
         }
       }
     }
@@ -187,8 +281,7 @@ class Model extends Geometry {
     gl.disable(CULL_FACE);
     gl.disable(BLEND);
 
-    gl.uniformMatrix4fv(s.projectionMatrix, false, camera.projectionMatrix.val);
-    gl.uniformMatrix4fv(s.modelViewMatrix, false, modelViewMatrix.val);
+    s.bindCommonUniforms();
     gl.bindBuffer(ARRAY_BUFFER, edgeVertices);
     gl.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
     gl.bindBuffer(ARRAY_BUFFER, edgeColors);
@@ -199,15 +292,17 @@ class Model extends Geometry {
       gl.drawArrays(LINES, 0, idx.edgeStart + idx.edgeCount);
     }
 
-    if (studEdgeVertices != null) {
-      gl.bindBuffer(ARRAY_BUFFER, studEdgeVertices);
-      gl.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
-      gl.bindBuffer(ARRAY_BUFFER, studEdgeColors);
-      gl.vertexAttribPointer(s.vertexColor, 3, FLOAT, false, 0, 0);
-      
-      if (currentIndex >= 0) {
-        Index idx = indices[currentIndex];
-        gl.drawArrays(LINES, 0, idx.studEdgeStart + idx.studEdgeCount);
+    if (renderStuds) {
+      if (studEdgeVertices != null) {
+        gl.bindBuffer(ARRAY_BUFFER, studEdgeVertices);
+        gl.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
+        gl.bindBuffer(ARRAY_BUFFER, studEdgeColors);
+        gl.vertexAttribPointer(s.vertexColor, 3, FLOAT, false, 0, 0);
+        
+        if (currentIndex >= 0) {
+          Index idx = indices[currentIndex];
+          gl.drawArrays(LINES, 0, idx.studEdgeStart + idx.studEdgeCount);
+        }
       }
     }
   }

@@ -49,8 +49,7 @@ class Camera extends Object3D {
   void updateWorldMatrix([bool force = false]) {
     super.updateWorldMatrix(force);
 
-    matrixWorldInverse.clone(matrixWorld);
-    matrixWorldInverse.inverse();
+    matrixWorld.inverse(matrixWorldInverse);
   }
 }
 

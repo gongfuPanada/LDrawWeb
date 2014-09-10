@@ -15,17 +15,17 @@ uniform bool isBfcCertified;
 vec3 diffuse;
 float opacity;
 
-const vec3 ambient = vec3(0.9, 0.9, 0.9);
-const vec3 emissive = vec3(0.0, 0.0, 0.0);
+vec3 ambient = vec3(0.1, 0.1, 0.1);
+vec3 emissive = color.rgb * 0.3;
 const vec3 specular = vec3(1.0, 1.0, 1.0);
 const float shininess = 100.0;
 
-const vec3 ambientLightColor = vec3(0.133, 0.133, 0.133);
+const vec3 ambientLightColor = vec3(0.3, 0.3, 0.3);
 
 
 #if MAX_DIR_LIGHTS > 0
     vec3 directionalLightColor = vec3(1.0, 1.0, 1.0);
-    vec3 directionalLightDirection = normalize(vec3(0.3, -1.0, -1.0));
+    vec3 directionalLightDirection = normalize(vec3(1.0, 1.0, 0.0));
     //uniform vec3 directionalLightColor[ MAX_DIR_LIGHTS ];
     //uniform vec3 directionalLightDirection[ MAX_DIR_LIGHTS ];
 #endif

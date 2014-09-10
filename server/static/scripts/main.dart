@@ -39,25 +39,22 @@ void setup() {
 }
 
 void blah(Model model) {
-  r.Camera camera = new r.PerspectiveCamera(45.0, window.innerWidth / window.innerHeight, 1.0, 1000.0);
-  camera.position.z = -600.0;
-  camera.position.y = -600.0;
-  camera.rotation.x = -0.52359;
+  r.Camera camera = new r.PerspectiveCamera(45.0, window.innerWidth / window.innerHeight, 1.0, 100000.0);
+  //camera.position.z = 100.0;
+  //camera.position.y = -10.0;
+  //camera.rotation.x = -2.0;
 
   r.Scene scene = new r.Scene();
   scene.add(model);
-
-  Mat4 viewMatrix = new Mat4.identity();
-  Mat4 mv = new Mat4.identity();
-  Vec4 worldPos = new Vec4();
+  
   num pt = 0.0;
 
   query('#mainCanvas').onMouseWheel.listen((WheelEvent e) {
     if (e.deltaY == 0.0)
       return;
 
-    camera.position.z -= e.deltaY * 0.5;
-    camera.position.y -= e.deltaY * 0.5;
+    model.position.z -= e.deltaY * 0.5;
+    //camera.position.y -= e.deltaY * 0.5;
 
     e.preventDefault();
   });
@@ -77,7 +74,9 @@ void blah(Model model) {
     num timedelta = (pt - time) / 1500.0;
 
     model.animate(time);
-    model.rotation.y += timedelta;
+    model.rotation.x += timedelta;
+    model.rotation.z += timedelta * 0.5;
+    model.updateWorldMatrix();
 
     rc.render(camera, scene);
 
@@ -110,6 +109,9 @@ void readFile(List<String> response) {
     query('#progress').appendHtml('# of total edges: ${model.edgeCount} (+ ${model.studEdgeCount} for studs)<br />');    
 
     r.Model rm = new r.Model.fromModel(rc, model);
+    r.NormalVisualizer nv = new r.NormalVisualizer.fromModel(rc, model);
+    nv.visible = false;
+    rm.add(nv);
     model.recycle();
     blah(rm);
   }

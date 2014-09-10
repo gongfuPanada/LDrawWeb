@@ -1,4 +1,7 @@
 name: ldrawweb
 dependencies:
   browser:
+  polymer:
+  core_elements:
+  paper_elements:
 
