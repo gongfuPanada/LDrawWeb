@@ -121,6 +121,8 @@ class Model extends Geometry {
   List<MeshCategory> renderingOrder;
   List<int> steps;
   List<Index> indices;
+
+  Function onIndexChange;
   
   num partFallDuration;
   num partDelayDuration;
@@ -339,10 +341,13 @@ class Model extends Geometry {
       currentIndex = prevIndex;
     }
 
+    if (onIndexChange != null)
+      onIndexChange(currentIndex, indices.length);
+
     num postamble = adjustedTime - ((currentIndex - (prevIndex < 0 ? 0 : prevIndex)) *
         partFallDuration);
 
-    print (postamble);
+    //print (postamble);
 
     if (currentIndex >= steps[currentStep])
       animating = false;

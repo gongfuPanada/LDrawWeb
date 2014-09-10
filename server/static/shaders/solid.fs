@@ -25,7 +25,7 @@ const vec3 ambientLightColor = vec3(0.3, 0.3, 0.3);
 
 #if MAX_DIR_LIGHTS > 0
     vec3 directionalLightColor = vec3(1.0, 1.0, 1.0);
-    vec3 directionalLightDirection = normalize(vec3(1.0, 1.0, 0.0));
+    vec3 directionalLightDirection = normalize(vec3(-0.0, 0.0, 1.0));
     //uniform vec3 directionalLightColor[ MAX_DIR_LIGHTS ];
     //uniform vec3 directionalLightDirection[ MAX_DIR_LIGHTS ];
 #endif

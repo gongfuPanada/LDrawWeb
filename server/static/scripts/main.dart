@@ -13,7 +13,8 @@ r.Renderer rc;
 void main() {
   rc = new r.Renderer(query('#mainCanvas'));
   window.onResize.listen((Event e) {
-    rc.resizeView(window.innerWidth, window.innerHeight);
+      rc.resizeView(window.innerWidth, window.innerHeight);
+      resetCamera();
   });
   rc.resizeView(window.innerWidth, window.innerHeight);
 
@@ -38,12 +39,16 @@ void setup() {
   });
 }
 
-void blah(Model model) {
-  r.Camera camera = new r.PerspectiveCamera(45.0, window.innerWidth / window.innerHeight, 1.0, 100000.0);
-  //camera.position.z = 100.0;
-  camera.position.y = -50.0;
-  //camera.rotation.x = -2.0;
+r.Camera camera;
+bool animate = true;
 
+void resetCamera() {
+  camera = new r.PerspectiveCamera(45.0, window.innerWidth / window.innerHeight, 1.0, 100000.0);
+  camera.position.y = -50.0;
+}
+
+void blah(Model model) {
+  resetCamera();
   model.rotation.x = PI;
   model.position.z = -300.0;
 
@@ -71,6 +76,9 @@ void blah(Model model) {
   rc.setupState();
 
   void draw(num time) {
+    if (!animate)
+      pt = time;
+
     if (!model.initiated)
       model.startAnimation(time);
 
@@ -82,13 +90,32 @@ void blah(Model model) {
 
     rc.render(camera, scene);
 
-    window.requestAnimationFrame(draw);
+    if (animate)
+      window.requestAnimationFrame(draw);
+    else
+      animate = true;
 
     pt = time;
   }
 
+  query('#drawNormals').onClick.listen((event) {
+      if (query('#drawNormals').attributes['checked'] == null)
+        nv.visible = true;
+      else
+        nv.visible = false;
+    });
+  query('#animate').onClick.listen((event) {
+      if (query('#animate').attributes['checked'] == null) {
+        window.requestAnimationFrame(draw);
+      } else {
+        animate = false;
+      }
+    });
+
   window.requestAnimationFrame(draw);
 }
+
+r.NormalVisualizer nv;
 
 void readFile(List<String> response) {
   LDrawMultipartModel ldrawModel = new LDrawMultipartModel();
@@ -108,13 +135,22 @@ void readFile(List<String> response) {
     w.stop();
     query('#progress').appendHtml('compiling done in ${w.elapsedMilliseconds} ms.<br />');
     query('#progress').appendHtml('# of total tris: ${model.triCount} (+ ${model.studTriCount} for studs)<br />');
-    query('#progress').appendHtml('# of total edges: ${model.edgeCount} (+ ${model.studEdgeCount} for studs)<br />');    
+    query('#progress').appendHtml('# of total edges: ${model.edgeCount} (+ ${model.studEdgeCount} for studs)<br />'); 
 
     r.Model rm = new r.Model.fromModel(rc, model);
-    r.NormalVisualizer nv = new r.NormalVisualizer.fromModel(rc, model);
+    nv = new r.NormalVisualizer.fromModel(rc, model);
     nv.visible = false;
     rm.add(nv);
     model.recycle();
+
+    querySelector('#progressBar').style.display = 'none';
+    var slider = query('#slider');
+    var sliderKnob = query('#sliderKnobInner');
+    slider.attributes['max'] = rm.indices.length.toString();
+    rm.onIndexChange = (cur, total) {
+      slider.attributes['value'] = cur.toString();
+    };
+
     blah(rm);
   }
 
@@ -128,6 +164,13 @@ void readFile(List<String> response) {
       model.loadPart(part, onLoaded: (String s, Part p) {
         ++loaded;
         --remaining;
+
+        var q = querySelector('#progressBar');
+        q.style.top = '${window.innerHeight / 2}px';
+        q.style.width = '${window.innerWidth - 100}px';
+        q.style.left = '50px';
+        q.attributes['value'] = loaded.toString();
+        q.attributes['max'] = total.toString();
 
         query('#progress').appendHtml('loaded preprocessed part $s ($loaded / $total)<br />');
         

@@ -10,8 +10,8 @@
 import json
 import os
 
-from flask import Flask, abort, make_response, render_template, request, \
-                  send_file
+from flask import Flask, abort, make_response, redirect, render_template, \
+                  request, send_file, url_for
 from jinja2 import FileSystemLoader
 from werkzeug.wrappers import Response
 import requests
@@ -45,6 +45,11 @@ def uri_for_mesh(path=None):
     return uri_for('/geometry/postprocessed', path)
 
 
+@app.route('/packages/<path:path>')
+def dart_package(path):
+    return redirect(url_for('static', filename='scripts/packages/' + path))
+
+
 @app.route('/')
 def index():
     raise NotImplemented
@@ -68,6 +73,11 @@ def view():
     response = make_response(render_template('view.html', **data))
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
+
+
+@app.route('/test')
+def test():
+    return make_response(render_template('test.html'))
 
 
 @app.route('/geometry/dat/g/<path:path>')
