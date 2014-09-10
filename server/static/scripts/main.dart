@@ -41,8 +41,11 @@ void setup() {
 void blah(Model model) {
   r.Camera camera = new r.PerspectiveCamera(45.0, window.innerWidth / window.innerHeight, 1.0, 100000.0);
   //camera.position.z = 100.0;
-  //camera.position.y = -10.0;
+  camera.position.y = -50.0;
   //camera.rotation.x = -2.0;
+
+  model.rotation.x = PI;
+  model.position.z = -300.0;
 
   r.Scene scene = new r.Scene();
   scene.add(model);
@@ -74,8 +77,7 @@ void blah(Model model) {
     num timedelta = (pt - time) / 1500.0;
 
     model.animate(time);
-    model.rotation.x += timedelta;
-    model.rotation.z += timedelta * 0.5;
+    model.rotation.y += timedelta;
     model.updateWorldMatrix();
 
     rc.render(camera, scene);

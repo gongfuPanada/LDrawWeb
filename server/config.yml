@@ -2,5 +2,5 @@ debug: true
 
 storage: local
 
-dat_path: /home/segfault/LDrawWeb/server/contents/dat
-mesh_path: /home/segfault/LDrawWeb/server/contents/postprocessed
+dat_path: /path/to/dat
+mesh_path: /path/to/postprocessed
