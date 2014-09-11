@@ -3,10 +3,10 @@
 part of renderer;
 
 class Object3D {
-  static Vec4 kUpside = new Vec4.xyz(0.0, -1.0, 0.0);
-
   Object3D parent;
   List<Object3D> children;
+
+  static Vec4 kUpwardVector = new Vec4.xyz(0.0, 1.0, 0.0);
 
   Vec4 position;
   Euler rotation_;
@@ -14,6 +14,7 @@ class Object3D {
   bool visible;
   bool frustumCulled;
   Vec4 scale;
+  Vec4 up;
 
   Mat4 matrix;
   Mat4 matrixWorld;
@@ -35,6 +36,7 @@ class Object3D {
     quaternion_ = new Quaternion();
     quaternion_.onChange = updateEuler;
     scale = new Vec4.xyz(1.0, 1.0, 1.0);
+    up = new Vec4.from(kUpwardVector);
 
     matrix = new Mat4.identity();
     matrixAutoUpdate = true;
@@ -82,7 +84,7 @@ class Object3D {
       if (parent == null) {
         matrixWorld.clone(matrix);
       } else {
-        parent.matrixWorld.multiply(matrix, matrixWorld);
+        matrix.multiply(parent.matrixWorld, matrixWorld);
       }
 
       matrixWorldNeedsUpdate = false;
@@ -94,7 +96,7 @@ class Object3D {
   }
 
   void setupMatrices(Camera camera) {
-    camera.matrixWorldInverse.multiply(matrixWorld, modelViewMatrix);
+    matrixWorld.multiply(camera.matrixWorldInverse, modelViewMatrix);
     normalMatrix.getInverse(modelViewMatrix);
     normalMatrix.transpose();
   }
@@ -158,6 +160,13 @@ class Object3D {
       uniformValues.normalMatrix = normalMatrix;
       render(context);
     }
+  }
+
+  static Mat4 m1_ = new Mat4();
+  
+  void lookAt(Vec4 to) {
+    m1_.lookAt(position, to, up);
+    quaternion.setFromRotationMatrix(m1_);
   }
 }
 

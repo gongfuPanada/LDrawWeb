@@ -320,6 +320,51 @@ class Quaternion extends Vec4 {
     if (updateLinked)
       onChangeCallback();
   }
+
+  Quaternion setFromRotationMatrix(Mat4 mat) {
+    Float32List te = mat.val;
+
+    num m11 = te[0], m12 = te[4], m13 = te[8];
+    num m21 = te[1], m22 = te[5], m23 = te[9];
+    num m31 = te[2], m32 = te[6], m33 = te[10];
+
+    num trace = m11 + m22 + m33;
+    num s;
+
+    if (trace > 0.0) {
+      s = 0.5 / sqrt(trace + 1.0);
+      val[0] = (m32 - m23) * s;
+      val[1] = (m13 - m31) * s;
+      val[2] = (m21 - m12) * s;
+      val[3] = 0.25 / s;
+    } else if (m11 > m22 && m11 > m33) {
+      s = 2.0 * sqrt(1.0 + m11 - m22 - m33);
+      val[0] = 0.25 * s;
+      val[1] = (m12 + m21) / s;
+      val[2] = (m13 + m31) / s;
+      val[3] = (m32 - m23) / s;
+    } else if (m22 > m33) {
+      s = 2.0 * sqrt(1.0 + m22 - m11 - m33);
+      val[0] = (m12 + m21) / s;
+      val[1] = 0.25 * s;
+      val[2] = (m23 + m32) / s;
+      val[3] = (m13 - m31) / s;
+    } else {
+      s = 2.0 * sqrt(1.0 + m33 - m11 - m22);
+      val[0] = (m13 + m31) / s;
+      val[1] = (m23 + m32) / s;
+      val[2] = 0.25 * s;
+      val[3] = (m21 - m12) / s;
+    }
+
+    onChangeCallback();
+
+    return this;
+  }
+
+  String toString() {
+    return '($x, $y, $z, $w)';
+  }
 }
 
 class Mat3 {
@@ -603,10 +648,16 @@ class Mat4 {
     return out;
   }
 
-  Mat4 setTranslation(num x, num y, num z) {
-    val[12] = x;
-    val[13] = y;
-    val[14] = z;
+  Mat4 setTranslation(num x, num y, num z, {bool row: false}) {
+    if (row) {
+      val[3] = x;
+      val[7] = y;
+      val[11] = z;
+    } else {
+      val[12] = x;
+      val[13] = y;
+      val[14] = z;
+    }
 
     return this;
   }
@@ -671,6 +722,9 @@ class Mat4 {
   /* for avoiding unnecessary allocs */
   static Vec4 v_ = new Vec4();
   static Mat4 m_ = new Mat4();
+  static Vec4 x_ = new Vec4();
+  static Vec4 y_ = new Vec4();
+  static Vec4 z_ = new Vec4();
 
   void decompose(Vec4 pos, Quaternion quat, Vec4 scale) {
     Float32List te = val;
@@ -710,6 +764,29 @@ class Mat4 {
     scale.x = sx;
     scale.y = sy;
     scale.z = sz;
+  }
+
+  void lookAt(Vec4 eye, Vec4 target, Vec4 up) {
+    Float32List te = val;
+
+    eye.subtract(target, z_);
+    z_.normalize(z_);
+    if (z_.length == 0.0)
+      z_.z = 1.0;
+
+    Vec4.cross(up, z_, x_);
+    x_.normalize(x_);
+    if (x_.length == 0.0) {
+      z_.x += 0.0001;
+      Vec4.cross(up, z_, x_);
+      x_.normalize(x_);
+    }
+
+    Vec4.cross(z_, x_, y_);
+    
+    te[0] = x_.x; te[4] = y_.x; te[8] = z_.x;
+    te[1] = x_.y; te[5] = y_.y; te[9] = z_.y;
+    te[2] = x_.z; te[6] = y_.z; te[10] = z_.z;
   }
 
   num det() {
@@ -869,13 +946,13 @@ class Mat4 {
 
 class Euler {
 
-  static int XYZ = 0;
-  static int YZX = 1;
-  static int ZXY = 2;
-  static int XZY = 3;
-  static int YXZ = 4;
-  static int ZYX = 5;
-  static int DEFAULT_ORDER = 0;
+  static const int XYZ = 0;
+  static const int YZX = 1;
+  static const int ZXY = 2;
+  static const int XZY = 3;
+  static const int YXZ = 4;
+  static const int ZYX = 5;
+  static const int DEFAULT_ORDER = 0;
 
   num x_;
   num y_;
@@ -931,7 +1008,7 @@ class Euler {
   }
 
   void set order(int order) {
-    order_ = oreder;
+    order_ = order;
     onChangeCallback();
   }
 

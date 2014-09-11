@@ -44,25 +44,27 @@ bool animate = true;
 
 void resetCamera() {
   camera = new r.PerspectiveCamera(45.0, window.innerWidth / window.innerHeight, 1.0, 100000.0);
-  camera.position.y = -50.0;
 }
 
-void blah(Model model) {
+void blah(Model model, r.Object3D modelRoot) {
   resetCamera();
-  model.rotation.x = PI;
-  model.position.z = -300.0;
+  modelRoot.rotation.x = PI;
+  camera.position.z = 500.0;
 
   r.Scene scene = new r.Scene();
-  scene.add(model);
+  scene.add(modelRoot);
   
   num pt = 0.0;
 
+  Vec4 center = new Vec4.xyz(0.0, 0.0, 0.0);
   query('#mainCanvas').onMouseWheel.listen((WheelEvent e) {
     if (e.deltaY == 0.0)
       return;
 
-    model.position.z -= e.deltaY * 0.5;
-    //camera.position.y -= e.deltaY * 0.5;
+    camera.position.z += e.deltaY * 0.5;
+    camera.position.y += e.deltaY * 0.5;
+    camera.lookAt(center);
+    camera.updateWorldMatrix();
 
     e.preventDefault();
   });
@@ -75,6 +77,8 @@ void blah(Model model) {
 
   rc.setupState();
 
+  var debugElement = query('#debugInfo');
+
   void draw(num time) {
     if (!animate)
       pt = time;
@@ -85,8 +89,8 @@ void blah(Model model) {
     num timedelta = (pt - time) / 1500.0;
 
     model.animate(time);
-    model.rotation.y += timedelta;
-    model.updateWorldMatrix();
+    modelRoot.rotation.y += timedelta;
+    modelRoot.updateWorldMatrix();
 
     rc.render(camera, scene);
 
@@ -137,10 +141,20 @@ void readFile(List<String> response) {
     query('#progress').appendHtml('# of total tris: ${model.triCount} (+ ${model.studTriCount} for studs)<br />');
     query('#progress').appendHtml('# of total edges: ${model.edgeCount} (+ ${model.studEdgeCount} for studs)<br />'); 
 
+    r.Object3D modelRoot = new r.Object3D();
+    
     r.Model rm = new r.Model.fromModel(rc, model);
+
+    BoundingBox bbox = rm.boundingBox;
+    Vec4 center = -((bbox.min + bbox.max) * 0.5);
+    print(center);
+    rm.position = center;
+    rm.updateMatrix();
+
     nv = new r.NormalVisualizer.fromModel(rc, model);
     nv.visible = false;
     rm.add(nv);
+    modelRoot.add(rm);
     model.recycle();
 
     querySelector('#progressBar').style.display = 'none';
@@ -151,7 +165,7 @@ void readFile(List<String> response) {
       slider.attributes['value'] = cur.toString();
     };
 
-    blah(rm);
+    blah(rm, modelRoot);
   }
 
   void probeDatFiles() {

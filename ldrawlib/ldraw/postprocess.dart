@@ -416,9 +416,7 @@ class MeshGroup {
       for (int i = 0; i < featureMap.matrices.length; ++i) {
         matrix.multiply(featureMap.matrices[i], localMat);
         rotmat.clone(localMat);
-        rotmat.val[3] = 0.0;
-        rotmat.val[7] = 0.0;
-        rotmat.val[11] = 0.0;
+        rotmat.setTranslation(0.0, 0.0, 0.0, row: true);
         bool flip = (rotmat.det() < 0.0) != featureMap.flipNormal[i];
 
         for (int j = 0; j < feature.triCount(defaultCat) * 3; j += 9) {
@@ -505,9 +503,7 @@ class MeshGroup {
       Mat4 localMat = item[3];
       Mat4 rotMat = new Mat4();
       rotMat.clone(localMat);
-      rotMat.val[3] = 0.0;
-      rotMat.val[7] = 0.0;
-      rotMat.val[11] = 0.0;
+      rotMat.setTranslation(0.0, 0.0, 0.0, row: true);
 
       Vec4 v1 = new Vec4();
       Vec4 v2 = new Vec4();
@@ -934,8 +930,9 @@ class Part {
 
     features.forEach((name, data) {
       Part p = GlobalFeatureSet.instance.query(name);
-      if (p != null)
+      if (p != null && data[category] != null){
         count += p.edgeCount() * data[category].matrices.length;
+      }
     });
 
     return count;
@@ -1200,6 +1197,11 @@ class BoundingBox {
       if (point.z < min.z)
         min.z = point.z;
     }
+  }
+
+  void merge(BoundingBox other) {
+    update(other.min);
+    update(other.max);
   }
 
   Vec4 center() {

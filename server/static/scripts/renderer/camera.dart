@@ -3,47 +3,12 @@
 part of renderer;
 
 class Camera extends Object3D {
-
   Mat4 matrixWorldInverse;
   Mat4 projectionMatrix;
 
-  static Mat4 m1_ = new Mat4.identity();
-  static Vec4 x_ = new Vec4();
-  static Vec4 y_ = new Vec4();
-  static Vec4 z_ = new Vec4();
-  
   Camera() : super() {
     matrixWorldInverse = new Mat4.identity();
     projectionMatrix = new Mat4.identity();
-  }
-
-  static void lookAt_(Mat4 mat, Vec4 eye, Vec4 target, [Vec4 up = null]) {
-    if (up == null)
-      up = kUpside;
-    
-    eye.subtract(target, z_);
-    if (z_.length == 0.0)
-      z_.z = 1.0;
-
-    Vec4.cross(up, z_, x_);
-    x_.normalize(x_);
-    if (x_.length == 0.0) {
-      z_.x += 0.0001;
-      Vec4.cross(up, z_, x_);
-      x_.normalize();
-    }
-    
-    Vec4.cross(z_, x_, y_);
-    
-    Float32List te = mat.val;
-    te[0] = x.x; te[4] = y.x; te[8] = z.x;
-    te[1] = x.y; te[5] = y.y; te[9] = z.y;
-    te[2] = x.z; te[6] = y.z; te[10] = z.z;
-  }
-
-  void lookAt(Vec4 vector, [Vec4 up = null]) {
-    lookAt_(m1_, position, vector, up);
-    quaternion.setFromRotationMatrix(m1_);
   }
 
   void updateWorldMatrix([bool force = false]) {

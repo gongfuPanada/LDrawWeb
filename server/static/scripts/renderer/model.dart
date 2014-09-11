@@ -121,6 +121,7 @@ class Model extends Geometry {
   List<MeshCategory> renderingOrder;
   List<int> steps;
   List<Index> indices;
+  BoundingBox boundingBox;
 
   Function onIndexChange;
   
@@ -221,6 +222,10 @@ class Model extends Geometry {
 
     indices = model.indices;
     steps = model.steps;
+
+    boundingBox = new BoundingBox();
+    for (Index i in indices)
+      boundingBox.merge(i.boundingBox);
   }
 
   void render(Renderer context) {
