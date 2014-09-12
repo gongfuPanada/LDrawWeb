@@ -62,7 +62,6 @@ void blah(Model model, r.Object3D modelRoot) {
       return;
 
     camera.position.z += e.deltaY * 0.5;
-    camera.position.y += e.deltaY * 0.5;
     camera.lookAt(center);
     camera.updateWorldMatrix();
 

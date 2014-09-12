@@ -7,7 +7,13 @@ attribute vec3 color;
 
 uniform mat4 projection;
 uniform mat4 modelView;
+uniform mat4 viewMatrix;
+uniform mat4 modelMatrix;
 uniform float translation;
+
+/* not used */
+uniform vec4 lightColor;
+uniform vec4 lightDirection;
 
 varying vec3 vColor;
 

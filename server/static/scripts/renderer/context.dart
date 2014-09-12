@@ -3,11 +3,16 @@
 part of renderer;
 
 class GlobalUniformValues {
+  // Matrix
   Mat4 projectionMatrix;
   Mat4 modelViewMatrix;
   Mat4 viewMatrix;
   Mat4 modelMatrix;
   Mat3 normalMatrix;
+
+  // Light
+  Vec4 lightDirection;
+  Vec4 lightColor;
 }
 
 class Renderer {
@@ -74,6 +79,18 @@ class Renderer {
     camera.updateWorldMatrix();
     camera.projectionMatrix.multiply(camera.matrixWorldInverse, _projScreenMatrix);
     _frustum.setFromMatrix(_projScreenMatrix);
+
+    if (scene.light == null) {
+      if (uniformValues.lightColor == null && uniformValues.lightDirection == null) {
+        // add default values;
+        uniformValues.lightColor = new Vec4.xyz(1.0, 1.0, 1.0);
+        uniformValues.lightDirection = new Vec4.xyz(0.0, 0.5, 0.7);
+        uniformValues.lightDirection.normalize(uniformValues.lightDirection);
+      }
+    } else {
+      uniformValues.lightColor = scene.light.color;
+      uniformValues.lightDirection = scene.light.direction;
+    }
 
     uniformValues.viewMatrix = camera.matrixWorldInverse;
     uniformValues.projectionMatrix = camera.projectionMatrix;

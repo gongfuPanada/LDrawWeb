@@ -7,30 +7,34 @@ class Scene extends Object3D {
   bool autoUpdate;
   bool matrixAutoUpdate;
 
-  List<Light> lights;
+  Light light; // We use only one light
   List<Object3D> objects;
 
   Scene() : super() {
     autoUpdate = true;
     matrixAutoUpdate = false;
 
-    lights = new List<Light>();
+    light = null;
     objects = new List<Object3D>();
 
   }
   
   void _add(Object3D obj) {
-    if (obj is Light)
-      lights.add(obj);
-    else
+    if (obj is Light) {
+      if (light != null)
+        remove(light);
+      light = obj;
+    } else {
       objects.add(obj);
+    }
   }
 
   void _remove(Object3D obj) {
-    if (obj is Light)
-      lights.remove(obj);
-    else
+    if (obj is Light) {
+
+    } else {
       objects.remove(obj);
+    }
   }
 
 }

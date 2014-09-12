@@ -443,15 +443,15 @@ class MeshGroup {
             vertices[index + 6] = v1.x;
             vertices[index + 7] = v1.y;
             vertices[index + 8] = v1.z;
-            normals[index]      = n3.x;
-            normals[index + 1]  = n3.y;
-            normals[index + 2]  = n3.z;
-            normals[index + 3]  = n2.x;
-            normals[index + 4]  = n2.y;
-            normals[index + 5]  = n2.z;
-            normals[index + 6]  = n1.x;
-            normals[index + 7]  = n1.y;
-            normals[index + 8]  = n1.z;
+            normals[index]      = -n3.x;
+            normals[index + 1]  = -n3.y;
+            normals[index + 2]  = -n3.z;
+            normals[index + 3]  = -n2.x;
+            normals[index + 4]  = -n2.y;
+            normals[index + 5]  = -n2.z;
+            normals[index + 6]  = -n1.x;
+            normals[index + 7]  = -n1.y;
+            normals[index + 8]  = -n1.z;
           } else {
             vertices[index]     = v1.x;
             vertices[index + 1] = v1.y;

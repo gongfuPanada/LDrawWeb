@@ -17,6 +17,8 @@ class BaseShader {
   UniformLocation uViewMatrix;
   UniformLocation uModelMatrix;
   UniformLocation uTranslationFactor;
+  UniformLocation uLightColor;
+  UniformLocation uLightDirection;
   RenderingContext gl;
 
   BaseShader(Renderer context, String vsText, String fsText) {
@@ -34,6 +36,8 @@ class BaseShader {
     uViewMatrix = gl.getUniformLocation(program, 'viewMatrix');
     uModelMatrix = gl.getUniformLocation(program, 'modelMatrix');
     uTranslationFactor = gl.getUniformLocation(program, 'translation');
+    uLightColor = gl.getUniformLocation(program, 'lightColor');
+    uLightDirection = gl.getUniformLocation(program, 'lightDirection');
   }
 
   void use() {
@@ -68,6 +72,8 @@ class BaseShader {
     gl.uniformMatrix4fv(uModelViewMatrix, false, g.modelViewMatrix.val);
     gl.uniformMatrix4fv(uModelMatrix, false, g.modelMatrix.val);
     gl.uniformMatrix4fv(uViewMatrix, false, g.viewMatrix.val);
+    gl.uniform4fv(uLightColor, g.lightColor.val);
+    gl.uniform4fv(uLightDirection, g.lightDirection.val);
   }
 
   void unbind() {}
