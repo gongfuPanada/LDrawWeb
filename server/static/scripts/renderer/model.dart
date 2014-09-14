@@ -325,6 +325,7 @@ class Model extends Geometry {
             gl.drawArrays(TRIANGLES, idx.studStart[c], idx.studCount[c]);
           }
         }
+        gl.uniform1f(s.uTranslationFactor, 0.0);
       }
     }
     
@@ -395,6 +396,7 @@ class Model extends Geometry {
           gl.drawArrays(LINES, idx.studEdgeStart, idx.studEdgeCount);
         }
       }
+      gl.uniform1f(s.uTranslationFactor, 0.0);
     }
   }
 
