@@ -21,6 +21,5 @@ void main(void) {
      vec4 pos4 = vec4(position, 1.0);
      pos4.y -= (translation * translation) * 500.0;
      gl_Position = projection * modelView * pos4;
-     vColor = color;
-     vColor.w = 1.0 - translation;
+     vColor = vec4(color, 1.0 - translation);
 }
