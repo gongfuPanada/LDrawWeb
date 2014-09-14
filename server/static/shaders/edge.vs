@@ -15,7 +15,7 @@ uniform float translation;
 uniform vec4 lightColor;
 uniform vec4 lightDirection;
 
-varying vec3 vColor;
+varying vec4 vColor;
 
 void main(void) {
      vec4 pos4 = vec4(position, 1.0);
