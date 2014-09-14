@@ -4,6 +4,7 @@ uniform mat4 viewMatrix;
 
 uniform vec4 color;
 uniform bool isBfcCertified;
+uniform float translation;
 
 uniform vec4 lightColor;
 uniform vec4 lightDirection;
@@ -22,11 +23,12 @@ varying vec3 vNormal;
 void main() {
     if (!isBfcCertified) {
         gl_FragColor = color;
+	gl_FragColor.y *= (1.0 - translation);
         return;
     }
 
     vec3 diffuse = color.xyz;
-    float opacity = color.w;
+    float opacity = color.w * (1.0 - translation);
 
     gl_FragColor = vec4( vec3 ( 1.0 ), opacity );
 

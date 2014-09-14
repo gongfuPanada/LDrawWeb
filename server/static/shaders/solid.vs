@@ -19,7 +19,8 @@ void main() {
     vec3 transformedNormal = normalMatrix * objectNormal;
     vNormal = normalize( transformedNormal );
 
-    vec4 adjustedPosition = vec4(position, 1.0) + (vec4(0.0, -1.0, 0.0, 1.0) * 1000.0 * translation);
+    vec4 adjustedPosition = vec4(position, 1.0);
+    adjustedPosition.y -= (translation * translation) * 500.0;
     vec4 mvPosition = modelView * adjustedPosition;
 
     gl_Position = projection * mvPosition;

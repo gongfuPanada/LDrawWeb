@@ -102,8 +102,8 @@ class NormalVisualizer extends Geometry {
 }
 
 class Model extends Geometry {
-  num DEFAULT_PART_FALL_DURATION = 500.0;
-  num DEFAULT_PART_DELAY_DURATION = 75.0;
+  static const num DEFAULT_PART_FALL_DURATION = 500.0;
+  static const num DEFAULT_PART_DELAY_DURATION = 75.0;
 
   Map<MeshCategory, Buffer> vertexBuffers;
   Map<MeshCategory, Buffer> normalBuffers;
@@ -130,11 +130,16 @@ class Model extends Geometry {
   int currentStep;
   int currentIndex;
   int startIndex;
+  int targetIndex;
   num timeBase;
+  num time;
   bool renderStuds = true;
   bool animating;
+  bool animateBackwards;
+  List animationQueue;
+
   bool get initiated {
-    return currentStep != -1;
+    return currentIndex != -1;
   }
 
   Model.fromModel(Renderer context, Model model) : super() {
@@ -146,6 +151,7 @@ class Model extends Geometry {
 
     currentStep = -1;
     currentIndex = -1;
+    animationQueue = new List();
 
     renderingOrder = new List.from(model.meshChunks.keys);
     renderingOrder.sort();
@@ -228,14 +234,21 @@ class Model extends Geometry {
       boundingBox.merge(i.boundingBox);
   }
 
-  void render(Renderer context) {
-    if (currentStep == -1)
-      return;
+  num getTranslationFactor(num timing) {
+    if (animateBackwards)
+      return (time - timing) / partFallDuration;
+    else
+      return 1.0 - (time - timing) / partFallDuration;
+  }
 
+  void render(Renderer context) {
     MaterialManager materials = MaterialManager.instance;
     RenderingContext gl = context.gl;
 
     /* render triangles */
+
+    int si = startIndex < 0 ? 0 : startIndex;
+    int ci = currentIndex < 0 ? 0 : currentIndex;
 
     for (MeshCategory c in renderingOrder) {
       materials.bind(c.color);
@@ -244,6 +257,7 @@ class Model extends Geometry {
       s.bindCommonUniforms();
       gl.uniformMatrix3fv(s.normalMatrix, false, context.uniformValues.normalMatrix.val);
       gl.uniform1i(s.isBfcCertified, c.bfc ? 1 : 0);
+      gl.uniform1f(s.uTranslationFactor, 0.0);
 
       if (c.bfc)
         gl.enable(CULL_FACE);
@@ -259,7 +273,7 @@ class Model extends Geometry {
       gl.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
       gl.bindBuffer(ARRAY_BUFFER, normalBuffers[c]);
       gl.vertexAttribPointer(s.vertexNormal, 3, FLOAT, false, 0, 0);
-
+      
       if (currentIndex >= 0) {
         Index idx = indices[currentIndex];
         gl.drawArrays(TRIANGLES, 0, idx.start[c] + idx.count[c]);
@@ -275,6 +289,40 @@ class Model extends Geometry {
           if (currentIndex >= 0) {
             Index idx = indices[currentIndex];
             gl.drawArrays(TRIANGLES, 0, idx.studStart[c] + idx.studCount[c]);
+          }
+        }
+      }
+
+      if (animating) {
+        gl.enable(BLEND);
+        for (int i = ci - si; i < animationQueue.length; ++i) {
+          int index = animationQueue[i][0];
+          num timing = animationQueue[i][1];
+
+          if (index <= currentIndex)
+            continue;
+          else if (time > timing + partFallDuration)
+            break;
+
+          Index idx = indices[index];
+          num translation = getTranslationFactor(timing);
+          if (translation > 1.0 || translation < 0.0)
+            continue;
+
+          gl.bindBuffer(ARRAY_BUFFER, vertexBuffers[c]);
+          gl.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
+          gl.bindBuffer(ARRAY_BUFFER, normalBuffers[c]);
+          gl.vertexAttribPointer(s.vertexNormal, 3, FLOAT, false, 0, 0);
+          gl.uniform1f(s.uTranslationFactor, translation);
+          gl.drawArrays(TRIANGLES, idx.start[c], idx.count[c]);
+          
+          if (renderStuds && studVertexBuffers != null && studVertexBuffers.containsKey(c)) {
+            gl.bindBuffer(ARRAY_BUFFER, studVertexBuffers[c]);
+            gl.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
+            gl.bindBuffer(ARRAY_BUFFER, studNormalBuffers[c]);
+            gl.vertexAttribPointer(s.vertexNormal, 3, FLOAT, false, 0, 0);
+            
+            gl.drawArrays(TRIANGLES, idx.studStart[c], idx.studCount[c]);
           }
         }
       }
@@ -296,6 +344,7 @@ class Model extends Geometry {
 
     if (currentIndex >= 0) {
       Index idx = indices[currentIndex];
+      gl.uniform1f(s.uTranslationFactor, 0.0);
       gl.drawArrays(LINES, 0, idx.edgeStart + idx.edgeCount);
     }
 
@@ -305,56 +354,111 @@ class Model extends Geometry {
         gl.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
         gl.bindBuffer(ARRAY_BUFFER, studEdgeColors);
         gl.vertexAttribPointer(s.vertexColor, 3, FLOAT, false, 0, 0);
-        
+
         if (currentIndex >= 0) {
           Index idx = indices[currentIndex];
           gl.drawArrays(LINES, 0, idx.studEdgeStart + idx.studEdgeCount);
         }
       }
     }
+
+    if (animating) {
+      for (int i = ci - si; i < animationQueue.length; ++i) {
+        int index = animationQueue[i][0];
+        num timing = animationQueue[i][1];
+        
+        if (index <= currentIndex)
+          continue;
+        else if (time > timing + partFallDuration)
+          break;
+        
+        Index idx = indices[index];
+        num translation = getTranslationFactor(timing);
+        if (translation > 1.0 || translation < 0.0)
+          continue;
+
+        gl.bindBuffer(ARRAY_BUFFER, edgeVertices);
+        gl.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
+        gl.bindBuffer(ARRAY_BUFFER, edgeColors);
+        gl.vertexAttribPointer(s.vertexColor, 3, FLOAT, false, 0, 0);
+
+        gl.uniform1f(s.uTranslationFactor, translation);
+        gl.drawArrays(LINES, idx.edgeStart, idx.edgeCount);
+        
+        if (renderStuds && studEdgeVertices != null) {
+          gl.bindBuffer(ARRAY_BUFFER, studEdgeVertices);
+          gl.vertexAttribPointer(s.vertexPosition, 3, FLOAT, false, 0, 0);
+          gl.bindBuffer(ARRAY_BUFFER, studEdgeColors);
+          gl.vertexAttribPointer(s.vertexColor, 3, FLOAT, false, 0, 0);
+          
+          gl.drawArrays(LINES, idx.studEdgeStart, idx.studEdgeCount);
+        }
+      }
+    }
   }
 
-  void startAnimation(num time, [int targetStep = null]) {
+  void startAnimation(num time, {int targetStep: null, int targetIndex: null}) {
     if (animating)
       return;
-    
-    if (currentStep >= steps.length - 1)
+
+    if (targetStep != null) {
+      this.targetIndex = steps[targetStep];
+    } else if (targetIndex != null) {
+      this.targetIndex = targetIndex;
+    } else {
+      if (currentStep + 1 >= steps.length)
+        return;
+      this.targetIndex = steps[++currentStep];
+    }
+    startIndex = currentIndex;
+
+    if (startIndex == this.targetIndex)
       return;
 
     timeBase = time;
-    if (targetStep == null)
-      ++currentStep;
-    else
-      currentStep = targetStep;
+
     animating = true;
+    if (startIndex > this.targetIndex)
+      animateBackwards = true;
+    else
+      animateBackwards = false;
+
+    /* build animation queue */
+    animationQueue.clear();
+    int j = 0;
+    int start, end;
+    if (animateBackwards) {
+      start = this.targetIndex;
+      end = startIndex < 0 ? 0 : startIndex;
+    } else {
+      start = startIndex < 0 ? 0 : startIndex;
+      end = this.targetIndex;
+    }
+    for (int i = start; i <= end; ++i)
+      animationQueue.add([i, timeBase + (j++ * partDelayDuration)]);
   }
 
   void animate(num time) {
     if (!animating)
       return;
 
-    num adjustedTime = time - timeBase;
-    int prevIndex = -1;
+    this.time = time;
 
-    if (currentStep > 0)
-      prevIndex = steps[currentStep - 1];
+    num adjustedTime = time - timeBase;
+
+    int si = startIndex < 0 ? 0 : startIndex;
 
     if (adjustedTime >= partFallDuration) {
-      currentIndex = prevIndex +
+      currentIndex = si +
         ((adjustedTime - partFallDuration) / partDelayDuration).floor();
     } else {
-      currentIndex = prevIndex;
+      currentIndex = startIndex;
     }
 
     if (onIndexChange != null)
       onIndexChange(currentIndex, indices.length);
 
-    num postamble = adjustedTime - ((currentIndex - (prevIndex < 0 ? 0 : prevIndex)) *
-        partFallDuration);
-
-    //print (postamble);
-
-    if (currentIndex >= steps[currentStep])
+    if (currentIndex >= targetIndex)
       animating = false;
   }
 }
