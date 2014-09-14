@@ -363,6 +363,7 @@ class Model extends Geometry {
     }
 
     if (animating) {
+      gl.enable(BLEND);
       for (int i = ci - si; i < animationQueue.length; ++i) {
         int index = animationQueue[i][0];
         num timing = animationQueue[i][1];
